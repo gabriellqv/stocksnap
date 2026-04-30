@@ -4,6 +4,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
+import { MovementsModule } from './movements/movements.module';
 
 /**
  * @description Módulo raiz da aplicação StockSnap.
@@ -19,7 +20,7 @@ import { ProductsModule } from './products/products.module';
     AuthModule,
     CategoriesModule,
     ProductsModule,
+    MovementsModule,
   ],
 })
 export class AppModule {}
-
