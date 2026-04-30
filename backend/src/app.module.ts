@@ -1,0 +1,18 @@
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+/**
+ * @description Módulo raiz da aplicação StockSnap.
+ *
+ * Atua como ponto de composição central do NestJS, orquestrando o registro
+ * de todos os controllers e providers da aplicação. Conforme o projeto
+ * evolui, os módulos de domínio (Auth, Products, Categories, etc.)
+ * devem ser importados aqui através do array `imports`.
+ */
+@Module({
+  imports: [],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}

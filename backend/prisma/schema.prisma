@@ -1,0 +1,11 @@
+// Schema principal do StockSnap. Define os modelos de domínio
+// que o Prisma utiliza para gerar o client tipado e as migrations.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}

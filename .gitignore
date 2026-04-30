@@ -1,0 +1,38 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+.next/
+out/
+
+# Prisma (gerado automaticamente por npx prisma generate)
+generated/
+
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Docker
+pgdata/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Testes
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/settings.json
+.idea/
