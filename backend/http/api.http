@@ -1,0 +1,57 @@
+@baseUrl = http://localhost:3001/api
+
+### ==========================================
+### HEALTH CHECK
+### ==========================================
+
+# @name health_check
+GET {{baseUrl}}/
+Content-Type: application/json
+
+### ==========================================
+### AUTHENTICATION
+### ==========================================
+
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Admin Teste",
+  "email": "admin2@stocksnap.com",
+  "password": "password123"
+}
+
+###
+
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@stocksnap.com",
+  "password": "admin123"
+}
+
+###
+
+# @name login_error
+# Deve retornar 401 Unauthorized
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@stocksnap.com",
+  "password": "senhaerrada"
+}
+
+### ==========================================
+### TESTE COM TOKEN JWT (Próximos Capítulos)
+### ==========================================
+
+# Variável dinâmica que captura o token do último login realizado
+@authToken = {{login.response.body.access_token}}
+
+# Exemplo de requisição autenticada
+# GET {{baseUrl}}/alguma-rota-protegida
+# Authorization: Bearer {{authToken}}
