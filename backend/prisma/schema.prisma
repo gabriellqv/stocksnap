@@ -2,10 +2,80 @@
 // que o Prisma utiliza para gerar o client tipado e as migrations.
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum Role {
+  ADMIN     // Pode tudo: CRUD de produtos, categorias, ver dashboard
+  OPERATOR  // Só registra movimentações e visualiza
+}
+
+enum MovementType {
+  ENTRY  // Entrada de estoque (compra do fornecedor)
+  EXIT   // Saída de estoque (venda ao cliente)
+}
+
+// ==========================================
+// TABELAS
+// ==========================================
+
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String     // Nunca armazenar em texto puro - usar bcrypt
+  role      Role       @default(OPERATOR)
+  createdAt DateTime   @default(now()) @map("created_at")
+  movements Movement[]
+
+  @@map("users") // Nome real da tabela no banco
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String     @id @default(uuid())
+  name        String
+  sku         String     @unique    // Código único do produto (ex: "SHMP-DOVE-400")
+  description String?               // Opcional (? = pode ser null)
+  costPrice   Decimal    @db.Decimal(10, 2) // Preço de custo: até 99999999.99
+  sellPrice   Decimal    @db.Decimal(10, 2) // Preço de venda
+  quantity    Int        @default(0)         // Quantidade atual em estoque
+  minQuantity Int        @default(5)  @map("min_quantity") // Mínimo antes de alertar
+  categoryId  String     @map("category_id")
+  category    Category   @relation(fields: [categoryId], references: [id])
+  movements   Movement[]
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt      @map("updated_at")
+
+  @@map("products")
+}
+
+model Movement {
+  id        String       @id @default(uuid())
+  type      MovementType // ENTRY ou EXIT
+  quantity  Int          // Quantidade movimentada (sempre positivo)
+  reason    String?      // Motivo (ex: "Compra fornecedor X", "Venda balcão")
+  productId String       @map("product_id")
+  product   Product      @relation(fields: [productId], references: [id])
+  userId    String       @map("user_id")
+  user      User         @relation(fields: [userId], references: [id])
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  @@map("movements")
 }

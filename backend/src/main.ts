@@ -22,7 +22,7 @@ import { ValidationPipe } from '@nestjs/common';
  * // A função é invocada diretamente no módulo raiz:
  * void bootstrap();
  */
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');

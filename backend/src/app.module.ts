@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PrismaModule } from './prisma/prisma.module';
 
 /**
  * @description Módulo raiz da aplicação StockSnap.
@@ -11,7 +13,7 @@ import { AppService } from './app.service';
  * devem ser importados aqui através do array `imports`.
  */
 @Module({
-  imports: [],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule],
   controllers: [AppController],
   providers: [AppService],
 })
