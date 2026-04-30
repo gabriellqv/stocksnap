@@ -42,7 +42,7 @@ export class MovementsService {
       if (product.quantity < dto.quantity) {
         throw new BadRequestException(
           `Quantidade insuficiente. Estoque atual: ${product.quantity}, ` +
-          `solicitado: ${dto.quantity}`,
+            `solicitado: ${dto.quantity}`,
         );
       }
     }
@@ -65,9 +65,8 @@ export class MovementsService {
       });
 
       // ENTRY: incrementa | EXIT: decrementa (increment com negativo)
-      const quantityChange = dto.type === MovementType.ENTRY
-        ? dto.quantity
-        : -dto.quantity;
+      const quantityChange =
+        dto.type === MovementType.ENTRY ? dto.quantity : -dto.quantity;
 
       const updatedProduct = await tx.product.update({
         where: { id: dto.productId },
