@@ -1,26 +1,47 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
 import { MovementsModule } from './movements/movements.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 /**
  * @description Módulo raiz da aplicação StockSnap.
  *
  * Atua como ponto de composição central do NestJS, orquestrando o registro
- * de todos os módulos de domínio da aplicação. Conforme novos módulos
- * são adicionados (Movements, Dashboard, etc.), devem ser importados aqui.
+ * de todos os módulos de domínio e a configuração global de cache com Redis.
+ * O CacheModule é registrado como global (isGlobal: true) para que qualquer
+ * service possa injetar o CACHE_MANAGER sem precisar importar o módulo novamente.
  */
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+
+    // Configurar cache com Redis
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
+        store: await redisStore({
+          socket: {
+            host: config.get('REDIS_HOST', 'localhost'),
+            port: config.get('REDIS_PORT', 6379),
+          },
+        }),
+        ttl: 60 * 1000, // TTL padrão: 60 segundos (em milissegundos)
+      }),
+    }),
+
     PrismaModule,
     AuthModule,
     CategoriesModule,
     ProductsModule,
     MovementsModule,
+    DashboardModule,
   ],
 })
 export class AppModule {}
