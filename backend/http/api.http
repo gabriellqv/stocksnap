@@ -1,0 +1,365 @@
+@baseUrl = http://localhost:3001/api
+
+### ============================================================
+### StockSnap API - Arquivo de testes HTTP
+### Extensão necessária: REST Client (humao.rest-client)
+### ============================================================
+### Como usar:
+### 1. Instale a extensão "REST Client" no VS Code
+### 2. Rode o backend: npm run start:dev
+### 3. Execute o "Login" abaixo primeiro (clique em "Send Request")
+### 4. O token é capturado automaticamente via @authToken
+### ============================================================
+
+
+### ============================================================
+### 🔐 AUTH - Autenticação
+### ============================================================
+
+### 1. Registrar novo usuário
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Teste User",
+  "email": "teste@stocksnap.com",
+  "password": "teste123"
+}
+
+###
+
+### 2. Login (EXECUTE PRIMEIRO - o token é capturado automaticamente)
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@stocksnap.com",
+  "password": "admin123"
+}
+
+###
+
+### Variável dinâmica que captura o token do último login realizado
+@authToken = {{login.response.body.access_token}}
+
+###
+
+### 3. Login com credenciais inválidas (deve retornar 401)
+# @name login_error
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@stocksnap.com",
+  "password": "senhaerrada"
+}
+
+
+### ============================================================
+### 📁 CATEGORIAS - CRUD
+### ============================================================
+
+### 4. Listar todas as categorias (com contagem de produtos)
+# @name list_categories
+GET {{baseUrl}}/categories
+Authorization: Bearer {{authToken}}
+
+###
+
+### 5. Criar nova categoria
+# @name create_category
+POST {{baseUrl}}/categories
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Eletrônicos"
+}
+
+###
+
+### 6. Criar categoria duplicada (deve retornar 409 Conflict)
+POST {{baseUrl}}/categories
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Alimentos"
+}
+
+###
+
+### 7. Atualizar categoria (substitua o ID)
+PATCH {{baseUrl}}/categories/ID_DA_CATEGORIA
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Eletrônicos e Acessórios"
+}
+
+###
+
+### 8. Deletar categoria sem produtos (substitua pelo ID criado no #5)
+DELETE {{baseUrl}}/categories/ID_DA_CATEGORIA
+Authorization: Bearer {{authToken}}
+
+###
+
+### 9. Deletar categoria com produtos vinculados (deve retornar 409 Conflict)
+### Use o ID da categoria "Alimentos"
+DELETE {{baseUrl}}/categories/ID_DA_CATEGORIA_ALIMENTOS
+Authorization: Bearer {{authToken}}
+
+###
+
+### 10. Acessar sem token (deve retornar 401 Unauthorized)
+GET {{baseUrl}}/categories
+
+
+### ============================================================
+### 📦 PRODUTOS - CRUD com Paginação e Busca
+### ============================================================
+
+### 11. Listar produtos (página 1, limite 5)
+GET {{baseUrl}}/products?page=1&limit=5
+Authorization: Bearer {{authToken}}
+
+###
+
+### 12. Listar produtos (página 2)
+GET {{baseUrl}}/products?page=2&limit=5
+Authorization: Bearer {{authToken}}
+
+###
+
+### 13. Buscar produto por nome (case-insensitive)
+GET {{baseUrl}}/products?search=shampoo
+Authorization: Bearer {{authToken}}
+
+###
+
+### 14. Filtrar por categoria (substitua pelo ID real)
+GET {{baseUrl}}/products?categoryId=ID_DA_CATEGORIA
+Authorization: Bearer {{authToken}}
+
+###
+
+### 15. Buscar + filtrar combinados
+GET {{baseUrl}}/products?search=dove&categoryId=ID_DA_CATEGORIA_HIGIENE
+Authorization: Bearer {{authToken}}
+
+###
+
+### 16. Detalhe de um produto (substitua pelo ID)
+GET {{baseUrl}}/products/ID_DO_PRODUTO
+Authorization: Bearer {{authToken}}
+
+###
+
+### 17. Criar novo produto
+# @name create_product
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Detergente Ypê 500ml",
+  "sku": "LIM-006",
+  "costPrice": 2.50,
+  "sellPrice": 4.90,
+  "minQuantity": 10,
+  "categoryId": "ID_DA_CATEGORIA_LIMPEZA"
+}
+
+###
+
+### 18. Criar produto com SKU duplicado (deve retornar 409 Conflict)
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Produto Duplicado",
+  "sku": "ALM-001",
+  "costPrice": 1.00,
+  "sellPrice": 2.00,
+  "categoryId": "ID_DA_CATEGORIA_LIMPEZA"
+}
+
+###
+
+### 19. Criar produto sem campos obrigatórios (deve retornar 400 Bad Request)
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": ""
+}
+
+###
+
+### 20. Atualizar produto (substitua pelo ID)
+PATCH {{baseUrl}}/products/ID_DO_PRODUTO
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "sellPrice": 5.90,
+  "minQuantity": 15
+}
+
+###
+
+### 21. Deletar produto (substitua pelo ID)
+DELETE {{baseUrl}}/products/ID_DO_PRODUTO
+Authorization: Bearer {{authToken}}
+
+
+### ============================================================
+### 📊 MOVIMENTAÇÕES - Entrada/Saída de Estoque (Transação Atômica)
+### ============================================================
+
+### 22. Registrar ENTRADA de estoque (10 unidades)
+POST {{baseUrl}}/movements
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "type": "ENTRY",
+  "quantity": 10,
+  "reason": "Compra fornecedor X - NF 12345",
+  "productId": "ID_DO_PRODUTO"
+}
+
+###
+
+### 23. Registrar SAÍDA de estoque (3 unidades)
+POST {{baseUrl}}/movements
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "type": "EXIT",
+  "quantity": 3,
+  "reason": "Venda balcão - Pedido #456",
+  "productId": "ID_DO_PRODUTO"
+}
+
+###
+
+### 24. Tentar SAÍDA maior que o estoque (deve retornar 400 Bad Request)
+POST {{baseUrl}}/movements
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "type": "EXIT",
+  "quantity": 99999,
+  "reason": "Teste de validação",
+  "productId": "ID_DO_PRODUTO"
+}
+
+###
+
+### 25. Movimentação com produto inexistente (deve retornar 404)
+POST {{baseUrl}}/movements
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "type": "ENTRY",
+  "quantity": 5,
+  "productId": "00000000-0000-0000-0000-000000000000"
+}
+
+###
+
+### 26. Movimentação com tipo inválido (deve retornar 400 Bad Request)
+POST {{baseUrl}}/movements
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "type": "INVALIDO",
+  "quantity": 5,
+  "productId": "ID_DO_PRODUTO"
+}
+
+###
+
+### 27. Movimentação com quantidade zero (deve retornar 400 Bad Request)
+POST {{baseUrl}}/movements
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "type": "ENTRY",
+  "quantity": 0,
+  "productId": "ID_DO_PRODUTO"
+}
+
+###
+
+### 28. Listar todas as movimentações (paginação padrão)
+GET {{baseUrl}}/movements
+Authorization: Bearer {{authToken}}
+
+###
+
+### 29. Filtrar movimentações por produto
+GET {{baseUrl}}/movements?productId=ID_DO_PRODUTO
+Authorization: Bearer {{authToken}}
+
+###
+
+### 30. Filtrar movimentações por tipo (só entradas)
+GET {{baseUrl}}/movements?type=ENTRY
+Authorization: Bearer {{authToken}}
+
+###
+
+### 31. Filtrar movimentações por tipo (só saídas)
+GET {{baseUrl}}/movements?type=EXIT
+Authorization: Bearer {{authToken}}
+
+###
+
+### 32. Filtrar por produto + tipo combinados
+GET {{baseUrl}}/movements?productId=ID_DO_PRODUTO&type=EXIT&page=1&limit=5
+Authorization: Bearer {{authToken}}
+
+
+### ============================================================
+### 📈 DASHBOARD - Métricas Agregadas (com Cache Redis)
+### ============================================================
+
+### 33. Summary - Métricas gerais do sistema
+### (totalProducts, totalValue, criticalItems, todayMovements)
+GET {{baseUrl}}/dashboard/summary
+Authorization: Bearer {{authToken}}
+
+###
+
+### 34. Chart - Gráfico de movimentações dos últimos 7 dias
+### (array com date, entries, exits por dia)
+GET {{baseUrl}}/dashboard/chart
+Authorization: Bearer {{authToken}}
+
+###
+
+### 35. Low Stock - Produtos com estoque crítico
+### (ordenados pelo mais crítico primeiro)
+GET {{baseUrl}}/dashboard/low-stock
+Authorization: Bearer {{authToken}}
+
+###
+
+### 36. Teste de Cache: execute o summary duas vezes em sequência
+### A segunda vez deve ser significativamente mais rápida (~5ms vs ~300ms)
+### Verifique o tempo de resposta no painel do REST Client
+GET {{baseUrl}}/dashboard/summary
+Authorization: Bearer {{authToken}}
