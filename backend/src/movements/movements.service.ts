@@ -2,7 +2,10 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { MovementType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
@@ -13,15 +16,20 @@ import { QueryMovementDto } from './dto/query-movement.dto';
  * Implementa o registro de entradas e saídas de estoque com transação atômica via
  * `prisma.$transaction`, garantindo que o registro da movimentação e a atualização
  * do saldo de estoque do produto ocorram de forma indivisível.
+ * Após cada movimentação, invalida o cache do dashboard no Redis.
  */
 @Injectable()
 export class MovementsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   /**
    * @description Registra uma nova movimentação de estoque (entrada ou saída) utilizando
    * transação atômica. Valida a existência do produto e, em caso de saída, verifica
    * se há saldo suficiente antes de iniciar a transação.
+   * Após o commit, invalida o cache do dashboard para forçar dados frescos.
    *
    * @param {CreateMovementDto} dto - Payload com tipo, quantidade, motivo e ID do produto.
    * @param {string} userId - ID do usuário autenticado, extraído do token JWT pelo guard.
@@ -78,6 +86,11 @@ export class MovementsService {
         updatedStock: updatedProduct.quantity,
       };
     });
+
+    // Após a transação, invalidar o cache do dashboard
+    await this.cacheManager.del('dashboard:summary');
+    await this.cacheManager.del('dashboard:chart');
+    await this.cacheManager.del('dashboard:low-stock');
 
     return result;
   }

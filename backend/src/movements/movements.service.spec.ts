@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { MovementsService } from './movements.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { MovementType } from '@prisma/client';
 
 /**
@@ -39,6 +40,16 @@ describe('MovementsService', () => {
   };
 
   /**
+   * Mock do CACHE_MANAGER (Redis).
+   * Simula as operações de cache sem precisar de um Redis real.
+   */
+  const mockCache = {
+    del: jest.fn(),
+    get: jest.fn(),
+    set: jest.fn(),
+  };
+
+  /**
    * @description Configura o módulo de teste antes de cada caso.
    * O NestJS Testing Module replica o sistema de injeção de dependência,
    * mas substituindo providers reais por mocks controlados.
@@ -48,6 +59,7 @@ describe('MovementsService', () => {
       providers: [
         MovementsService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: CACHE_MANAGER, useValue: mockCache },
       ],
     }).compile();
 
@@ -236,6 +248,41 @@ describe('MovementsService', () => {
 
       // Assert: $transaction foi chamada exatamente 1 vez
       expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
+    });
+
+    /**
+     * Cenário: Após registrar uma movimentação com sucesso, o cache do
+     * dashboard deve ser invalidado para que a próxima requisição force
+     * uma nova query ao banco com dados atualizados.
+     */
+    it('deve invalidar cache do dashboard após movimentação', async () => {
+      mockPrisma.product.findUnique.mockResolvedValue({
+        id: 'prod-1',
+        quantity: 10,
+      });
+
+      mockPrisma.$transaction.mockImplementation(
+        (fn: (tx: unknown) => Promise<unknown>) => {
+          return fn({
+            movement: {
+              create: jest.fn().mockResolvedValue({ id: 'mov-1' }),
+            },
+            product: {
+              update: jest.fn().mockResolvedValue({ quantity: 20 }),
+            },
+          });
+        },
+      );
+
+      await service.create(
+        { type: MovementType.ENTRY, quantity: 10, productId: 'prod-1' },
+        userId,
+      );
+
+      // Verificar que as 3 chaves do dashboard foram invalidadas
+      expect(mockCache.del).toHaveBeenCalledWith('dashboard:summary');
+      expect(mockCache.del).toHaveBeenCalledWith('dashboard:chart');
+      expect(mockCache.del).toHaveBeenCalledWith('dashboard:low-stock');
     });
   });
 
