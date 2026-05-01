@@ -6,7 +6,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Search, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { toast } from 'sonner';
 import { useProductStore } from '@/stores/product-store';
 import { useCategoryStore } from '@/stores/category-store';
 import { StockBadge } from '@/components/ui/stock-badge';
@@ -47,6 +48,24 @@ export default function ProductsPage() {
     fetchProducts({ page: newPage });
   };
 
+  const handleSortQuantity = () => {
+    const isCurrentlyQuantity = query.sortBy === 'quantity';
+    let newOrder: 'asc' | 'desc' | undefined = 'desc'; // Padrão: mostra os maiores estoques
+
+    if (isCurrentlyQuantity && query.sortOrder === 'desc') {
+      newOrder = 'asc'; // Menores estoques
+    } else if (isCurrentlyQuantity && query.sortOrder === 'asc') {
+      newOrder = undefined; // Limpa ordenação
+    }
+
+    fetchProducts({
+      ...query,
+      sortBy: newOrder ? 'quantity' : undefined,
+      sortOrder: newOrder,
+      page: 1, // Reseta a paginação ao reordenar
+    });
+  };
+
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setIsModalOpen(true);
@@ -56,8 +75,9 @@ export default function ProductsPage() {
     if (!confirm(`Deseja deletar "${product.name}"?`)) return;
     try {
       await deleteProduct(product.id);
+      toast.success('Produto deletado com sucesso!');
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erro ao deletar');
+      toast.error(err instanceof Error ? err.message : 'Erro ao deletar');
     }
   };
 
@@ -125,8 +145,23 @@ export default function ProductsPage() {
               <th className="text-right px-6 py-3 text-xs font-medium text-muted uppercase">
                 Venda
               </th>
-              <th className="text-center px-6 py-3 text-xs font-medium text-muted uppercase">
-                Estoque
+              <th className="px-6 py-3 text-xs font-medium text-muted uppercase">
+                <button
+                  onClick={handleSortQuantity}
+                  className="flex w-full items-center justify-center gap-1.5 hover:text-foreground transition-colors cursor-pointer"
+                  title="Ordenar por quantidade"
+                >
+                  Estoque
+                  {query.sortBy === 'quantity' ? (
+                    query.sortOrder === 'asc' ? (
+                      <ArrowUp className="w-3.5 h-3.5" />
+                    ) : (
+                      <ArrowDown className="w-3.5 h-3.5" />
+                    )
+                  ) : (
+                    <ArrowUpDown className="w-3.5 h-3.5 opacity-50" />
+                  )}
+                </button>
               </th>
               <th className="text-right px-6 py-3 text-xs font-medium text-muted uppercase">
                 Ações

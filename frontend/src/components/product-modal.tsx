@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useProductStore } from '@/stores/product-store';
@@ -84,13 +85,17 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
 
       if (isEditing) {
         await updateProduct(product!.id, payload);
+        toast.success('Produto atualizado com sucesso!');
       } else {
         await createProduct(payload);
+        toast.success('Produto criado com sucesso!');
       }
 
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao salvar');
+      const msg = err instanceof Error ? err.message : 'Erro ao salvar';
+      setError(msg);
+      toast.error(msg);
     }
   };
 
