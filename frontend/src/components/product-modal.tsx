@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Plus, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,11 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
   const isSubmitting = useProductStore((s) => s.isSubmitting);
   const categories = useCategoryStore((s) => s.categories);
   const fetchCategories = useCategoryStore((s) => s.fetchCategories);
+  const createCategory = useCategoryStore((s) => s.createCategory);
+  const isSubmittingCategory = useCategoryStore((s) => s.isSubmitting);
+
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
 
   const [form, setForm] = useState({
     name: '',
@@ -76,7 +81,28 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
     if (isOpen && categories.length === 0) {
       fetchCategories().catch(console.error);
     }
+    // Reseta estado inline de categoria quando o modal é fechado
+    if (!isOpen) {
+      setIsCreatingCategory(false);
+      setNewCategoryName('');
+    }
   }, [isOpen, categories.length, fetchCategories]);
+
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) return;
+    setError('');
+    try {
+      const newCat = await createCategory({ name: newCategoryName.trim(), description: 'Criada via atalho' });
+      toast.success('Categoria adicionada!');
+      setIsCreatingCategory(false);
+      setNewCategoryName('');
+      setForm(prev => ({ ...prev, categoryId: newCat.id }));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro ao criar categoria';
+      setError(msg);
+      toast.error(msg);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,24 +184,75 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">
-                Categoria
-              </label>
-              <select
-                value={form.categoryId}
-                onChange={(e) =>
-                  setForm({ ...form, categoryId: e.target.value })
-                }
-                className="flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent transition-all duration-200 cursor-pointer"
-                required
-              >
-                <option value="">Selecione...</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-foreground">
+                  Categoria
+                </label>
+                {!isCreatingCategory && (
+                  <button
+                    type="button"
+                    onClick={() => setIsCreatingCategory(true)}
+                    className="text-xs text-accent hover:text-accent-hover flex items-center gap-1 font-medium transition-colors"
+                  >
+                    <Plus className="w-3 h-3" /> Nova
+                  </button>
+                )}
+              </div>
+
+              {isCreatingCategory ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Nome da categoria..."
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    className="h-10 text-sm"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleCreateCategory();
+                      } else if (e.key === 'Escape') {
+                        setIsCreatingCategory(false);
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    className="h-10 w-10 shrink-0"
+                    disabled={isSubmittingCategory || !newCategoryName.trim()}
+                    onClick={handleCreateCategory}
+                  >
+                    <Check className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10 shrink-0"
+                    onClick={() => setIsCreatingCategory(false)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <select
+                  value={form.categoryId}
+                  onChange={(e) =>
+                    setForm({ ...form, categoryId: e.target.value })
+                  }
+                  className="flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent transition-all duration-200 cursor-pointer"
+                  required
+                >
+                  <option value="">Selecione...</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <div>

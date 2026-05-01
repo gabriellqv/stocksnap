@@ -22,7 +22,7 @@ interface CategoryState {
  */
 interface CategoryActions {
   fetchCategories: () => Promise<void>;
-  createCategory: (data: CreateCategoryData) => Promise<void>;
+  createCategory: (data: CreateCategoryData) => Promise<Category>;
   updateCategory: (id: string, data: CreateCategoryData) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
   clearError: () => void;
@@ -53,9 +53,10 @@ export const useCategoryStore = create<CategoryState & CategoryActions>(
     createCategory: async (data) => {
       set({ isSubmitting: true, error: null });
       try {
-        await api.post<Category>('/categories', data);
+        const newCategory = await api.post<Category>('/categories', data);
         set({ isSubmitting: false });
         await get().fetchCategories();
+        return newCategory;
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : 'Erro ao criar categoria';
