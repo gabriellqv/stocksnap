@@ -84,7 +84,7 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} noValidate className="p-6 space-y-5">
           {error && (
             <div className="bg-status-critical-bg/10 text-status-critical-text px-4 py-3 rounded-lg text-sm border border-status-critical-text/30">
               {error}
