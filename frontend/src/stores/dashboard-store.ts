@@ -1,0 +1,55 @@
+import { create } from 'zustand';
+import { api, ApiError } from '@/lib/api';
+import type { DashboardSummary, ChartData, LowStockItem } from '@/types';
+
+interface DashboardState {
+  summary: DashboardSummary | null;
+  chart: ChartData[];
+  lowStock: LowStockItem[];
+  isLoading: boolean;
+  error: string | null;
+}
+
+interface DashboardActions {
+  fetchDashboardData: () => Promise<void>;
+  clearError: () => void;
+}
+
+/**
+ * @description Hook Zustand para gerenciamento global de estado da Dashboard.
+ * Mantém em sincronia o resumo financeiro, os dados do gráfico e a lista de itens
+ * em estoque crítico. Executa as três requisições ao backend em paralelo para maximizar a performance.
+ */
+export const useDashboardStore = create<DashboardState & DashboardActions>()((set) => ({
+  summary: null,
+  chart: [],
+  lowStock: [],
+  isLoading: true,
+  error: null,
+
+  clearError: () => set({ error: null }),
+
+  fetchDashboardData: async () => {
+    try {
+      set({ isLoading: true, error: null });
+
+      // Busca os 3 endpoints simultaneamente para otimização de latência
+      const [summaryResponse, chartResponse, lowStockResponse] = await Promise.all([
+        api.get<DashboardSummary>('/dashboard/summary'),
+        api.get<ChartData[]>('/dashboard/chart'),
+        api.get<LowStockItem[]>('/dashboard/low-stock'),
+      ]);
+
+      set({
+        summary: summaryResponse,
+        chart: chartResponse,
+        lowStock: lowStockResponse,
+        isLoading: false,
+      });
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : 'Erro ao carregar os dados da Dashboard';
+      set({ error: message, isLoading: false });
+      throw err;
+    }
+  },
+}));
