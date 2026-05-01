@@ -32,6 +32,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
   const updateProduct = useProductStore((s) => s.updateProduct);
   const isSubmitting = useProductStore((s) => s.isSubmitting);
   const categories = useCategoryStore((s) => s.categories);
+  const fetchCategories = useCategoryStore((s) => s.fetchCategories);
 
   const [form, setForm] = useState({
     name: '',
@@ -70,6 +71,12 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
       });
     }
   }, [product, categories]);
+
+  useEffect(() => {
+    if (isOpen && categories.length === 0) {
+      fetchCategories().catch(console.error);
+    }
+  }, [isOpen, categories.length, fetchCategories]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
