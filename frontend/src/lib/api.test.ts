@@ -89,6 +89,6 @@ describe('API Client Wrapper (api.ts)', () => {
     );
 
     // Restore location
-    window.location = originalLocation;
+    window.location = originalLocation as any;
   });
 });
