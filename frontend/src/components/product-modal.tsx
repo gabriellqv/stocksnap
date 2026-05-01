@@ -108,6 +108,27 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
     e.preventDefault();
     setError('');
 
+    if (!form.name.trim()) {
+      setError('O nome do produto é obrigatório.');
+      return;
+    }
+    if (!form.sku.trim()) {
+      setError('O SKU do produto é obrigatório.');
+      return;
+    }
+    if (!form.categoryId) {
+      setError('Selecione uma categoria ou crie uma nova.');
+      return;
+    }
+    if (!form.costPrice || isNaN(parseFloat(form.costPrice))) {
+      setError('Insira um preço de custo válido.');
+      return;
+    }
+    if (!form.sellPrice || isNaN(parseFloat(form.sellPrice))) {
+      setError('Insira um preço de venda válido.');
+      return;
+    }
+
     try {
       const payload = {
         ...form,
@@ -149,7 +170,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="p-6 space-y-4">
           {error && (
             <div className="bg-destructive-muted border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
               {error}
