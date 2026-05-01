@@ -28,6 +28,7 @@ export default function ProductsPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
@@ -71,13 +72,19 @@ export default function ProductsPage() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (product: Product) => {
-    if (!confirm(`Deseja deletar "${product.name}"?`)) return;
+  const handleDelete = (product: Product) => {
+    setProductToDelete(product);
+  };
+
+  const confirmDelete = async () => {
+    if (!productToDelete) return;
     try {
-      await deleteProduct(product.id);
+      await deleteProduct(productToDelete.id);
       toast.success('Produto deletado com sucesso!');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erro ao deletar');
+    } finally {
+      setProductToDelete(null);
     }
   };
 
@@ -264,6 +271,34 @@ export default function ProductsPage() {
         onClose={handleModalClose}
         product={editingProduct}
       />
+
+      {productToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-surface border border-border w-full max-w-sm rounded-xl p-6 shadow-2xl flex flex-col gap-4">
+            <h3 className="text-lg font-bold text-foreground">
+              Confirmar Exclusão
+            </h3>
+            <p className="text-muted text-sm leading-relaxed">
+              Tem certeza que deseja deletar o produto{' '}
+              <strong className="text-foreground">
+                {productToDelete.name}
+              </strong>
+              ? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-3 justify-end mt-2">
+              <Button
+                variant="outline"
+                onClick={() => setProductToDelete(null)}
+              >
+                Cancelar
+              </Button>
+              <Button variant="destructive" onClick={confirmDelete}>
+                Deletar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
