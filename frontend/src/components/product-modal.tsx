@@ -92,7 +92,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
     if (!newCategoryName.trim()) return;
     setError('');
     try {
-      const newCat = await createCategory({ name: newCategoryName.trim(), description: 'Criada via atalho' });
+      const newCat = await createCategory({ name: newCategoryName.trim() });
       toast.success('Categoria adicionada!');
       setIsCreatingCategory(false);
       setNewCategoryName('');
