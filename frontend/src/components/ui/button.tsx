@@ -15,11 +15,11 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
  * @description Mapeamento de estilos por variante visual do botão.
  */
 const variantStyles = {
-  default: 'bg-accent text-white hover:bg-accent-hover',
+  default: 'bg-accent text-accent-foreground hover:bg-accent-hover',
   outline:
     'border border-border bg-transparent text-foreground hover:bg-surface hover:border-border-hover',
   ghost: 'bg-transparent text-muted hover:bg-surface hover:text-foreground',
-  destructive: 'bg-destructive text-white hover:bg-destructive/90',
+  destructive: 'bg-destructive text-accent-foreground hover:bg-destructive/90',
 };
 
 /**

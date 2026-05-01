@@ -1,15 +1,15 @@
 /**
- * Zustand store for authentication state management.
+ * @description Store Zustand para gerenciamento do estado de autenticação.
  *
- * Utilizes the `persist` middleware to automatically synchronize state
- * with localStorage. Upon application reload, the store restores the token
- * from localStorage and re-injects it into the API client via `onRehydrateStorage`.
+ * Utiliza o middleware `persist` para sincronizar automaticamente o estado
+ * com o localStorage. Ao recarregar a aplicação, o store restaura o token
+ * do localStorage e o injeta novamente no cliente da API via `onRehydrateStorage`.
  *
- * Architectural Decision: Zustand over Context API
- * 1. Zero boilerplate (no Providers, no useReducer overhead).
- * 2. Optimized renders (components only re-render when selected slices change).
- * 3. Built-in `persist` middleware for seamless localStorage integration.
- * 4. Accessible outside of React components (via `getState()`).
+ * Decisão Arquitetural: Zustand sobre Context API
+ * 1. Zero boilerplate (sem Providers, sem overhead do useReducer).
+ * 2. Renderizações otimizadas (componentes só renderizam quando o pedaço do estado selecionado muda).
+ * 3. Middleware `persist` embutido para integração transparente com localStorage.
+ * 4. Acessível fora dos componentes React (via `getState()`).
  */
 
 import { create } from 'zustand';
@@ -23,7 +23,7 @@ import type {
 } from '@/types';
 
 /**
- * Defines the schema for the authentication state properties.
+ * @description Define o esquema (schema) para as propriedades de estado da autenticação.
  */
 interface AuthState {
   user: User | null;
@@ -34,7 +34,7 @@ interface AuthState {
 }
 
 /**
- * Defines the available actions to mutate the authentication state.
+ * @description Define as ações disponíveis para mutação do estado de autenticação.
  */
 interface AuthActions {
   login: (credentials: LoginCredentials) => Promise<void>;
