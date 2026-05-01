@@ -137,6 +137,11 @@ export interface DashboardSummary {
   totalValue: number;
   criticalItems: number;
   todayMovements: number;
+  yesterdayMovements: number;
+  topProduct: {
+    name: string;
+    quantity: number;
+  } | null;
 }
 
 export interface ChartData {

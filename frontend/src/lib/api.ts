@@ -72,6 +72,7 @@ async function request<T>(
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...init,
     headers,
+    cache: 'no-store',
     body: body ? JSON.stringify(body) : undefined,
   });
 

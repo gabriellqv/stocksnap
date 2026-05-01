@@ -2,7 +2,10 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  Inject,
 } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -16,7 +19,10 @@ import { QueryProductDto } from './dto/query-product.dto';
  */
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   /**
    * @description Retorna uma lista paginada de produtos com suporte a filtros.
@@ -125,10 +131,15 @@ export class ProductsService {
       throw new NotFoundException('Categoria não encontrada');
     }
 
-    return this.prisma.product.create({
+    const newProduct = await this.prisma.product.create({
       data: dto,
       include: { category: true },
     });
+
+    await this.cacheManager.del('dashboard:summary');
+    await this.cacheManager.del('dashboard:low-stock');
+
+    return newProduct;
   }
 
   /**
@@ -153,11 +164,16 @@ export class ProductsService {
       }
     }
 
-    return this.prisma.product.update({
+    const updatedProduct = await this.prisma.product.update({
       where: { id },
       data: dto,
       include: { category: true },
     });
+
+    await this.cacheManager.del('dashboard:summary');
+    await this.cacheManager.del('dashboard:low-stock');
+
+    return updatedProduct;
   }
 
   /**
@@ -183,7 +199,12 @@ export class ProductsService {
       );
     }
 
-    return this.prisma.product.delete({ where: { id } });
+    const deletedProduct = await this.prisma.product.delete({ where: { id } });
+
+    await this.cacheManager.del('dashboard:summary');
+    await this.cacheManager.del('dashboard:low-stock');
+
+    return deletedProduct;
   }
 
   /**
