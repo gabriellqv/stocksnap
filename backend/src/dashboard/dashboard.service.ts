@@ -19,9 +19,11 @@ export class DashboardService {
   /**
    * @description Retorna as métricas principais do dashboard: total de produtos,
    * valor total em estoque, contagem de itens críticos e movimentações do dia.
+   * Calcula também o comparativo de movimentações do dia anterior (Delta) e o
+   * produto com mais saídas nos últimos 7 dias (Top Product).
    * O resultado é cacheado por 60 segundos para evitar queries repetidas.
    *
-   * @returns {Promise<unknown>} Objeto com `totalProducts`, `totalValue`, `criticalItems` e `todayMovements`.
+   * @returns {Promise<unknown>} Objeto com as métricas do painel.
    */
   async getSummary() {
     const cacheKey = 'dashboard:summary';
@@ -45,15 +47,51 @@ export class DashboardService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const todayMovements = await this.prisma.movement.count({
-      where: { createdAt: { gte: today } },
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const [todayMovements, yesterdayMovements] = await Promise.all([
+      this.prisma.movement.count({
+        where: { createdAt: { gte: today } },
+      }),
+      this.prisma.movement.count({
+        where: { createdAt: { gte: yesterday, lt: today } },
+      }),
+    ]);
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    // Produto com mais saídas (EXIT) nos últimos 7 dias
+    const topExit = await this.prisma.movement.groupBy({
+      by: ['productId'],
+      where: { type: 'EXIT', createdAt: { gte: sevenDaysAgo } },
+      _sum: { quantity: true },
+      orderBy: { _sum: { quantity: 'desc' } },
+      take: 1,
     });
+
+    let topProduct = null;
+    if (topExit.length > 0) {
+      const productInfo = await this.prisma.product.findUnique({
+        where: { id: topExit[0].productId },
+        select: { name: true },
+      });
+      if (productInfo) {
+        topProduct = {
+          name: productInfo.name,
+          quantity: topExit[0]._sum.quantity || 0,
+        };
+      }
+    }
 
     const result = {
       totalProducts,
       totalValue: Math.round(totalValue * 100) / 100,
       criticalItems: Number(criticalCount[0].count),
       todayMovements,
+      yesterdayMovements,
+      topProduct,
     };
 
     await this.cacheManager.set(cacheKey, result, 60000);
