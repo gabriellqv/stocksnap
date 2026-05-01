@@ -1,3 +1,8 @@
+/**
+ * @description Página principal do dashboard (rota `/`).
+ * Exibe o resumo geral do sistema com métricas de estoque.
+ * Será expandida com cards de KPIs, gráficos e tabela de itens críticos.
+ */
 export default function DashboardPage() {
   return (
     <div>

@@ -5,6 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Package } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 
+/**
+ * @description Página de autenticação do sistema (rota `/login`).
+ * Renderiza o formulário de login com validação client-side e
+ * feedback visual de erros provido pelo Zustand auth store.
+ * Após autenticação bem-sucedida, redireciona para o dashboard.
+ */
 export default function LoginPage() {
   const router = useRouter();
 

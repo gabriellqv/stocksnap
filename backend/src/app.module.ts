@@ -21,7 +21,11 @@ import { DashboardModule } from './dashboard/dashboard.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
 
-    // Configurar cache com Redis
+    /**
+     * Configuração global de cache com Redis.
+     * O TTL padrão de 60 segundos (em milissegundos) é aplicado a todas as
+     * chaves que não especificarem um valor de expiração explícito.
+     */
     CacheModule.registerAsync({
       isGlobal: true,
       inject: [ConfigService],
@@ -32,7 +36,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
             port: config.get('REDIS_PORT', 6379),
           },
         }),
-        ttl: 60 * 1000, // TTL padrão: 60 segundos (em milissegundos)
+        ttl: 60 * 1000,
       }),
     }),
 

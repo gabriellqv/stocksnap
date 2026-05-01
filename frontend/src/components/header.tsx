@@ -5,6 +5,11 @@ import { Button } from './ui/button';
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+/**
+ * @description Barra superior do layout do dashboard.
+ * Exibe o nome do usuário autenticado e um botão de logout.
+ * Consome o estado de autenticação diretamente do Zustand auth store.
+ */
 export function Header() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
