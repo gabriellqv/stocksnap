@@ -103,14 +103,30 @@ export interface PaginatedResponse<T> {
 /**
  * Tipagens de Movimentação
  */
+export type MovementType = 'ENTRY' | 'EXIT';
+
 export interface Movement {
   id: string;
-  type: 'ENTRY' | 'EXIT';
+  type: MovementType;
   quantity: number;
   reason: string | null;
   product: { name: string; sku: string };
   user: { name: string };
   createdAt: string;
+}
+
+export interface CreateMovementData {
+  type: MovementType;
+  quantity: number;
+  productId: string;
+  reason?: string;
+}
+
+export interface MovementQueryParams {
+  productId?: string;
+  type?: MovementType;
+  page?: number;
+  limit?: number;
 }
 
 /**
