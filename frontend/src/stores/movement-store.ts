@@ -23,6 +23,13 @@ interface MovementActions {
   clearError: () => void;
 }
 
+/**
+ * @description Constrói a Query String da URL baseada nos parâmetros de filtro.
+ * Utiliza a API nativa URLSearchParams para lidar com a formatação e escape corretos.
+ *
+ * @param {MovementQueryParams} params - Filtros e paginação da movimentação.
+ * @returns {string} Query string final (ex: "?productId=123&type=ENTRY&page=1").
+ */
 function buildQueryString(params: MovementQueryParams): string {
   const searchParams = new URLSearchParams();
   if (params.productId) searchParams.set('productId', params.productId);
@@ -33,6 +40,11 @@ function buildQueryString(params: MovementQueryParams): string {
   return qs ? `?${qs}` : '';
 }
 
+/**
+ * @description Hook Zustand para gerenciamento global de estado das Movimentações.
+ * Mantém em sincronia o histórico de movimentações, metadados de paginação e
+ * gerencia as interações assíncronas com o backend (GET e POST).
+ */
 export const useMovementStore = create<MovementState & MovementActions>()((set, get) => ({
   movements: [],
   meta: {

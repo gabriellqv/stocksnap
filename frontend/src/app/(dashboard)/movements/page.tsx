@@ -9,6 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { MovementType } from '@/types';
 
+/**
+ * @description Página do Dashboard dedicada ao histórico e controle de Movimentações.
+ * Conecta-se diretamente aos Stores Zustand para obter os dados em tempo real.
+ * Apresenta o log transacional através de uma tabela responsiva com paginação
+ * server-side, suportando filtros por ID de Produto e Tipo de Movimento.
+ */
 export default function MovementsPage() {
   const { movements, meta, query, isLoading, fetchMovements } = useMovementStore();
   const { products, fetchProducts } = useProductStore();

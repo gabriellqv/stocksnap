@@ -12,6 +12,15 @@ interface MovementModalProps {
   onClose: () => void;
 }
 
+/**
+ * @description Componente de Modal para inserção de novas Movimentações de Estoque.
+ * Permite ao usuário registrar entradas e saídas, forçando a seleção de um produto
+ * previamente carregado no store. Implementa validação nativa client-side rigorosa
+ * antes de despachar a transação para o Zustand/Backend.
+ *
+ * @param {MovementModalProps} props - Controle de abertura e callback de fechamento do modal.
+ * @returns {React.ReactElement | null} O componente renderizado ou nulo se fechado.
+ */
 export function MovementModal({ isOpen, onClose }: MovementModalProps) {
   const { createMovement, isLoading } = useMovementStore();
   const { products, fetchProducts } = useProductStore();
