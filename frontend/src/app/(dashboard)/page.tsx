@@ -179,7 +179,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="h-[350px] w-full">
-              <ResponsiveContainer width="100%" height="100%" minHeight={350} minWidth={0}>
+              <ResponsiveContainer width="100%" height={350}>
                 <ComposedChart data={chartDataWithVolume} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" opacity={0.4} />
                   <XAxis 
