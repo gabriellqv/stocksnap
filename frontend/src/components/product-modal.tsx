@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Plus, Check } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -88,21 +88,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
     }
   }, [isOpen, categories.length, fetchCategories]);
 
-  const handleCreateCategory = async () => {
-    if (!newCategoryName.trim()) return;
-    setError('');
-    try {
-      const newCat = await createCategory({ name: newCategoryName.trim() });
-      toast.success('Categoria adicionada!');
-      setIsCreatingCategory(false);
-      setNewCategoryName('');
-      setForm(prev => ({ ...prev, categoryId: newCat.id }));
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao criar categoria';
-      setError(msg);
-      toast.error(msg);
-    }
-  };
+  // A criação da categoria agora ocorre apenas no momento do submit do Produto
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,7 +102,11 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
       setError('O SKU do produto é obrigatório.');
       return;
     }
-    if (!form.categoryId) {
+    if (isCreatingCategory && !newCategoryName.trim()) {
+      setError('O nome da nova categoria é obrigatório.');
+      return;
+    }
+    if (!isCreatingCategory && !form.categoryId) {
       setError('Selecione uma categoria ou crie uma nova.');
       return;
     }
@@ -130,8 +120,17 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
     }
 
     try {
+      let finalCategoryId = form.categoryId;
+
+      // Se estiver criando uma nova categoria, fazemos a requisição primeiro
+      if (isCreatingCategory) {
+        const newCat = await createCategory({ name: newCategoryName.trim() });
+        finalCategoryId = newCat.id;
+      }
+
       const payload = {
         ...form,
+        categoryId: finalCategoryId,
         costPrice: parseFloat(form.costPrice),
         sellPrice: parseFloat(form.sellPrice),
         minQuantity: parseInt(form.minQuantity),
@@ -230,29 +229,20 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
                     className="h-10 text-sm"
                     autoFocus
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleCreateCategory();
-                      } else if (e.key === 'Escape') {
+                      if (e.key === 'Escape') {
                         setIsCreatingCategory(false);
                       }
                     }}
                   />
                   <Button
                     type="button"
-                    size="icon"
-                    className="h-10 w-10 shrink-0"
-                    disabled={isSubmittingCategory || !newCategoryName.trim()}
-                    onClick={handleCreateCategory}
-                  >
-                    <Check className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    type="button"
                     variant="outline"
                     size="icon"
-                    className="h-10 w-10 shrink-0"
-                    onClick={() => setIsCreatingCategory(false)}
+                    className="h-10 w-10 shrink-0 text-muted hover:text-destructive transition-colors"
+                    onClick={() => {
+                      setIsCreatingCategory(false);
+                      setNewCategoryName('');
+                    }}
                   >
                     <X className="w-4 h-4" />
                   </Button>
