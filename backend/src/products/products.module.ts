@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { CacheModule } from '@nestjs/cache-manager';
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
 
@@ -9,7 +8,6 @@ import { ProductsService } from './products.service';
  * a paginação, busca textual e validação de integridade referencial (SKU único, categoria válida).
  */
 @Module({
-  imports: [CacheModule.register()],
   controllers: [ProductsController],
   providers: [ProductsService],
 })
