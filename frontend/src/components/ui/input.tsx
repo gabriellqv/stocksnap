@@ -1,8 +1,20 @@
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
+/**
+ * @description Alias de tipo para as propriedades nativas de `<input>`.
+ * Permite extensão futura sem modificar a interface do componente.
+ */
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
+/**
+ * @description Componente de input reutilizável do design system StockSnap.
+ * Aplica estilização consistente com a paleta dark premium, incluindo
+ * transições de foco, borda accent e suporte a estados disabled.
+ *
+ * @param {InputProps} props - Propriedades nativas do elemento `<input>`.
+ * @returns {React.ReactElement} Elemento `<input>` estilizado.
+ */
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, ...props }, ref) => {
     return (

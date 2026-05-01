@@ -12,6 +12,9 @@ import {
 import { useAuthStore } from '@/stores/auth-store';
 import { cn } from '@/lib/utils';
 
+/**
+ * @description Itens do menu lateral com rota, label e ícone Lucide correspondente.
+ */
 const menuItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/products', label: 'Produtos', icon: Package },
@@ -19,6 +22,11 @@ const menuItems = [
   { href: '/categories', label: 'Categorias', icon: Tags },
 ];
 
+/**
+ * @description Barra lateral de navegação principal do dashboard.
+ * Renderiza o logo, os links de navegação com estado ativo baseado na rota atual,
+ * e o painel do usuário autenticado com botão de logout.
+ */
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -33,7 +41,6 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 bg-surface border-r border-border h-screen flex flex-col">
-      {/* Logo */}
       <div className="p-6 border-b border-border">
         <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
           <Package className="w-6 h-6 text-accent" />
@@ -42,7 +49,6 @@ export function Sidebar() {
         <p className="text-sm text-muted mt-1">Controle de Estoque</p>
       </div>
 
-      {/* Menu */}
       <nav className="flex-1 p-4 space-y-1">
         {menuItems.map((item) => {
           const isActive = pathname === item.href;
@@ -64,7 +70,6 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* User */}
       <div className="p-4 border-t border-border">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-accent-muted rounded-full flex items-center justify-center">

@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   description: 'Sistema de controle de estoque para pequenos comércios',
 };
 
+/**
+ * @description Layout raiz da aplicação Next.js.
+ * Configura as fontes Inter (interface) e JetBrains Mono (dados técnicos)
+ * via `next/font`, injeta as CSS variables no elemento `<html>` e aplica
+ * a paleta dark premium como padrão global.
+ */
 export default function RootLayout({
   children,
 }: {

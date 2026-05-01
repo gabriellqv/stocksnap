@@ -55,8 +55,6 @@ export class MovementsService {
       }
     }
 
-    // TRANSAÇÃO ATÔMICA: criação da movimentação + atualização do saldo
-    // acontecem juntas ou nenhuma é persistida.
     const result = await this.prisma.$transaction(async (tx) => {
       const movement = await tx.movement.create({
         data: {
@@ -72,7 +70,6 @@ export class MovementsService {
         },
       });
 
-      // ENTRY: incrementa | EXIT: decrementa (increment com negativo)
       const quantityChange =
         dto.type === MovementType.ENTRY ? dto.quantity : -dto.quantity;
 
@@ -87,7 +84,6 @@ export class MovementsService {
       };
     });
 
-    // Após a transação, invalidar o cache do dashboard
     await this.cacheManager.del('dashboard:summary');
     await this.cacheManager.del('dashboard:chart');
     await this.cacheManager.del('dashboard:low-stock');

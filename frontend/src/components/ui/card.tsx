@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
+/**
+ * @description Container principal do componente Card.
+ * Aplica borda, fundo surface e sombra sutil conforme o design system dark premium.
+ */
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -16,6 +20,9 @@ const Card = React.forwardRef<
 ));
 Card.displayName = 'Card';
 
+/**
+ * @description Seção de cabeçalho do Card com espaçamento vertical padronizado.
+ */
 const CardHeader = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -28,6 +35,9 @@ const CardHeader = React.forwardRef<
 ));
 CardHeader.displayName = 'CardHeader';
 
+/**
+ * @description Título do Card renderizado como `<h3>` com tipografia semibold e tracking compacto.
+ */
 const CardTitle = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
@@ -40,6 +50,9 @@ const CardTitle = React.forwardRef<
 ));
 CardTitle.displayName = 'CardTitle';
 
+/**
+ * @description Área de conteúdo principal do Card com padding horizontal e inferior.
+ */
 const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
