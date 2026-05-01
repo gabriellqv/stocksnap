@@ -22,10 +22,22 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [validationError, setValidationError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
+    setValidationError('');
+
+    if (!email || !email.includes('@')) {
+      setValidationError('Por favor, insira um e-mail válido.');
+      return;
+    }
+
+    if (!password) {
+      setValidationError('Por favor, insira sua senha.');
+      return;
+    }
 
     try {
       await login({ email, password });
@@ -47,13 +59,13 @@ export default function LoginPage() {
             <p className="text-muted">Entre na sua conta</p>
           </div>
 
-          {error && (
+          {(error || validationError) && (
             <div className="bg-destructive-muted text-destructive px-4 py-3 rounded-lg mb-6 text-sm border border-destructive/20">
-              {error}
+              {error || validationError}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} noValidate className="space-y-5">
             <div>
               <label
                 htmlFor="email"

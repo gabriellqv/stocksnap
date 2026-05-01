@@ -42,11 +42,18 @@ export class ProductsService {
       where.categoryId = categoryId;
     }
 
+    const orderBy: any = {};
+    if (query.sortBy) {
+      orderBy[query.sortBy] = query.sortOrder || 'asc';
+    } else {
+      orderBy.name = 'asc';
+    }
+
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
         where,
         include: { category: true },
-        orderBy: { name: 'asc' },
+        orderBy,
         skip: (page - 1) * limit,
         take: limit,
       }),

@@ -57,6 +57,8 @@ function buildQueryString(params: ProductQueryParams): string {
   if (params.categoryId) searchParams.set('categoryId', params.categoryId);
   if (params.page) searchParams.set('page', String(params.page));
   if (params.limit) searchParams.set('limit', String(params.limit));
+  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
+  if (params.sortOrder) searchParams.set('sortOrder', params.sortOrder);
   const qs = searchParams.toString();
   return qs ? `?${qs}` : '';
 }

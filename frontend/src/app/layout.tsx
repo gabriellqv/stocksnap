@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 const inter = Inter({
@@ -37,6 +38,20 @@ export default function RootLayout({
     >
       <body className="bg-background text-foreground antialiased font-sans">
         {children}
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            unstyled: true,
+            classNames: {
+              toast: 'w-full flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl bg-surface font-sans',
+              title: 'text-sm font-medium text-foreground',
+              description: 'text-sm text-muted',
+              success: 'border-status-ok-text/30 text-status-ok-text',
+              error: 'border-status-critical-text/30 text-status-critical-text',
+              icon: 'w-5 h-5 flex-shrink-0',
+            }
+          }}
+        />
       </body>
     </html>
   );

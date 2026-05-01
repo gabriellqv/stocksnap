@@ -84,6 +84,8 @@ export interface ProductQueryParams {
   categoryId?: string;
   page?: number;
   limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface PaginationMeta {
