@@ -71,7 +71,7 @@ export class DashboardService {
       take: 1,
     });
 
-    let topProduct = null;
+    let topProduct: { name: string; quantity: number } | null = null;
     if (topExit.length > 0) {
       const productInfo = await this.prisma.product.findUnique({
         where: { id: topExit[0].productId },
