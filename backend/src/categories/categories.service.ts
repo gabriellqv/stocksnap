@@ -62,6 +62,16 @@ export class CategoriesService {
   async update(id: string, dto: UpdateCategoryDto) {
     await this.findOneOrFail(id);
 
+    if (dto.name) {
+      const existing = await this.prisma.category.findUnique({
+        where: { name: dto.name },
+      });
+
+      if (existing && existing.id !== id) {
+        throw new ConflictException(`Categoria "${dto.name}" já existe`);
+      }
+    }
+
     return this.prisma.category.update({
       where: { id },
       data: dto,
