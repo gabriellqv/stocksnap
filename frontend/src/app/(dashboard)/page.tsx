@@ -66,11 +66,13 @@ export default function DashboardPage() {
     );
   }
 
-  // Calcula a tendência (Delta) de movimentações
-  const movementDiff = summary.todayMovements - summary.yesterdayMovements;
-  const movementDelta = summary.yesterdayMovements === 0 
-    ? (summary.todayMovements > 0 ? 100 : 0)
-    : Math.round((movementDiff / summary.yesterdayMovements) * 100);
+  // Calcula a tendência (Delta) de movimentações de forma segura (previne NaN caso o cache do Redis não tenha expirado ainda)
+  const yMov = summary.yesterdayMovements || 0;
+  const tMov = summary.todayMovements || 0;
+  const movementDiff = tMov - yMov;
+  const movementDelta = yMov === 0 
+    ? (tMov > 0 ? 100 : 0)
+    : Math.round((movementDiff / yMov) * 100);
 
   // Calcula volume total do dia pro gráfico misto (linha)
   const chartDataWithVolume = chart.map(c => ({
@@ -164,7 +166,7 @@ export default function DashboardPage() {
                 {movementDelta > 0 ? '+' : ''}{movementDelta}%
               </Badge>
             </div>
-            <p className="text-xs text-muted mt-1">Vs. ontem ({summary.yesterdayMovements})</p>
+            <p className="text-xs text-muted mt-1">Vs. ontem ({yMov})</p>
           </CardContent>
         </Card>
       </div>
