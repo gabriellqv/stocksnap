@@ -7,6 +7,8 @@
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { useProductStore } from '@/stores/product-store';
 import { useCategoryStore } from '@/stores/category-store';
 import type { Product } from '@/types';
@@ -103,7 +105,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
           </h2>
           <button
             onClick={onClose}
-            className="text-muted hover:text-foreground transition-colors"
+            className="text-muted hover:text-foreground transition-colors cursor-pointer"
           >
             <X className="w-5 h-5 cursor-pointer" />
           </button>
@@ -121,11 +123,10 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
               <label className="block text-sm font-medium text-foreground mb-1">
                 Nome
               </label>
-              <input
+              <Input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full px-3 py-2 bg-background border border-border text-foreground rounded-lg focus:ring-2 focus:ring-accent/40 outline-none"
                 required
               />
             </div>
@@ -134,11 +135,11 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
               <label className="block text-sm font-medium text-foreground mb-1">
                 SKU
               </label>
-              <input
+              <Input
                 type="text"
                 value={form.sku}
                 onChange={(e) => setForm({ ...form, sku: e.target.value })}
-                className="w-full px-3 py-2 bg-background border border-border text-foreground font-mono text-sm rounded-lg focus:ring-2 focus:ring-accent/40 outline-none"
+                className="font-mono text-sm"
                 placeholder="HIG-001"
                 required
               />
@@ -153,7 +154,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
                 onChange={(e) =>
                   setForm({ ...form, categoryId: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-background border border-border text-foreground rounded-lg focus:ring-2 focus:ring-accent/40 outline-none"
+                className="flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent transition-all duration-200 cursor-pointer"
                 required
               >
                 <option value="">Selecione...</option>
@@ -169,7 +170,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
               <label className="block text-sm font-medium text-foreground mb-1">
                 Preço de Custo
               </label>
-              <input
+              <Input
                 type="number"
                 step="0.01"
                 min="0"
@@ -177,7 +178,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
                 onChange={(e) =>
                   setForm({ ...form, costPrice: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-background border border-border text-foreground font-mono text-sm rounded-lg focus:ring-2 focus:ring-accent/40 outline-none"
+                className="font-mono text-sm"
                 required
               />
             </div>
@@ -186,7 +187,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
               <label className="block text-sm font-medium text-foreground mb-1">
                 Preço de Venda
               </label>
-              <input
+              <Input
                 type="number"
                 step="0.01"
                 min="0"
@@ -194,7 +195,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
                 onChange={(e) =>
                   setForm({ ...form, sellPrice: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-background border border-border text-foreground font-mono text-sm rounded-lg focus:ring-2 focus:ring-accent/40 outline-none"
+                className="font-mono text-sm"
                 required
               />
             </div>
@@ -203,14 +204,14 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
               <label className="block text-sm font-medium text-foreground mb-1">
                 Estoque Mínimo
               </label>
-              <input
+              <Input
                 type="number"
                 min="0"
                 value={form.minQuantity}
                 onChange={(e) =>
                   setForm({ ...form, minQuantity: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-background border border-border text-foreground font-mono text-sm rounded-lg focus:ring-2 focus:ring-accent/40 outline-none"
+                className="font-mono text-sm"
               />
             </div>
 
@@ -223,27 +224,19 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-background border border-border text-foreground rounded-lg focus:ring-2 focus:ring-accent/40 outline-none"
+                className="flex w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent transition-all duration-200"
                 rows={2}
               />
             </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-foreground border border-border rounded-lg hover:bg-border/50 cursor-pointer transition-colors"
-            >
+            <Button variant="outline" type="button" onClick={onClose}>
               Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover cursor-pointer disabled:opacity-50 transition-colors"
-            >
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar' : 'Criar'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

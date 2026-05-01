@@ -28,13 +28,17 @@ export function formatDate(dateString: string): string {
   });
 }
 
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
 /**
- * @description Combina classes CSS condicionalmente, filtrando valores falsy.
- * Implementação minimalista do padrão `clsx` para evitar dependência extra.
+ * @description Combina classes CSS condicionalmente e resolve conflitos do Tailwind.
+ * Utiliza `clsx` para classes condicionais e `tailwind-merge` para garantir
+ * a especificidade correta (a última classe inserida vence).
  *
- * @param {...(string | undefined | false)[]} classes - Classes CSS a combinar.
- * @returns {string} String com as classes válidas separadas por espaço.
+ * @param {...ClassValue[]} inputs - Classes CSS a combinar.
+ * @returns {string} String com as classes mescladas e sem conflitos.
  */
-export function cn(...classes: (string | undefined | false)[]): string {
-  return classes.filter(Boolean).join(' ');
+export function cn(...inputs: ClassValue[]): string {
+  return twMerge(clsx(inputs));
 }

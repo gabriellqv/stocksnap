@@ -1,5 +1,5 @@
 /**
- * Authentication Typings
+ * Tipagens de Autenticação
  */
 export interface LoginCredentials {
   email: string;
@@ -25,7 +25,7 @@ export interface User {
 }
 
 /**
- * Category Typings
+ * Tipagens de Categoria
  */
 export interface Category {
   id: string;
@@ -38,14 +38,14 @@ export interface CreateCategoryData {
 }
 
 /**
- * Product Typings
+ * Tipagens de Produto
  */
 export interface Product {
   id: string;
   name: string;
   sku: string;
   description: string | null;
-  /** Decimal representations from Prisma are serialized as strings */
+  /** Representações decimais do Prisma são serializadas como strings */
   costPrice: string;
   sellPrice: string;
   quantity: number;
@@ -99,7 +99,7 @@ export interface PaginatedResponse<T> {
 }
 
 /**
- * Movement Typings
+ * Tipagens de Movimentação
  */
 export interface Movement {
   id: string;
@@ -112,7 +112,7 @@ export interface Movement {
 }
 
 /**
- * Dashboard Analytics Typings
+ * Tipagens do Resumo do Dashboard
  */
 export interface DashboardSummary {
   totalProducts: number;

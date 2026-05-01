@@ -1,17 +1,17 @@
 /**
- * Centralized API Client with Bearer Token authentication.
+ * @description Cliente API centralizado com autenticação via Bearer Token.
  *
- * The token is managed by the Zustand auth store. When the store
- * logs in, it calls `setAccessToken()` to synchronize.
- * All requests pass through here, ensuring that the token
- * is automatically injected into each request.
+ * O token é gerenciado pelo auth store do Zustand. Quando o store
+ * faz login, ele chama `setAccessToken()` para sincronizar.
+ * Todas as requisições passam por aqui, garantindo que o token
+ * seja automaticamente injetado em cada requisição.
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 /**
- * Custom Error class to handle API HTTP errors.
- * Extends standard Error with HTTP status and additional payload data.
+ * @description Classe de Erro customizada para lidar com erros HTTP da API.
+ * Estende o Error padrão com status HTTP e dados adicionais de payload.
  */
 export class ApiError extends Error {
   constructor(
@@ -25,7 +25,7 @@ export class ApiError extends Error {
 }
 
 /**
- * Global variable for Token Management, synchronized with Zustand store.
+ * @description Variável global para Gerenciamento do Token, sincronizada com o store Zustand.
  */
 let accessToken: string | null = null;
 
@@ -38,7 +38,7 @@ export function getAccessToken(): string | null {
 }
 
 /**
- * Interface defining options for the HTTP request wrapper.
+ * @description Interface que define opções para o wrapper da requisição HTTP.
  */
 interface RequestOptions extends Omit<RequestInit, 'body'> {
   body?: unknown;
@@ -46,13 +46,13 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
 }
 
 /**
- * Core HTTP Request Wrapper.
- * Automatically injects the Authorization Bearer token unless `skipAuth` is true.
- * Handles 401 Unauthorized responses by clearing the local session and redirecting.
+ * @description Wrapper principal para Requisições HTTP.
+ * Injeta automaticamente o token Bearer de Autorização a menos que `skipAuth` seja true.
+ * Lida com respostas 401 Unauthorized limpando a sessão local e redirecionando.
  *
- * @param endpoint - The API endpoint path (e.g., '/auth/login').
- * @param options - Additional fetch request options and payload body.
- * @returns A Promise that resolves to the expected type `T`.
+ * @param {string} endpoint - O caminho do endpoint da API (ex: '/auth/login').
+ * @param {RequestOptions} options - Opções adicionais da requisição fetch e corpo (payload).
+ * @returns {Promise<T>} Uma Promise que resolve para o tipo esperado `T`.
  */
 async function request<T>(
   endpoint: string,
@@ -97,7 +97,7 @@ async function request<T>(
 }
 
 /**
- * Shorthand HTTP Method Helpers for interacting with the backend API.
+ * @description Helpers simplificados de métodos HTTP para interação com a API backend.
  */
 export const api = {
   get: <T>(endpoint: string, options?: RequestOptions) =>

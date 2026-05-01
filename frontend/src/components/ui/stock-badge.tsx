@@ -25,9 +25,9 @@ export function StockBadge({ quantity, minQuantity }: StockBadgeProps) {
     <span
       className={cn(
         'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium font-mono',
-        isCritical && 'bg-red-100 text-red-800',
-        isWarning && 'bg-yellow-100 text-yellow-800',
-        !isCritical && !isWarning && 'bg-green-100 text-green-800',
+        isCritical && 'bg-status-critical-bg text-status-critical-text',
+        isWarning && 'bg-status-warning-bg text-status-warning-text',
+        !isCritical && !isWarning && 'bg-status-ok-bg text-status-ok-text',
       )}
     >
       {isCritical && <AlertTriangle className="w-3.5 h-3.5" />}

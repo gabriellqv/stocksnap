@@ -13,7 +13,7 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
  * @description Mapeamento de estilos por variante visual do badge.
  */
 const variantStyles = {
-  default: 'border-transparent bg-accent text-white',
+  default: 'border-transparent bg-accent text-accent-foreground',
   secondary: 'border-transparent bg-surface text-foreground',
   destructive: 'border-transparent bg-destructive-muted text-destructive',
   outline: 'border-border text-foreground',

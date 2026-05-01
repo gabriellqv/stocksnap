@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Package } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
+import { Button } from '@/components/ui/button';
 
 /**
  * @description Página de autenticação do sistema (rota `/login`).
@@ -30,7 +31,7 @@ export default function LoginPage() {
       await login({ email, password });
       router.push('/');
     } catch {
-      // Intentionally suppressing errors as they are globally handled by the auth-store
+      // Omitindo erro intencionalmente, já lidamos com ele de forma global na store
     }
   };
 
@@ -38,7 +39,6 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md">
         <div className="bg-surface rounded-2xl border border-border p-8">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Package className="w-8 h-8 text-accent" />
@@ -47,14 +47,12 @@ export default function LoginPage() {
             <p className="text-muted">Entre na sua conta</p>
           </div>
 
-          {/* Error */}
           {error && (
             <div className="bg-destructive-muted text-destructive px-4 py-3 rounded-lg mb-6 text-sm border border-destructive/20">
               {error}
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
@@ -92,13 +90,9 @@ export default function LoginPage() {
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-accent text-white py-2.5 rounded-lg font-medium hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
-            >
+            <Button type="submit" disabled={isLoading} className="w-full mt-2">
               {isLoading ? 'Entrando...' : 'Entrar'}
-            </button>
+            </Button>
           </form>
 
           <div className="mt-6 p-3 bg-background rounded-lg border border-border">

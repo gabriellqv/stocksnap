@@ -121,8 +121,6 @@ export const useProductStore = create<ProductState & ProductActions>(
       set({ isSubmitting: true, error: null });
       try {
         const updated = await api.patch<Product>(`/products/${id}`, data);
-
-        // Atualização otimista: atualizar o produto na lista local
         set((state) => ({
           isSubmitting: false,
           products: state.products.map((p) => (p.id === id ? updated : p)),

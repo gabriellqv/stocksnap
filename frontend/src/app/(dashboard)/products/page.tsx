@@ -11,6 +11,7 @@ import { useProductStore } from '@/stores/product-store';
 import { useCategoryStore } from '@/stores/category-store';
 import { StockBadge } from '@/components/ui/stock-badge';
 import { ProductModal } from '@/components/product-modal';
+import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
 import type { Product } from '@/types';
 
@@ -28,7 +29,6 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchInput, setSearchInput] = useState('');
 
-  // Buscar dados no mount
   useEffect(() => {
     fetchProducts();
     fetchCategories();
@@ -75,13 +75,10 @@ export default function ProductsPage() {
           </h1>
           <p className="text-muted mt-1">{meta.total} produtos cadastrados</p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent-hover transition cursor-pointer font-medium"
-        >
+        <Button onClick={() => setIsModalOpen(true)} className="gap-2">
           <Plus className="w-5 h-5" />
           Novo Produto
-        </button>
+        </Button>
       </div>
 
       <div className="flex gap-4 mb-6">
@@ -209,20 +206,20 @@ export default function ProductsPage() {
             resultados
           </p>
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="outline"
               onClick={() => handlePageChange(meta.page - 1)}
               disabled={meta.page === 1}
-              className="px-3 py-1.5 border border-border text-foreground rounded-lg text-sm disabled:opacity-50 hover:bg-border/50 cursor-pointer transition-colors"
             >
               Anterior
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => handlePageChange(meta.page + 1)}
               disabled={meta.page === meta.totalPages}
-              className="px-3 py-1.5 border border-border text-foreground rounded-lg text-sm disabled:opacity-50 hover:bg-border/50 cursor-pointer transition-colors"
             >
               Próximo
-            </button>
+            </Button>
           </div>
         </div>
       )}
