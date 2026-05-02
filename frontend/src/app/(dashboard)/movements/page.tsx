@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowDownLeft, ArrowUpRight, Plus } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Plus, Download } from 'lucide-react';
+import { exportToCsv } from '@/lib/export-csv';
 import { useMovementStore } from '@/stores/movement-store';
 import { useProductStore } from '@/stores/product-store';
 import { MovementModal } from '@/components/movement-modal';
@@ -39,6 +40,18 @@ export default function MovementsPage() {
 
   const handlePageChange = (newPage: number) => {
     fetchMovements({ page: newPage });
+  };
+
+  const handleExportCSV = () => {
+    const data = movements.map((m) => ({
+      Data: formatDate(m.createdAt),
+      Tipo: m.type === 'ENTRY' ? 'Entrada' : 'Saída',
+      Produto: m.product.name,
+      Quantidade: m.quantity,
+      Motivo: m.reason || '',
+      Usuário: m.user.name,
+    }));
+    exportToCsv(data, 'Movimentacoes');
   };
 
   return (
@@ -99,6 +112,18 @@ export default function MovementsPage() {
             <option value="ENTRY">Entrada</option>
             <option value="EXIT">Saída</option>
           </select>
+        </div>
+
+        <div className="flex items-end w-full sm:w-auto">
+          <Button
+            variant="outline"
+            onClick={handleExportCSV}
+            className="gap-2 w-full hover:text-accent hover:border-accent/30 transition-colors"
+            disabled={movements.length === 0}
+          >
+            <Download className="w-4 h-4" />
+            Exportar CSV
+          </Button>
         </div>
       </div>
 
