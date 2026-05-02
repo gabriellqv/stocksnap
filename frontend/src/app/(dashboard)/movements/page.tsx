@@ -52,7 +52,10 @@ export default function MovementsPage() {
             Histórico de entradas e saídas do estoque
           </p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2 w-full sm:w-auto">
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          className="gap-2 w-full sm:w-auto"
+        >
           <Plus className="w-5 h-5" />
           Nova Movimentação
         </Button>

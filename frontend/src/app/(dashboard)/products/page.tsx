@@ -110,7 +110,10 @@ export default function ProductsPage() {
           </h1>
           <p className="text-muted mt-1">{meta.total} produtos cadastrados</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2 w-full sm:w-auto">
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          className="gap-2 w-full sm:w-auto"
+        >
           <Plus className="w-5 h-5" />
           Novo Produto
         </Button>

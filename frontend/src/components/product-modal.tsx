@@ -173,7 +173,11 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="p-6 space-y-4 overflow-y-auto">
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          className="p-6 space-y-4 overflow-y-auto"
+        >
           {error && (
             <div className="bg-destructive-muted border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
               {error}
