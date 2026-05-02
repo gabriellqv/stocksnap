@@ -13,6 +13,8 @@ import {
 import { useAuthStore } from '@/stores/auth-store';
 import { cn } from '@/lib/utils';
 
+import { ThemeToggle } from '@/components/theme-toggle';
+
 /**
  * @description Itens do menu lateral com rota, label e ícone Lucide correspondente.
  */
@@ -124,9 +126,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               </p>
               <p className="text-xs text-muted">{user?.role}</p>
             </div>
+            <ThemeToggle />
             <button
               onClick={handleLogout}
-              className="text-muted hover:text-destructive transition-colors duration-200 cursor-pointer"
+              className="p-2 text-muted hover:text-destructive transition-colors duration-200 cursor-pointer rounded-lg hover:bg-border/50"
               title="Sair"
             >
               <LogOut className="w-5 h-5" />
