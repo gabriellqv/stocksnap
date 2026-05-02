@@ -14,7 +14,7 @@ describe('Utils', () => {
       const result = cn(
         'base-class',
         isError && 'bg-red-500 text-white',
-        isSuccess && 'bg-green-500'
+        isSuccess && 'bg-green-500',
       );
       expect(result).toBe('base-class bg-red-500 text-white');
     });

@@ -28,7 +28,11 @@ interface CategoryModalProps {
  * @description Modal reutilizável para gerenciamento de categorias (Criar/Editar).
  * Utiliza validação manual no frontend e tratamento de conflitos via API.
  */
-export function CategoryModal({ isOpen, onClose, category }: CategoryModalProps) {
+export function CategoryModal({
+  isOpen,
+  onClose,
+  category,
+}: CategoryModalProps) {
   const createCategory = useCategoryStore((s) => s.createCategory);
   const updateCategory = useCategoryStore((s) => s.updateCategory);
   const isSubmitting = useCategoryStore((s) => s.isSubmitting);
@@ -40,8 +44,10 @@ export function CategoryModal({ isOpen, onClose, category }: CategoryModalProps)
 
   useEffect(() => {
     if (category) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(category.name);
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName('');
     }
   }, [category, isOpen]);
@@ -65,7 +71,8 @@ export function CategoryModal({ isOpen, onClose, category }: CategoryModalProps)
       }
       onClose();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao salvar categoria';
+      const msg =
+        err instanceof Error ? err.message : 'Erro ao salvar categoria';
       setError(msg);
       toast.error(msg);
     }

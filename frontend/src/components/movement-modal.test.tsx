@@ -26,9 +26,7 @@ describe('MovementModal Component', () => {
     });
 
     (useProductStore as unknown as jest.Mock).mockReturnValue({
-      products: [
-        { id: 'prod-1', name: 'Shampoo', sku: 'SH-01' },
-      ],
+      products: [{ id: 'prod-1', name: 'Shampoo', sku: 'SH-01' }],
       fetchProducts: mockFetchProducts,
     });
   });
@@ -38,23 +36,27 @@ describe('MovementModal Component', () => {
   });
 
   it('não deve renderizar quando isOpen for false', () => {
-    const { container } = render(<MovementModal isOpen={false} onClose={mockOnClose} />);
+    const { container } = render(
+      <MovementModal isOpen={false} onClose={mockOnClose} />,
+    );
     expect(container).toBeEmptyDOMElement();
   });
 
   it('deve exibir erro se tentar submeter sem selecionar um produto', async () => {
     render(<MovementModal isOpen={true} onClose={mockOnClose} />);
-    
+
     const submitBtn = screen.getByRole('button', { name: /confirmar/i });
     fireEvent.click(submitBtn);
 
-    expect(await screen.findByText('Selecione um produto.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Selecione um produto.'),
+    ).toBeInTheDocument();
     expect(mockCreateMovement).not.toHaveBeenCalled();
   });
 
   it('deve exibir erro se a quantidade for vazia ou zero', async () => {
     render(<MovementModal isOpen={true} onClose={mockOnClose} />);
-    
+
     // Seleciona produto
     const select = screen.getByRole('combobox');
     fireEvent.change(select, { target: { value: 'prod-1' } });
@@ -62,16 +64,20 @@ describe('MovementModal Component', () => {
     const submitBtn = screen.getByRole('button', { name: /confirmar/i });
     fireEvent.click(submitBtn);
 
-    expect(await screen.findByText('A quantidade deve ser maior que zero.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('A quantidade deve ser maior que zero.'),
+    ).toBeInTheDocument();
     expect(mockCreateMovement).not.toHaveBeenCalled();
   });
 
   it('deve chamar createMovement com sucesso e fechar o modal', async () => {
     render(<MovementModal isOpen={true} onClose={mockOnClose} />);
-    
+
     // Seleciona produto
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'prod-1' } });
-    
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'prod-1' },
+    });
+
     // Preenche quantidade
     const qtyInput = screen.getByPlaceholderText(/Ex: 10/i);
     fireEvent.change(qtyInput, { target: { value: '5' } });

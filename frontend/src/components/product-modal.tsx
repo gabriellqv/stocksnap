@@ -34,7 +34,6 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
   const categories = useCategoryStore((s) => s.categories);
   const fetchCategories = useCategoryStore((s) => s.fetchCategories);
   const createCategory = useCategoryStore((s) => s.createCategory);
-  const isSubmittingCategory = useCategoryStore((s) => s.isSubmitting);
 
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -83,7 +82,9 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
     }
     // Reseta estado inline de categoria quando o modal é fechado
     if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsCreatingCategory(false);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNewCategoryName('');
     }
   }, [isOpen, categories.length, fetchCategories]);

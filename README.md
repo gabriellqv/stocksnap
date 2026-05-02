@@ -307,19 +307,19 @@ cd backend && npm test
 cd frontend && npx jest
 ```
 
-**Backend (6 testes):**
-- ✓ Produto inexistente → `NotFoundException`
-- ✓ Saída > estoque → `BadRequestException`
-- ✓ Mensagem de erro descritiva
-- ✓ Entrada com estoque zero → permite
-- ✓ Saída exata (zera estoque) → permite
+**Backend (29 testes):**
+- ✓ Auth: Login, JWT, Hash de senha, Email único
+- ✓ Categories: Unicidade, proteção contra exclusão com vínculos
+- ✓ Products: SKU único, validação de categoria, cache invalidation
+- ✓ Movements: Transação atômica, bloqueio de estoque negativo, boundary cases
+- ✓ Dashboard: Cache hit/miss, cálculos de métricas financeira
 - ✓ Invalidação de cache após movimentação
 
-**Frontend (4 testes):**
-- ✓ Badge verde quando estoque saudável
-- ✓ Badge vermelho quando estoque crítico
-- ✓ Badge amarelo em zona de alerta
-- ✓ Boundary case (dobro do mínimo + 1)
+**Frontend (31 testes):**
+- ✓ AuthStore: Login, logout, persistência, erro de credenciais
+- ✓ CategoryStore: CRUD completo via Zustand
+- ✓ UI Components: StockBadge (crítico/atenção/normal), Buttons, Modais
+- ✓ Libs: API interceptors, utils e formatters
 
 ---
 

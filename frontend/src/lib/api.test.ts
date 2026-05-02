@@ -25,7 +25,7 @@ describe('API Client Wrapper (api.ts)', () => {
         headers: expect.objectContaining({
           Authorization: 'Bearer mock-token-123',
         }),
-      })
+      }),
     );
   });
 
@@ -55,7 +55,7 @@ describe('API Client Wrapper (api.ts)', () => {
       expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify(payload),
-      })
+      }),
     );
   });
 
@@ -68,7 +68,9 @@ describe('API Client Wrapper (api.ts)', () => {
     });
 
     await expect(api.post('/products', {})).rejects.toThrow(ApiError);
-    await expect(api.post('/products', {})).rejects.toThrow('A quantidade mínima é obrigatória');
+    await expect(api.post('/products', {})).rejects.toThrow(
+      'A quantidade mínima é obrigatória',
+    );
   });
 
   it('deve limpar o token da sessão local e disparar erro em caso de HTTP 401 (Sessão Expirada)', async () => {
@@ -85,7 +87,7 @@ describe('API Client Wrapper (api.ts)', () => {
     });
 
     await expect(api.get('/protected-route')).rejects.toThrow(
-      'Sessão expirada. Faça login novamente.'
+      'Sessão expirada. Faça login novamente.',
     );
 
     // Restore location

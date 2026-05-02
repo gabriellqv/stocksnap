@@ -3,7 +3,7 @@ import { StockBadge } from './stock-badge';
 
 /**
  * @description Suite de testes unitários para o componente StockBadge.
- * 
+ *
  * Valida a regra de cores e ícones baseada no estoque:
  * - Crítico: quantity <= minQuantity
  * - Atenção: quantity <= minQuantity * 2
