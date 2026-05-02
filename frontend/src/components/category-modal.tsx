@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Modal controlado para criação e edição de categorias.
+ *
+ * Consome a store `useCategoryStore` para operações de CRUD e
+ * fornece feedback visual via Sonner (toast) e alertas inline.
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,12 +15,19 @@ import { Button } from '@/components/ui/button';
 import { useCategoryStore } from '@/stores/category-store';
 import type { Category } from '@/types';
 
+/**
+ * @description Propriedades do componente CategoryModal.
+ */
 interface CategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   category?: Category | null;
 }
 
+/**
+ * @description Modal reutilizável para gerenciamento de categorias (Criar/Editar).
+ * Utiliza validação manual no frontend e tratamento de conflitos via API.
+ */
 export function CategoryModal({ isOpen, onClose, category }: CategoryModalProps) {
   const createCategory = useCategoryStore((s) => s.createCategory);
   const updateCategory = useCategoryStore((s) => s.updateCategory);

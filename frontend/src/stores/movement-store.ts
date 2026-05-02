@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Store Zustand para gerenciamento centralizado de movimentações de estoque.
+ *
+ * Mantém em sincronia o histórico de entradas e saídas, metadados de paginação,
+ * e gerencia as interações assíncronas com o backend (GET e POST).
+ */
+
 import { create } from 'zustand';
 import { api, ApiError } from '@/lib/api';
 import type {
@@ -8,6 +15,9 @@ import type {
   PaginationMeta,
 } from '@/types';
 
+/**
+ * @description Define o esquema de estado reativo para o domínio de Movimentações.
+ */
 interface MovementState {
   movements: Movement[];
   meta: PaginationMeta;
@@ -16,6 +26,9 @@ interface MovementState {
   query: MovementQueryParams;
 }
 
+/**
+ * @description Define as ações disponíveis para mutação do estado de Movimentações.
+ */
 interface MovementActions {
   fetchMovements: (params?: MovementQueryParams) => Promise<void>;
   createMovement: (data: CreateMovementData) => Promise<void>;

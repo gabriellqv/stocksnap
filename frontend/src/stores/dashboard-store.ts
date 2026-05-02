@@ -1,7 +1,17 @@
+/**
+ * @fileoverview Store Zustand para gerenciamento centralizado da Dashboard.
+ *
+ * Executa as três requisições ao backend (sumário, gráfico, estoque crítico)
+ * em paralelo via Promise.all para maximizar a performance de carregamento.
+ */
+
 import { create } from 'zustand';
 import { api, ApiError } from '@/lib/api';
 import type { DashboardSummary, ChartData, LowStockItem } from '@/types';
 
+/**
+ * @description Define o esquema de estado reativo para a Dashboard.
+ */
 interface DashboardState {
   summary: DashboardSummary | null;
   chart: ChartData[];
@@ -10,6 +20,9 @@ interface DashboardState {
   error: string | null;
 }
 
+/**
+ * @description Define as ações disponíveis para mutação do estado da Dashboard.
+ */
 interface DashboardActions {
   fetchDashboardData: () => Promise<void>;
   clearError: () => void;

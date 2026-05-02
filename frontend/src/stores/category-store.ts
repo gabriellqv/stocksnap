@@ -8,7 +8,7 @@ import { api } from '@/lib/api';
 import type { Category, CreateCategoryData } from '@/types';
 
 /**
- * Propriedades de estado para Categorias.
+ * @description Define o esquema de estado reativo para o domínio de Categorias.
  */
 interface CategoryState {
   categories: Category[];
@@ -18,7 +18,7 @@ interface CategoryState {
 }
 
 /**
- * Funções mutadoras para manipulação do estado de Categorias.
+ * @description Define as ações disponíveis para mutação do estado de Categorias.
  */
 interface CategoryActions {
   fetchCategories: () => Promise<void>;
