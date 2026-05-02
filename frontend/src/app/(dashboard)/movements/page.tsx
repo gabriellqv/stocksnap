@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Página de log e histórico transacional de movimentações de estoque.
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -27,7 +31,8 @@ export default function MovementsPage() {
 
   useEffect(() => {
     fetchMovements();
-    fetchProducts({ limit: 100 }); // Busca produtos para o filtro
+    /** Pre-fetch dos produtos para popular o select do filtro de busca */
+    fetchProducts({ limit: 100 });
   }, [fetchMovements, fetchProducts]);
 
   const handleFilter = (productId: string, type: string) => {
