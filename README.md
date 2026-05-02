@@ -16,22 +16,6 @@ A base de código foi construída com foco em boas práticas de engenharia de so
 
 O StockSnap resolve o problema de controle de inventário para pequenas e médias operações comerciais que necessitam de visibilidade em tempo real sobre seu estoque. O sistema permite que operadores registrem entradas (compras de fornecedores) e saídas (vendas) com rastreabilidade completa, enquanto gestores acompanham indicadores críticos como produtos abaixo do estoque mínimo, valor total em estoque e tendências de movimentação dos últimos sete dias.
 
-## Arquitetura de Alto Nível
-
-O fluxo de dados segue um modelo cliente-servidor padrão, projetado para separar responsabilidades e garantir escalabilidade:
-
-```text
-[Frontend (Next.js + Zustand)] 
-             │
-             ↓ Requisições HTTP (REST + JWT)
-             │
-   [Backend API (NestJS)] 
-             │
-             ├───→ [Redis] (Cache rápido para o Dashboard)
-             │
-             └───→ [PostgreSQL] (Persistência definitiva via Prisma)
-```
-
 ## Funcionalidades Principais
 
 * Autenticação de usuários com registro, login e emissão de tokens JWT com suporte a papéis (ADMIN e OPERATOR)
@@ -82,6 +66,22 @@ O fluxo de dados segue um modelo cliente-servidor padrão, projetado para separa
 * **Docker e Docker Compose**: Containerização da aplicação completa. Orquestra quatro serviços (PostgreSQL, Redis, API e Frontend) com healthchecks para garantir a ordem correta de inicialização.
 
 * **GitHub Actions**: Pipeline de integração contínua. Executa automaticamente lint, testes e build para backend e frontend em cada push ou pull request nas branches `main` e `develop`.
+
+## Arquitetura do Sistema
+
+O fluxo de dados segue um modelo cliente-servidor padrão, projetado para separar responsabilidades e garantir escalabilidade:
+
+```text
+[Frontend (Next.js + Zustand)] 
+             │
+             ↓ Requisições HTTP (REST + JWT)
+             │
+   [Backend API (NestJS)] 
+             │
+             ├───→ [Redis] (Cache rápido para o Dashboard)
+             │
+             └───→ [PostgreSQL] (Persistência definitiva via Prisma)
+```
 
 ## Estrutura de Pastas
 
@@ -368,29 +368,41 @@ npm test
 ## Decisões Técnicas Relevantes
 
 * **Transações Atômicas com Prisma**: O registro de movimentações de estoque utiliza `prisma.$transaction()` para garantir que a criação do registro e a atualização do saldo do produto ocorram de forma indivisível. Em caso de falha em qualquer etapa, toda a operação é revertida.
-  * 👉 **Impacto:** Prevenção de erros operacionais graves (ex: estoque negativo, produtos "fantasma" ou inconsistências contábeis).
+  * **Impacto Arquitetural:** Prevenção de erros operacionais graves (ex: estoque negativo, produtos "fantasma" ou inconsistências contábeis).
 
 * **Cache Redis com Invalidação Seletiva**: As consultas de agregação do Dashboard (métricas, gráficos e alertas de estoque crítico) são cacheadas por 60 segundos. Após operações de escrita (Products e Movements), apenas as chaves afetadas são invalidadas, evitando a lentidão de um flush global.
-  * 👉 **Impacto:** Redução drástica de carga no banco de dados durante o acesso ao painel, entregando uma interface instantânea para o gestor.
+  * **Impacto Arquitetural:** Redução drástica de carga no banco de dados durante o acesso ao painel, entregando uma interface instantânea para o gestor.
 
 * **Zustand sobre Context API**: A escolha do Zustand elimina o boilerplate comum (nenhum Provider na árvore) e fornece renderizações isoladas por fragmento de estado, com suporte nativo de persistência via localStorage.
-  * 👉 **Impacto:** Código do client-side mais limpo e interface do usuário livre de "engasgos" (re-renders desnecessários de componentes não afetados).
+  * **Impacto Arquitetural:** Código do client-side mais limpo e interface do usuário livre de "engasgos" (re-renders desnecessários de componentes não afetados).
 
 * **ValidationPipe Global Rigoroso**: O NestJS é configurado com `whitelist: true` e `forbidNonWhitelisted: true`, rejeitando automaticamente qualquer campo não declarado nos DTOs.
-  * 👉 **Impacto:** API blindada logo na porta de entrada, evitando ataques de injeção massiva e economizando processamento de payloads sujos.
+  * **Impacto Arquitetural:** API blindada logo na porta de entrada, evitando ataques de injeção massiva e economizando processamento de payloads sujos.
 
 * **ParseUUIDPipe nos Controllers**: Todos os endpoints com parâmetros de rota utilizam `ParseUUIDPipe` para validar o formato UUID antes de atingir a camada de serviço. Requisições malformadas retornam HTTP 400 imediatamente.
-  * 👉 **Impacto:** Protege o banco de dados contra consultas inúteis com IDs inválidos, otimizando os recursos do servidor.
+  * **Impacto Arquitetural:** Protege o banco de dados contra consultas inúteis com IDs inválidos, otimizando os recursos do servidor.
 
 * **Segurança Anti-enumeração no Login**: Tanto para email inexistente quanto para senha incorreta, o sistema retorna a mesma mensagem genérica ("Email ou senha incorretos"), conforme recomendação de segurança OWASP A07:2021.
-  * 👉 **Impacto:** Impede que pessoas mal-intencionadas realizem varreduras para descobrir se determinados emails possuem cadastro ativo no sistema.
+  * **Impacto Arquitetural:** Impede que pessoas mal-intencionadas realizem varreduras para descobrir se determinados emails possuem cadastro ativo no sistema.
 
 * **Design System com CSS Variables**: A interface utiliza um sistema de tokens semânticos definidos em CSS Variables (cores, superfícies, bordas), integrados nativamente à nova diretiva `@theme` do Tailwind CSS 4.
-  * 👉 **Impacto:** Facilita muito a manutenção da identidade visual (Design Tokens centralizados) e simplifica drasticamente a futura implementação de um modo claro/escuro.
+  * **Impacto Arquitetural:** Facilita muito a manutenção da identidade visual (Design Tokens centralizados) e simplifica drasticamente a futura implementação de um modo claro/escuro.
 
 * **Cliente API Centralizado**: Todas as requisições HTTP do frontend passam por um wrapper único (`api.ts`) que injeta automaticamente o Bearer Token, trata respostas 401 e padroniza erros de rede.
-  * 👉 **Impacto:** Reduz fortemente a duplicação de lógica repetitiva no frontend e garante que a sessão do usuário nunca "trave" de forma silenciosa após o JWT expirar.
+  * **Impacto Arquitetural:** Reduz fortemente a duplicação de lógica repetitiva no frontend e garante que a sessão do usuário nunca "trave" de forma silenciosa após o JWT expirar.
 
+
+## Possíveis Melhorias Futuras
+
+* Implementação de controle de acesso baseado em papéis (RBAC) no frontend, restringindo componentes e ações com base no campo role do usuário autenticado
+* Adição de testes de integração (E2E) com supertest no backend para validar o fluxo HTTP completo
+* Implementação de paginação e filtros no módulo de categorias
+* Rate limiting via @nestjs/throttler para proteção contra ataques de força bruta nos endpoints de autenticação
+* Headers de segurança HTTP via helmet para proteção contra ataques XSS, clickjacking e sniffing de MIME type
+* Implementação de refresh tokens para renovação silenciosa de sessões expiradas
+* Monitoramento de aplicação com instrumentação OpenTelemetry para rastreamento de latência e taxa de erros
+* Exportação de relatórios de movimentações em formato PDF e CSV
+* Introdução de filas assíncronas com BullMQ (melhora de performance e desacoplamento)
 
 ## Considerações Finais
 
