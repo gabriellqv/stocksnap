@@ -7,7 +7,14 @@ import { Button } from '@/components/ui/button';
 import { CategoryModal } from '@/components/category-modal';
 import type { Category } from '@/types';
 import { toast } from 'sonner';
+import { useIsAdmin } from '@/hooks/use-is-admin';
 
+/**
+ * @description Página de gerenciamento de Categorias do estoque.
+ * Permite a visualização, criação, edição e exclusão de categorias com
+ * controle de acesso baseado em papéis (RBAC) — operações de mutação
+ * são restritas ao perfil ADMIN, enquanto OPERATOR mantém acesso de leitura.
+ */
 export default function CategoriesPage() {
   const categories = useCategoryStore((s) => s.categories);
   const isLoading = useCategoryStore((s) => s.isLoading);
@@ -18,6 +25,7 @@ export default function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,
   );
+  const isAdmin = useIsAdmin();
 
   useEffect(() => {
     fetchCategories();
@@ -70,12 +78,14 @@ export default function CategoriesPage() {
           </p>
         </div>
 
-        <Button
-          onClick={handleCreate}
-          className="flex items-center gap-2 w-full sm:w-auto"
-        >
-          <Plus className="w-4 h-4" /> Nova Categoria
-        </Button>
+        {isAdmin && (
+          <Button
+            onClick={handleCreate}
+            className="flex items-center gap-2 w-full sm:w-auto"
+          >
+            <Plus className="w-4 h-4" /> Nova Categoria
+          </Button>
+        )}
       </div>
 
       <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
@@ -106,7 +116,9 @@ export default function CategoriesPage() {
                   <th className="px-6 py-4 font-medium text-center">
                     Produtos Vinculados
                   </th>
-                  <th className="px-6 py-4 font-medium text-right">Ações</th>
+                  {isAdmin && (
+                    <th className="px-6 py-4 font-medium text-right">Ações</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -124,28 +136,30 @@ export default function CategoriesPage() {
                         {category._count?.products || 0}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-accent hover:border-accent/30"
-                          onClick={() => handleEdit(category)}
-                          title="Editar Categoria"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:border-destructive/30"
-                          onClick={() => handleDelete(category)}
-                          title="Excluir Categoria"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </td>
+                    {isAdmin && (
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-accent hover:border-accent/30"
+                            onClick={() => handleEdit(category)}
+                            title="Editar Categoria"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:border-destructive/30"
+                            onClick={() => handleDelete(category)}
+                            title="Excluir Categoria"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

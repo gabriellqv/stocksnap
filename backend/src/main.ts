@@ -1,19 +1,23 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 
 /**
  * @description Inicializa e configura a aplicação NestJS do StockSnap.
  *
  * Esta função é o ponto de entrada do servidor backend. Ela estabelece
- * três camadas de configuração global antes de iniciar o listener HTTP:
+ * quatro camadas de configuração global antes de iniciar o listener HTTP:
  *
- * 1. **Prefixo de rota** (`/api`): isola o namespace da API REST,
+ * 1. **Helmet**: injeta headers HTTP de segurança (X-Content-Type-Options,
+ *    X-Frame-Options, Strict-Transport-Security, etc.) para proteção contra
+ *    ataques XSS, clickjacking e MIME-type sniffing.
+ * 2. **Prefixo de rota** (`/api`): isola o namespace da API REST,
  *    evitando colisão com rotas do frontend em ambientes de proxy reverso.
- * 2. **ValidationPipe**: garante que toda requisição seja validada
+ * 3. **ValidationPipe**: garante que toda requisição seja validada
  *    contra os DTOs definidos, rejeitando campos não declarados e
  *    aplicando transformação automática de tipos primitivos.
- * 3. **CORS**: restringe chamadas cross-origin exclusivamente ao
+ * 4. **CORS**: restringe chamadas cross-origin exclusivamente ao
  *    domínio do frontend Next.js, com suporte a cookies de sessão.
  *
  * @returns {Promise<void>} Resolve quando o servidor estiver ouvindo conexões.
@@ -25,6 +29,7 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
+  app.use(helmet());
   app.setGlobalPrefix('api');
 
   app.useGlobalPipes(

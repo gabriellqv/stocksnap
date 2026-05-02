@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { CustomThrottlerGuard } from './auth/guards/custom-throttler.guard';
 import { redisStore } from 'cache-manager-redis-yet';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -16,10 +19,20 @@ import { DashboardModule } from './dashboard/dashboard.module';
  * de todos os módulos de domínio e a configuração global de cache com Redis.
  * O CacheModule é registrado como global (isGlobal: true) para que qualquer
  * service possa injetar o CACHE_MANAGER sem precisar importar o módulo novamente.
+ *
+ * O ThrottlerModule limita requisições por IP para proteção contra
+ * ataques de força bruta e abuso de endpoints (padrão: 20 req/min).
  */
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+
+    /**
+     * Rate limiting global. Limita cada IP a 20 requisições por janela
+     * de 60 segundos. Endpoints sensíveis (como login) podem sobrescrever
+     * com limites mais restritivos via decorator @Throttle().
+     */
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 20 }]),
 
     /**
      * Configuração global de cache com Redis.
@@ -46,6 +59,17 @@ import { DashboardModule } from './dashboard/dashboard.module';
     ProductsModule,
     MovementsModule,
     DashboardModule,
+  ],
+  providers: [
+    /**
+     * Registra o CustomThrottlerGuard globalmente via APP_GUARD,
+     * aplicando rate limiting a todos os endpoints com mensagem
+     * de erro personalizada em português.
+     */
+    {
+      provide: APP_GUARD,
+      useClass: CustomThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

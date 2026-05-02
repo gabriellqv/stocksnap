@@ -30,12 +30,14 @@ import { Button } from '@/components/ui/button';
 import { MovementModal } from '@/components/movement-modal';
 import { ProductModal } from '@/components/product-modal';
 import { useProductStore } from '@/stores/product-store';
+import { useIsAdmin } from '@/hooks/use-is-admin';
 
 /**
  * @description Página principal do Dashboard (rota `/`).
  * Orquestra e apresenta o resumo do negócio utilizando o Recharts para visualização gráfica.
  * Contém KPIs financeiros, volumetria diária, ações rápidas, alertas de estoque e o
- * destaque do produto mais movimentado.
+ * destaque do produto mais movimentado. Ações de criação de produto são restritas
+ * ao perfil ADMIN via controle de acesso baseado em papéis (RBAC).
  */
 export default function DashboardPage() {
   const { summary, chart, lowStock, isLoading, error, fetchDashboardData } =
@@ -44,6 +46,7 @@ export default function DashboardPage() {
 
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const isAdmin = useIsAdmin();
 
   useEffect(() => {
     fetchDashboardData();
@@ -125,10 +128,15 @@ export default function DashboardPage() {
             <ArrowLeftRight className="w-4 h-4" />
             Movimentar
           </Button>
-          <Button className="gap-2" onClick={() => setIsProductModalOpen(true)}>
-            <Plus className="w-4 h-4" />
-            Novo Produto
-          </Button>
+          {isAdmin && (
+            <Button
+              className="gap-2"
+              onClick={() => setIsProductModalOpen(true)}
+            >
+              <Plus className="w-4 h-4" />
+              Novo Produto
+            </Button>
+          )}
         </div>
       </div>
 
