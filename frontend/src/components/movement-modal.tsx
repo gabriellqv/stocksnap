@@ -33,18 +33,18 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
 
   useEffect(() => {
     if (isOpen) {
-      // Busca produtos para popular o select (limit alto para garantir que aparecam na listagem)
+      /** Carrega o dicionário de produtos sem paginação estrita para viabilizar busca no Select */
       fetchProducts({ limit: 100, page: 1 });
-      // Resetar form
+      /** Limpeza forçada do estado transient do React Control */
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setType('ENTRY');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setProductId('');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setQuantity('');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setReason('');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setError(null);
     }
   }, [isOpen, fetchProducts]);

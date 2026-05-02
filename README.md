@@ -1,405 +1,409 @@
-# 📦 StockSnap
+# StockSnap
 
 ![CI](https://github.com/gabriellqv/stocksnap/actions/workflows/ci.yml/badge.svg)
-![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)
-![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white)
-![Zustand](https://img.shields.io/badge/Zustand-5-F36D22?logo=react&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Status](https://img.shields.io/badge/status-active-success)
 
-> Sistema full-stack de controle de estoque para pequenos comércios e MEIs. Gerencie produtos, registre entradas e saídas com transações atômicas, receba alertas de estoque baixo e acompanhe métricas de negócio em tempo real.
+> Sistema full stack de gerenciamento de estoque com foco em consistência de dados, performance e arquitetura escalável.
 
-🔗 **[Demo ao Vivo](https://stocksnap.vercel.app)** · 📡 **[API](https://stocksnap-api.up.railway.app/api)**
+## Descrição Geral
 
-<!-- ![StockSnap Demo](./docs/demo.gif) -->
+O StockSnap é um sistema completo de gerenciamento de estoque desenvolvido com arquitetura modular e desacoplada, composto por uma API RESTful no backend e uma interface web moderna no frontend. O projeto implementa o ciclo operacional completo de controle de inventário: cadastro de produtos e categorias, registro de movimentações de entrada e saída com transações atômicas, painel analítico com métricas em tempo real e autenticação segura via JSON Web Tokens.
 
----
+A base de código foi construída com foco em boas práticas de engenharia de software, incluindo tipagem estática de ponta a ponta com TypeScript, camada de cache com Redis para otimização de consultas pesadas, containerização com Docker e pipeline de integração contínua via GitHub Actions.
 
-## 🧩 O Problema
+## Objetivo do Projeto
 
-Donos de pequenos comércios controlam estoque em cadernos ou planilhas. Não sabem quando um produto vai acabar até que o cliente pede e não tem - gerando perda de vendas e desorganização.
+O StockSnap resolve o problema de controle de inventário para pequenas e médias operações comerciais que necessitam de visibilidade em tempo real sobre seu estoque. O sistema permite que operadores registrem entradas (compras de fornecedores) e saídas (vendas) com rastreabilidade completa, enquanto gestores acompanham indicadores críticos como produtos abaixo do estoque mínimo, valor total em estoque e tendências de movimentação dos últimos sete dias.
 
-**StockSnap** resolve isso com:
+## Funcionalidades Principais
 
-- 📋 Cadastro de produtos com categorias, SKU e preços (custo + venda)
-- 📥📤 Registro de entradas e saídas com **transação atômica**
-- 🔄 Cálculo automático de estoque - se a operação falha no meio, tudo é revertido
-- 🔴 Alertas visuais quando o estoque atinge o mínimo configurado
-- 📊 Dashboard com métricas de negócio em tempo real, cacheado com Redis
+* Autenticação de usuários com registro, login e emissão de tokens JWT com suporte a papéis (ADMIN e OPERATOR)
+* Cadastro completo de categorias com validação de unicidade de nome e proteção contra exclusão de categorias com produtos vinculados
+* CRUD de produtos com busca textual, filtragem por categoria, ordenação dinâmica e paginação server-side
+* Validação de unicidade de SKU tanto na criação quanto na atualização de produtos
+* Registro de movimentações de estoque (entrada e saída) com transação atômica via Prisma, garantindo consistência entre o registro da movimentação e a atualização do saldo
+* Validação de saldo antes de saídas, impedindo que o estoque fique negativo
+* Painel analítico (Dashboard) com métricas de KPI: total de produtos, valor total em estoque, itens críticos, movimentações do dia e comparativo com o dia anterior
+* Gráfico de movimentações dos últimos sete dias com visualização combinada de entradas e saídas
+* Lista de produtos com estoque crítico (abaixo do mínimo definido), ordenados por severidade
+* Cache Redis com TTL de 60 segundos nas consultas do Dashboard, com invalidação automática após operações de escrita
+* Interface responsiva com tema escuro, Design System baseado em CSS Variables e integração com Tailwind CSS 4
+* Cliente API centralizado com injeção automática de Bearer Token e interceptor de sessão expirada (401)
 
----
+## Tecnologias Utilizadas
 
-## 🏗️ Arquitetura
+### Backend
 
+* **NestJS 11**: Framework Node.js para construção de aplicações server-side escaláveis. Utilizado como base arquitetural do backend, fornecendo injeção de dependências, modularização por domínio, pipes de validação global e integração nativa com guards de autenticação.
+
+* **Prisma ORM 6**: ORM de próxima geração para Node.js e TypeScript. Responsável pela definição do schema do banco de dados, geração de migrations versionadas, tipagem automática das queries e execução de transações atômicas nas operações de movimentação de estoque.
+
+* **PostgreSQL 16**: Sistema gerenciador de banco de dados relacional. Armazena todas as entidades do domínio (usuários, categorias, produtos e movimentações) com suporte a tipos decimais de alta precisão para valores monetários e UUIDs como chaves primárias.
+
+* **Redis 7**: Armazenamento em memória de alto desempenho utilizado como camada de cache. Reduz a carga sobre o banco de dados nas consultas de agregação do Dashboard, com TTL de 60 segundos e invalidação seletiva do cache após operações de escrita.
+
+* **Passport.js com JWT**: Estratégia de autenticação stateless. O Passport gerencia a validação de tokens JWT em cada requisição protegida, enquanto o bcrypt garante o hash seguro de senhas com salt de 10 rounds.
+
+* **class-validator e class-transformer**: Bibliotecas de validação e transformação de DTOs. Integradas ao ValidationPipe global do NestJS com configuração `whitelist` e `forbidNonWhitelisted`, rejeitando automaticamente campos não declarados nos DTOs.
+
+### Frontend
+
+* **Next.js 16 (App Router)**: Framework React para aplicações web de produção. Utilizado com o modelo de App Router para estruturação de layouts aninhados e separação lógica entre rotas de autenticação e rotas protegidas do dashboard.
+
+* **React 19**: Biblioteca para construção de interfaces declarativas. Base para todos os componentes da aplicação, incluindo modais controlados, formulários com validação e tabelas com paginação.
+
+* **Zustand 5**: Biblioteca de gerenciamento de estado minimalista. Substitui o Context API com zero boilerplate, oferecendo renderizações otimizadas (componentes só atualizam quando o fragmento selecionado do estado muda) e middleware `persist` para sincronização com localStorage.
+
+* **Tailwind CSS 4**: Framework CSS utilitário de próxima geração. Integrado a um Design System customizado via CSS Variables, fornecendo tokens semânticos para cores, estados de status (crítico, atenção, normal) e tipografia consistente.
+
+* **Recharts 3**: Biblioteca de gráficos composíveis para React. Utilizada no Dashboard para renderização do gráfico combinado (barras e linhas) de movimentações diárias dos últimos sete dias.
+
+* **Lucide React**: Biblioteca de ícones SVG otimizados. Fornece iconografia consistente em toda a interface, incluindo indicadores de status, ações de CRUD e elementos de navegação.
+
+### Infraestrutura
+
+* **Docker e Docker Compose**: Containerização da aplicação completa. Orquestra quatro serviços (PostgreSQL, Redis, API e Frontend) com healthchecks para garantir a ordem correta de inicialização.
+
+* **GitHub Actions**: Pipeline de integração contínua. Executa automaticamente lint, testes e build para backend e frontend em cada push ou pull request nas branches `main` e `develop`.
+
+## Arquitetura do Sistema
+
+O fluxo de dados segue um modelo cliente-servidor padrão, projetado para separar responsabilidades e garantir escalabilidade:
+
+```text
+[Frontend (Next.js + Zustand)] 
+             │
+             ↓ Requisições HTTP (REST + JWT)
+             │
+   [Backend API (NestJS)] 
+             │
+             ├───→ [Redis] (Cache rápido para o Dashboard)
+             │
+             └───→ [PostgreSQL] (Persistência definitiva via Prisma)
 ```
-┌─────────────────────┐      REST API       ┌─────────────────────┐
-│      Frontend        │ ◄────────────────► │       Backend        │
-│  Next.js 16          │                     │      NestJS 11       │
-│  React 19 + TS       │                     │    TypeScript        │
-│  Zustand (stores)    │                     │    Prisma ORM        │
-│  Tailwind CSS 4      │                     │    class-validator    │
-│  Recharts            │                     │                      │
-└─────────────────────┘                     └───────┬──────┬───────┘
-                                                    │      │
-                                               ┌────▼──┐ ┌─▼────┐
-                                               │Postgres│ │Redis │
-                                               │  16    │ │  7   │
-                                               │ (DB)   │ │(Cache)│
-                                               └───────┘ └──────┘
-```
 
-```
-Telas (Frontend):               Módulos (Backend):
-• Login                          • AuthModule (JWT, Guards, Roles)
-• Dashboard (cards + gráfico)    • ProductsModule (CRUD + paginação)
-• Produtos (tabela + CRUD)       • CategoriesModule (CRUD)
-• Movimentações (formulário)     • MovementsModule (transação atômica)
-• Categorias (CRUD simples)      • DashboardModule (métricas + cache)
-
-Zustand Stores:
-• useAuthStore (JWT + persist)
-• useProductStore (CRUD + paginação)
-• useCategoryStore (CRUD)
-```
-
----
-
-## ⚡ Tech Stack
-
-| Camada | Tecnologia | Justificativa |
-|---|---|---|
-| **Frontend** | Next.js 16, React 19, TypeScript, Tailwind CSS 4, **Zustand** | App Router, RSC, tipagem end-to-end, estado global |
-| **Backend** | NestJS 11, TypeScript, Prisma ORM | Arquitetura modular, DI nativa, validação com DTOs |
-| **Banco** | PostgreSQL 16 | Transações ACID, queries de agregação, raw queries |
-| **Cache** | Redis 7 | Cache do dashboard (TTL 60s) com invalidação automática |
-| **Validação** | class-validator, class-transformer, Zod | DTOs rigorosos no backend, schemas no frontend |
-| **Gráficos** | Recharts | Charts responsivos no dashboard |
-| **Testes** | Jest, React Testing Library | Unitários (services) + componentes |
-| **DevOps** | Docker Compose, GitHub Actions | Containerização + CI pipeline (lint → test → build) |
-| **Deploy** | Railway (API + DB + Redis), Vercel (Frontend) | Deploy automático a cada push na `main` |
-
----
-
-## 📋 Funcionalidades
-
-| Feature | Descrição |
-|---|---|
-| 🔐 **Autenticação JWT** | Register/Login com bcrypt (10 salt rounds), roles Admin/Operator |
-| 📦 **CRUD de Produtos** | Cadastro com SKU único, preço de custo/venda, estoque mínimo |
-| 📂 **CRUD de Categorias** | Agrupamento lógico com proteção contra exclusão com vínculos |
-| 📥📤 **Movimentações Atômicas** | Entradas/saídas via `prisma.$transaction()` - movimento + update juntos |
-| 🚫 **Estoque Negativo Bloqueado** | Validação server-side impede saídas maiores que o disponível |
-| 🔴 **Alertas de Estoque Baixo** | Badges visuais (verde/amarelo/vermelho) + lista de itens críticos |
-| 📊 **Dashboard em Tempo Real** | Cards de métricas + gráfico de barras (Recharts) dos últimos 7 dias |
-| ⚡ **Cache Redis** | Dashboard cacheado com TTL 60s, invalidado automaticamente em cada movimentação |
-| 🔍 **Busca e Filtros** | Pesquisa case-insensitive por nome/SKU + filtro por categoria |
-| 📄 **Paginação Server-Side** | API paginada com metadados (`total`, `page`, `limit`, `totalPages`) |
-| 👤 **Auditoria** | Cada movimentação registra o usuário responsável (extraído do JWT) |
-| ✅ **Testes** | Jest (regras de negócio) + RTL (componentes) |
-| 🐳 **Docker** | `docker-compose up --build` sobe 4 containers (API + Frontend + Postgres + Redis) |
-| 🔄 **CI/CD** | GitHub Actions roda lint + test + build em cada push/PR |
-
----
-
-## 📁 Estrutura do Projeto
+## Estrutura de Pastas
 
 ```
 stocksnap/
-├── backend/
-│   ├── src/
-│   │   ├── auth/               # JWT, Guards, Strategies, Decorators
-│   │   │   ├── decorators/     # @CurrentUser()
-│   │   │   ├── dto/            # RegisterDto, LoginDto
-│   │   │   ├── guards/         # JwtAuthGuard
-│   │   │   └── strategies/     # JwtStrategy (Passport)
-│   │   ├── categories/         # CRUD com validação de unicidade
-│   │   ├── products/           # CRUD com paginação, busca, filtros
-│   │   ├── movements/          # Entrada/saída com transação atômica
-│   │   ├── dashboard/          # Métricas agregadas + cache Redis
-│   │   ├── prisma/             # PrismaService global
-│   │   └── main.ts             # Bootstrap com ValidationPipe + CORS
-│   ├── prisma/
-│   │   ├── schema.prisma       # 4 modelos, 2 enums
-│   │   └── seed.ts             # 2 users, 5 categorias, 15 produtos, 6 movimentações
-│   ├── rest-client/
-│   │   └── requests.http       # Testes manuais da API (VS Code REST Client)
-│   └── Dockerfile
-├── frontend/
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── (auth)/login/   # Página de login
-│   │   │   └── (dashboard)/    # Rotas protegidas com sidebar
-│   │   │       ├── page.tsx        # Dashboard
-│   │   │       ├── products/       # Tabela + modal CRUD
-│   │   │       ├── movements/      # Formulário + histórico
-│   │   │       └── categories/     # CRUD simples
-│   │   ├── components/         # Sidebar, Header, UI components
-│   │   ├── stores/             # Zustand stores (auth, products, categories)
-│   │   ├── lib/                # API Client centralizado, utils
-│   │   └── types/              # Interfaces TypeScript (end-to-end)
-│   └── Dockerfile
-├── docker-compose.yml          # Postgres 16 + Redis 7 (+ API + Frontend)
-├── .github/workflows/ci.yml   # CI pipeline
+├── .github
+│   └── workflows
+│       └── ci.yml
+├── backend
+│   ├── http
+│   │   └── api.http
+│   ├── prisma
+│   │   ├── migrations
+│   │   │   ├── 20260430004028_init
+│   │   │   │   └── migration.sql
+│   │   │   └── migration_lock.toml
+│   │   ├── schema.prisma
+│   │   └── seed.ts
+│   ├── src
+│   │   ├── auth
+│   │   │   ├── decorators
+│   │   │   │   └── current-user.decorator.ts
+│   │   │   ├── dto
+│   │   │   │   ├── login.dto.ts
+│   │   │   │   └── register.dto.ts
+│   │   │   ├── guards
+│   │   │   │   └── jwt-auth.guard.ts
+│   │   │   ├── strategies
+│   │   │   │   └── jwt.strategy.ts
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.module.ts
+│   │   │   ├── auth.service.spec.ts
+│   │   │   └── auth.service.ts
+│   │   ├── categories
+│   │   │   ├── dto
+│   │   │   │   ├── create-category.dto.ts
+│   │   │   │   └── update-category.dto.ts
+│   │   │   ├── categories.controller.ts
+│   │   │   ├── categories.module.ts
+│   │   │   ├── categories.service.spec.ts
+│   │   │   └── categories.service.ts
+│   │   ├── dashboard
+│   │   │   ├── dashboard.controller.ts
+│   │   │   ├── dashboard.module.ts
+│   │   │   ├── dashboard.service.spec.ts
+│   │   │   └── dashboard.service.ts
+│   │   ├── movements
+│   │   │   ├── dto
+│   │   │   │   ├── create-movement.dto.ts
+│   │   │   │   └── query-movement.dto.ts
+│   │   │   ├── movements.controller.ts
+│   │   │   ├── movements.module.ts
+│   │   │   ├── movements.service.spec.ts
+│   │   │   └── movements.service.ts
+│   │   ├── prisma
+│   │   │   ├── prisma.module.ts
+│   │   │   └── prisma.service.ts
+│   │   ├── products
+│   │   │   ├── dto
+│   │   │   │   ├── create-product.dto.ts
+│   │   │   │   ├── query-product.dto.ts
+│   │   │   │   └── update-product.dto.ts
+│   │   │   ├── products.controller.ts
+│   │   │   ├── products.module.ts
+│   │   │   ├── products.service.spec.ts
+│   │   │   └── products.service.ts
+│   │   ├── app.controller.spec.ts
+│   │   ├── app.controller.ts
+│   │   ├── app.module.ts
+│   │   ├── app.service.ts
+│   │   └── main.ts
+│   ├── test
+│   │   ├── app.e2e-spec.ts
+│   │   └── jest-e2e.json
+│   ├── .dockerignore
+│   ├── .env
+│   ├── Dockerfile
+│   ├── eslint.config.mjs
+│   ├── nest-cli.json
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── tsconfig.build.json
+│   └── tsconfig.json
+├── frontend
+│   ├── public
+│   ├── src
+│   │   ├── app
+│   │   │   ├── (auth)
+│   │   │   │   └── login
+│   │   │   │       └── page.tsx
+│   │   │   ├── (dashboard)
+│   │   │   │   ├── categories
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── movements
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── products
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── layout.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── globals.css
+│   │   │   ├── icon.svg
+│   │   │   └── layout.tsx
+│   │   ├── components
+│   │   │   ├── ui
+│   │   │   │   ├── badge.tsx
+│   │   │   │   ├── button.test.tsx
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── card.tsx
+│   │   │   │   ├── input.tsx
+│   │   │   │   ├── stock-badge.test.tsx
+│   │   │   │   └── stock-badge.tsx
+│   │   │   ├── category-modal.tsx
+│   │   │   ├── header.tsx
+│   │   │   ├── movement-modal.test.tsx
+│   │   │   ├── movement-modal.tsx
+│   │   │   ├── product-modal.tsx
+│   │   │   └── sidebar.tsx
+│   │   ├── lib
+│   │   │   ├── api.test.ts
+│   │   │   ├── api.ts
+│   │   │   ├── utils.test.ts
+│   │   │   └── utils.ts
+│   │   ├── stores
+│   │   │   ├── auth-store.test.ts
+│   │   │   ├── auth-store.ts
+│   │   │   ├── category-store.test.ts
+│   │   │   ├── category-store.ts
+│   │   │   ├── dashboard-store.ts
+│   │   │   ├── movement-store.ts
+│   │   │   └── product-store.ts
+│   │   ├── types
+│   │   │   └── index.ts
+│   │   └── proxy.ts
+│   ├── .dockerignore
+│   ├── .env.local
+│   ├── Dockerfile
+│   ├── eslint.config.mjs
+│   ├── jest.config.ts
+│   ├── jest.setup.ts
+│   ├── next-env.d.ts
+│   ├── next.config.ts
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.mjs
+│   ├── tsconfig.json
+│   └── tsconfig.tsbuildinfo
+├── .dockerignore
+├── .gitignore
+├── .prettierignore
+├── .prettierrc
+├── docker-compose.yml
 └── README.md
 ```
 
----
+A estrutura do projeto é dividida em dois blocos lógicos principais: o backend (API REST) e o frontend (Single Page Application). Abaixo, detalhamos as responsabilidades dos principais diretórios e arquivos da base de código:
 
-## 🚀 Rodar Localmente
+### Backend (NestJS e Prisma)
+
+* **`backend/prisma/`**: Contém o schema de dados (`schema.prisma`), o histórico rigoroso de migrations geradas automaticamente e o script de seed (`seed.ts`) para população inicial do banco de dados.
+* **`backend/http/`**: Coleção de requisições pré-configuradas (`api.http`) para uso em extensões como o REST Client do VS Code. Facilita o teste manual isolado da API sem a necessidade de uma interface de usuário ou Postman.
+* **`backend/src/`**: Diretório raiz da aplicação server-side.
+  * **`backend/src/auth/`**: Módulo de segurança. Contém a estratégia JWT, decorators customizados para extração do usuário da requisição, guards de proteção de rotas e lógica de hash de senhas via bcrypt.
+  * **`backend/src/<dominios>/`**: Módulos de negócio isolados (`categories`, `dashboard`, `movements`, `products`). Cada pasta encapsula seu respectivo Controller (exposição de endpoints), Service (regras de negócio) e DTOs (validação estrita de payload de entrada).
+  * **`backend/src/app.module.ts`**: Módulo raiz responsável por orquestrar a injeção de dependências global e a configuração do cache em memória (Redis).
+* **`backend/test/`**: Suíte de testes automatizados E2E para garantir o funcionamento correto e integrado dos endpoints HTTP.
+* **`backend/Dockerfile`**: Receita de construção da imagem Docker de produção da API, otimizada com Alpine Linux.
+
+### Frontend (Next.js e Zustand)
+
+* **`frontend/src/app/`**: Diretório central utilizando o padrão App Router do Next.js.
+  * **`(auth)/`**: Grupo de rotas públicas dedicadas à autenticação (painéis de login).
+  * **`(dashboard)/`**: Grupo de rotas privadas (com layout compartilhado) abrigando o painel administrativo, listagens com paginação e CRUDs.
+* **`frontend/src/components/`**: Camada de interface baseada em componentes React isolados e reutilizáveis. Inclui elementos granulares (`ui/`), modais de criação/edição e módulos estruturais da tela (`sidebar.tsx`, `header.tsx`).
+* **`frontend/src/lib/`**: Biblioteca de utilitários transversais. Destaca-se o `api.ts`, um wrapper centralizado para chamadas HTTP que intercepta e injeta o token de sessão (Bearer) de forma autônoma em cada requisição.
+* **`frontend/src/stores/`**: Camada de gerenciamento de estado global, implementada com Zustand. O `auth-store.ts` sincroniza e hidrata a sessão diretamente do localStorage, enquanto as demais stores gerenciam regras de busca, limites e memória em listagens de domínio.
+* **`frontend/src/proxy.ts`**: Camada de segurança do Next.js, responsável por validar a integridade dos cookies e redirecionar acessos não autorizados de forma veloz.
+
+### Infraestrutura e Configurações Globais
+
+* **`.github/workflows/ci.yml`**: Configuração do pipeline de Integração Contínua executado pelo GitHub Actions (realiza validação de linting, testes e rotinas de build em cada pull request).
+* **`docker-compose.yml`**: Orquestrador central utilizado para subir e intercomunicar simultaneamente o banco de dados PostgreSQL, o servidor cache Redis, a API e a Interface Web em ambiente de desenvolvimento.
+
+## Como Executar O Projeto Localmente
 
 ### Pré-requisitos
 
-- **Node.js** 20+
-- **Docker Desktop** (para Postgres e Redis)
+* Node.js 20 ou superior
+* PostgreSQL 16 (local ou via Docker)
+* Redis 7 (local ou via Docker)
+* npm 10 ou superior
 
-### Setup rápido
+### Opção 1: Execução via Docker Compose (Recomendada)
 
 ```bash
-# 1. Clonar o repositório
 git clone https://github.com/gabriellqv/stocksnap.git
 cd stocksnap
-
-# 2. Subir banco + cache
-docker-compose up -d postgres redis
-
-# 3. Backend (terminal 1)
-cd backend
-cp .env.example .env       # ou use o .env existente
-npm install
-npx prisma migrate dev     # cria as tabelas
-npx prisma db seed         # popula com dados de exemplo
-npm run start:dev           # http://localhost:3001
-
-# 4. Frontend (terminal 2)
-cd frontend
-npm install
-npm run dev                 # http://localhost:3000
 ```
 
-**Acesse** → `http://localhost:3000`
-**Login** → `admin@stocksnap.com` / `admin123`
-
-### Ou com Docker Compose (tudo de uma vez)
+Crie o arquivo `backend/.env` com as variáveis necessárias (consulte a seção "Variáveis de Ambiente"). Em seguida, execute:
 
 ```bash
 docker-compose up --build
 ```
 
-> Sobe 4 containers: PostgreSQL, Redis, API (NestJS) e Frontend (Next.js).
-> Acesse `http://localhost:3000` - o sistema inteiro rodando em containers.
+O sistema estará disponível em `http://localhost:3000` (frontend) e `http://localhost:3001/api` (backend).
 
----
+### Opção 2: Execução Manual
 
-## 📡 API Endpoints
-
-Todas as rotas (exceto Auth) exigem `Authorization: Bearer <JWT>`.
-
-### Auth
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `POST` | `/api/auth/register` | Criar conta (name, email, password) |
-| `POST` | `/api/auth/login` | Login → retorna `{ access_token, user }` |
-
-### Categorias
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `GET` | `/api/categories` | Listar todas (com contagem de produtos) |
-| `POST` | `/api/categories` | Criar (name único) |
-| `PATCH` | `/api/categories/:id` | Editar |
-| `DELETE` | `/api/categories/:id` | Deletar (bloqueado se tem produtos) |
-
-### Produtos
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `GET` | `/api/products?search=X&categoryId=Y&page=1&limit=10` | Listar (paginado, filtros) |
-| `GET` | `/api/products/:id` | Detalhe + últimas 20 movimentações |
-| `POST` | `/api/products` | Criar (SKU único) |
-| `PATCH` | `/api/products/:id` | Editar parcialmente |
-| `DELETE` | `/api/products/:id` | Deletar (bloqueado se tem movimentações) |
-
-### Movimentações
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `POST` | `/api/movements` | Registrar entrada/saída (transação atômica) |
-| `GET` | `/api/movements?type=ENTRY&productId=X&page=1` | Listar com filtros |
-
-### Dashboard
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `GET` | `/api/dashboard/summary` | `{ totalProducts, totalValue, criticalItems, todayMovements }` |
-| `GET` | `/api/dashboard/chart` | Movimentações dos últimos 7 dias (entradas vs saídas) |
-| `GET` | `/api/dashboard/low-stock` | Produtos com estoque ≤ mínimo (ordenado por criticidade) |
-
----
-
-## 🎯 Destaques Técnicos
-
-### 1. Transação Atômica nas Movimentações
-
-O coração do sistema. Ao registrar uma entrada ou saída, duas operações precisam acontecer juntas: criar o registro de movimentação **e** atualizar a quantidade do produto. Usando `prisma.$transaction()`, garantimos que ambas executam ou nenhuma - evitando dados inconsistentes.
-
-```typescript
-const result = await this.prisma.$transaction(async (tx) => {
-  const movement = await tx.movement.create({ ... });
-  const updatedProduct = await tx.product.update({
-    where: { id: dto.productId },
-    data: { quantity: { increment: quantityChange } },
-  });
-  return { movement, updatedStock: updatedProduct.quantity };
-});
-```
-
-### 2. Cache Inteligente com Redis
-
-O Dashboard faz queries pesadas de agregação. Com Redis (TTL 60s), a query roda no máximo 1x por minuto - mesmo com 100 acessos simultâneos. O cache é **invalidado automaticamente** quando uma nova movimentação é registrada.
-
-```
-SEM cache:  Usuário → API → PostgreSQL (query pesada) → 300ms
-COM cache:  Usuário → API → Redis (memória)           →   5ms ⚡
-```
-
-### 3. Validação em Camadas
-
-- **Backend:** DTOs com `class-validator` - `whitelist: true` + `forbidNonWhitelisted: true` garantem que nenhum campo inválido chega ao banco
-- **Frontend:** Schemas Zod + React Hook Form para feedback instantâneo
-- **Negócio:** Estoque negativo bloqueado server-side, SKUs e emails únicos com tratamento de conflito (409)
-
-### 4. Proteção Completa
-
-- JWT com payload (`sub`, `email`, `role`) + expiração configurável
-- Guard global em todas as rotas protegidas
-- `userId` extraído do token (nunca do body) para auditoria
-- CORS restrito ao frontend (`http://localhost:3000`)
-- Mensagens de erro genéricas no login (OWASP A07:2021 - evita enumeração de contas)
-
-### 5. Estado Global com Zustand
-
-3 stores modulares gerenciam todo o estado da aplicação frontend:
-
-- **`useAuthStore`**: JWT token + dados do usuário, com middleware `persist` para `localStorage`. Sincroniza o token com o API client automaticamente via `onRehydrateStorage`.
-- **`useProductStore`**: lista paginada, busca, filtros e CRUD completo com atualização otimista.
-- **`useCategoryStore`**: CRUD de categorias com refresh automático.
-
-### 6. API Profissional
-
-- Paginação server-side com metadados completos
-- Busca case-insensitive por nome e SKU
-- Filtros combináveis (categoria + busca + paginação)
-- Status codes corretos (200, 201, 400, 401, 404, 409)
-- Mensagens de erro descritivas em português
-
----
-
-## 🧪 Testes
+**Backend:**
 
 ```bash
-# Backend - regras de negócio (movimentações, estoque negativo, cache)
-cd backend && npm test
-
-# Frontend - componentes (badges, renderização)
-cd frontend && npx jest
+cd backend
+npm install
+npx prisma generate
+npx prisma migrate dev
+npx prisma db seed
+npm run start:dev
 ```
+
+**Frontend:**
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Variáveis de Ambiente
+
+O arquivo `backend/.env` deve conter as seguintes variáveis:
+
+| Variável | Descrição |
+|---|---|
+| `DATABASE_URL` | String de conexão com o PostgreSQL no formato `postgresql://usuario:senha@host:porta/banco?schema=public` |
+| `JWT_SECRET` | Chave secreta utilizada para assinatura e verificação dos tokens JWT. Deve ser uma string aleatória e segura |
+| `JWT_EXPIRATION` | Tempo de expiração dos tokens JWT (exemplo: `7d` para sete dias) |
+| `REDIS_HOST` | Endereço do servidor Redis (padrão: `localhost`) |
+| `REDIS_PORT` | Porta do servidor Redis (padrão: `6379`) |
+| `PORT` | Porta onde a API irá escutar conexões HTTP (padrão: `3001`) |
+| `CORS_ORIGIN` | URL de origem permitida para requisições cross-origin (padrão: `http://localhost:3000`) |
+
+O frontend utiliza uma única variável de ambiente:
+
+| Variável | Descrição |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | URL base da API backend acessível pelo navegador (exemplo: `http://localhost:3001/api`) |
+
+## Testes
+
+O projeto possui uma suíte de 60 testes automatizados (29 no backend e 31 no frontend), executados automaticamente pela pipeline de integração contínua a cada push.
+
+**Executar testes do backend:**
+
+```bash
+cd backend
+npm test
+```
+
+**Executar testes do frontend:**
+
+```bash
+cd frontend
+npm test
+```
+
+### Cobertura por Módulo
 
 **Backend (29 testes):**
-- ✓ Auth: Login, JWT, Hash de senha, Email único
-- ✓ Categories: Unicidade, proteção contra exclusão com vínculos
-- ✓ Products: SKU único, validação de categoria, cache invalidation
-- ✓ Movements: Transação atômica, bloqueio de estoque negativo, boundary cases
-- ✓ Dashboard: Cache hit/miss, cálculos de métricas financeira
-- ✓ Invalidação de cache após movimentação
+
+* `AuthService`: validação de credenciais, hash de senhas, emissão de tokens e prevenção de enumeração de usuários
+* `CategoriesService`: unicidade de nome, atualização com validação de conflito e bloqueio de exclusão com produtos vinculados
+* `ProductsService`: unicidade de SKU, validação de categoria e invalidação de cache após mutações
+* `MovementsService`: transações atômicas, validação de saldo negativo e invalidação seletiva de cache
+* `DashboardService`: cache hit/miss, cálculo de métricas e integração com Redis
 
 **Frontend (31 testes):**
-- ✓ AuthStore: Login, logout, persistência, erro de credenciais
-- ✓ CategoryStore: CRUD completo via Zustand
-- ✓ UI Components: StockBadge (crítico/atenção/normal), Buttons, Modais
-- ✓ Libs: API interceptors, utils e formatters
 
----
+* `AuthStore`: fluxo de login, logout, persistência de token e reidratação
+* `CategoryStore`: operações CRUD e tratamento de erros da API
+* `ApiClient`: injeção de token, interceptor de 401 e tratamento de erros HTTP
+* `Utilitários`: formatação de moeda, datas e composição de classes CSS
+* `Componentes UI`: renderização condicional do StockBadge, Button e MovementModal
 
-## 🗃️ Modelo do Banco de Dados
+## Decisões Técnicas Relevantes
 
-```
-┌──────────┐       ┌──────────────┐       ┌──────────┐
-│   User   │       │   Product    │       │ Category │
-├──────────┤       ├──────────────┤       ├──────────┤
-│ id       │       │ id           │       │ id       │
-│ name     │       │ name         │       │ name     │
-│ email 🔑 │──┐    │ sku 🔑       │    ┌──│          │
-│ password │  │    │ description  │    │  └──────────┘
-│ role     │  │    │ costPrice    │    │
-│ createdAt│  │    │ sellPrice    │    │   Roles:
-└──────────┘  │    │ quantity     │    │   • ADMIN
-              │    │ minQuantity  │    │   • OPERATOR
-              │    │ categoryId ──┼────┘
-              │    │ createdAt    │        MovementType:
-              │    │ updatedAt    │        • ENTRY
-              │    └──────┬───────┘        • EXIT
-              │           │
-              │    ┌──────▼───────┐
-              │    │  Movement    │
-              │    ├──────────────┤
-              │    │ id           │
-              │    │ type         │
-              │    │ quantity     │
-              │    │ reason       │
-              └───▶│ userId       │
-                   │ productId    │
-                   │ createdAt    │
-                   └──────────────┘
-```
+* **Transações Atômicas com Prisma**: O registro de movimentações de estoque utiliza `prisma.$transaction()` para garantir que a criação do registro e a atualização do saldo do produto ocorram de forma indivisível. Em caso de falha em qualquer etapa, toda a operação é revertida.
+  * **Impacto Arquitetural:** Prevenção de erros operacionais graves (ex: estoque negativo, produtos "fantasma" ou inconsistências contábeis).
 
-**Relações:**
-- `Category 1 → N Product` (uma categoria tem vários produtos)
-- `Product 1 → N Movement` (um produto tem várias movimentações)
-- `User 1 → N Movement` (um usuário registra várias movimentações)
+* **Cache Redis com Invalidação Seletiva**: As consultas de agregação do Dashboard (métricas, gráficos e alertas de estoque crítico) são cacheadas por 60 segundos. Após operações de escrita (Products e Movements), apenas as chaves afetadas são invalidadas, evitando a lentidão de um flush global.
+  * **Impacto Arquitetural:** Redução drástica de carga no banco de dados durante o acesso ao painel, entregando uma interface instantânea para o gestor.
 
----
+* **Zustand sobre Context API**: A escolha do Zustand elimina o boilerplate comum (nenhum Provider na árvore) e fornece renderizações isoladas por fragmento de estado, com suporte nativo de persistência via localStorage.
+  * **Impacto Arquitetural:** Código do client-side mais limpo e interface do usuário livre de "engasgos" (re-renders desnecessários de componentes não afetados).
 
-## 🛡️ Regras de Negócio
+* **ValidationPipe Global Rigoroso**: O NestJS é configurado com `whitelist: true` e `forbidNonWhitelisted: true`, rejeitando automaticamente qualquer campo não declarado nos DTOs.
+  * **Impacto Arquitetural:** API blindada logo na porta de entrada, evitando ataques de injeção massiva e economizando processamento de payloads sujos.
 
-| # | Regra | Comportamento |
-|:-:|---|---|
-| 1 | Estoque nunca negativo | Saída > estoque → `400 Bad Request` |
-| 2 | Movimentações auditáveis | Cada registro inclui usuário, data e motivo |
-| 3 | Atualização atômica | Movimento + update de estoque em `$transaction` |
-| 4 | Alerta de estoque baixo | `quantity ≤ minQuantity` → alerta visual no dashboard |
-| 5 | Auditoria automática | `userId` extraído do JWT, não do body |
-| 6 | Roles (Admin/Operator) | Admin: CRUD completo · Operator: movimentações + visualização |
+* **ParseUUIDPipe nos Controllers**: Todos os endpoints com parâmetros de rota utilizam `ParseUUIDPipe` para validar o formato UUID antes de atingir a camada de serviço. Requisições malformadas retornam HTTP 400 imediatamente.
+  * **Impacto Arquitetural:** Protege o banco de dados contra consultas inúteis com IDs inválidos, otimizando os recursos do servidor.
 
----
+* **Segurança Anti-enumeração no Login**: Tanto para email inexistente quanto para senha incorreta, o sistema retorna a mesma mensagem genérica ("Email ou senha incorretos"), conforme recomendação de segurança OWASP A07:2021.
+  * **Impacto Arquitetural:** Impede que pessoas mal-intencionadas realizem varreduras para descobrir se determinados emails possuem cadastro ativo no sistema.
 
-## ⚙️ Variáveis de Ambiente
+* **Design System com CSS Variables**: A interface utiliza um sistema de tokens semânticos definidos em CSS Variables (cores, superfícies, bordas), integrados nativamente à nova diretiva `@theme` do Tailwind CSS 4.
+  * **Impacto Arquitetural:** Facilita muito a manutenção da identidade visual (Design Tokens centralizados) e simplifica drasticamente a futura implementação de um modo claro/escuro.
 
-### Backend (`backend/.env`)
+* **Cliente API Centralizado**: Todas as requisições HTTP do frontend passam por um wrapper único (`api.ts`) que injeta automaticamente o Bearer Token, trata respostas 401 e padroniza erros de rede.
+  * **Impacto Arquitetural:** Reduz fortemente a duplicação de lógica repetitiva no frontend e garante que a sessão do usuário nunca "trave" de forma silenciosa após o JWT expirar.
 
-```env
-DATABASE_URL="postgresql://stocksnap:stocksnap123@localhost:5432/stocksnap?schema=public"
-JWT_SECRET="sua-chave-secreta-aqui-troque-em-producao"
-JWT_EXPIRATION="7d"
-REDIS_HOST="localhost"
-REDIS_PORT=6379
-PORT=3001
-```
 
-### Frontend (`frontend/.env.local`)
+## Possíveis Melhorias Futuras
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
-```
+* Implementação de controle de acesso baseado em papéis (RBAC) no frontend, restringindo componentes e ações com base no campo role do usuário autenticado
+* Adição de testes de integração (E2E) com supertest no backend para validar o fluxo HTTP completo
+* Implementação de paginação e filtros no módulo de categorias
+* Rate limiting via @nestjs/throttler para proteção contra ataques de força bruta nos endpoints de autenticação
+* Headers de segurança HTTP via helmet para proteção contra ataques XSS, clickjacking e sniffing de MIME type
+* Implementação de refresh tokens para renovação silenciosa de sessões expiradas
+* Monitoramento de aplicação com instrumentação OpenTelemetry para rastreamento de latência e taxa de erros
+* Exportação de relatórios de movimentações em formato PDF e CSV
+* Introdução de filas assíncronas com BullMQ (melhora de performance e desacoplamento)
 
----
+## Considerações Finais
 
-## 📝 Licença
-
-MIT
-
----
-
-Feito por **[Gabriel Queiroz](https://github.com/gabriellqv)** · [LinkedIn](https://linkedin.com/in/gabriellqv)
+O StockSnap representa uma implementação completa de um sistema de controle de estoque que prioriza segurança, consistência de dados e experiência do desenvolvedor. A base de código demonstra competência em pilares fundamentais de engenharia de software: modelagem de domínio com integridade referencial, transações atômicas para operações críticas, cache distribuído com invalidação seletiva, autenticação stateless com JWT, validação rigorosa de entrada de dados e gerenciamento de estado reativo no frontend. A organização modular, a tipagem estática de ponta a ponta, a suíte de testes automatizados e a infraestrutura de integração contínua refletem a preocupação com a manutenibilidade, escalabilidade e a qualidade de código necessárias para contribuir de forma imediata em equipes de engenharia profissionais.

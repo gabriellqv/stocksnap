@@ -47,7 +47,6 @@ export function CategoryModal({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(category.name);
     } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName('');
     }
   }, [category, isOpen]);

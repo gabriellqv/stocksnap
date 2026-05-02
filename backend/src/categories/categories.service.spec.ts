@@ -35,20 +35,27 @@ describe('CategoriesService', () => {
   describe('create', () => {
     it('deve criar uma categoria se o nome for único', async () => {
       mockPrismaService.category.findUnique.mockResolvedValue(null);
-      
+
       const payload = { name: 'Eletrônicos' };
       const createdCategory = { id: 'uuid', name: 'Eletrônicos' };
       mockPrismaService.category.create.mockResolvedValue(createdCategory);
 
       const result = await service.create(payload);
 
-      expect(mockPrismaService.category.findUnique).toHaveBeenCalledWith({ where: { name: 'Eletrônicos' } });
-      expect(mockPrismaService.category.create).toHaveBeenCalledWith({ data: payload });
+      expect(mockPrismaService.category.findUnique).toHaveBeenCalledWith({
+        where: { name: 'Eletrônicos' },
+      });
+      expect(mockPrismaService.category.create).toHaveBeenCalledWith({
+        data: payload,
+      });
       expect(result).toEqual(createdCategory);
     });
 
     it('deve lançar ConflictException se o nome já existir', async () => {
-      mockPrismaService.category.findUnique.mockResolvedValue({ id: 'uuid', name: 'Eletrônicos' });
+      mockPrismaService.category.findUnique.mockResolvedValue({
+        id: 'uuid',
+        name: 'Eletrônicos',
+      });
 
       const payload = { name: 'Eletrônicos' };
 
@@ -60,7 +67,7 @@ describe('CategoriesService', () => {
   describe('update', () => {
     it('deve atualizar a categoria se o nome novo for único', async () => {
       const existingCategory = { id: 'uuid-1', name: 'Eletrônicos Velho' };
-      
+
       // Simula que a categoria existe (findOneOrFail)
       mockPrismaService.category.findUnique
         .mockResolvedValueOnce(existingCategory) // Para o findOneOrFail
@@ -82,7 +89,9 @@ describe('CategoriesService', () => {
     it('deve lançar NotFoundException se tentar atualizar categoria inexistente', async () => {
       mockPrismaService.category.findUnique.mockResolvedValue(null);
 
-      await expect(service.update('invalid-id', { name: 'Teste' })).rejects.toThrow(NotFoundException);
+      await expect(
+        service.update('invalid-id', { name: 'Teste' }),
+      ).rejects.toThrow(NotFoundException);
       expect(mockPrismaService.category.update).not.toHaveBeenCalled();
     });
 
@@ -95,26 +104,41 @@ describe('CategoriesService', () => {
         .mockResolvedValueOnce(existingCategory)
         .mockResolvedValueOnce(anotherCategory);
 
-      await expect(service.update('uuid-1', { name: 'Móveis' })).rejects.toThrow(ConflictException);
+      await expect(
+        service.update('uuid-1', { name: 'Móveis' }),
+      ).rejects.toThrow(ConflictException);
       expect(mockPrismaService.category.update).not.toHaveBeenCalled();
     });
   });
 
   describe('remove', () => {
     it('deve remover a categoria se não houver produtos vinculados', async () => {
-      mockPrismaService.category.findUnique.mockResolvedValue({ id: 'uuid-1', name: 'Eletrônicos' });
+      mockPrismaService.category.findUnique.mockResolvedValue({
+        id: 'uuid-1',
+        name: 'Eletrônicos',
+      });
       mockPrismaService.product.count.mockResolvedValue(0);
-      mockPrismaService.category.delete.mockResolvedValue({ id: 'uuid-1', name: 'Eletrônicos' });
+      mockPrismaService.category.delete.mockResolvedValue({
+        id: 'uuid-1',
+        name: 'Eletrônicos',
+      });
 
       const result = await service.remove('uuid-1');
 
-      expect(mockPrismaService.product.count).toHaveBeenCalledWith({ where: { categoryId: 'uuid-1' } });
-      expect(mockPrismaService.category.delete).toHaveBeenCalledWith({ where: { id: 'uuid-1' } });
+      expect(mockPrismaService.product.count).toHaveBeenCalledWith({
+        where: { categoryId: 'uuid-1' },
+      });
+      expect(mockPrismaService.category.delete).toHaveBeenCalledWith({
+        where: { id: 'uuid-1' },
+      });
       expect(result).toEqual({ id: 'uuid-1', name: 'Eletrônicos' });
     });
 
     it('deve lançar ConflictException se tentar remover categoria com produtos vinculados', async () => {
-      mockPrismaService.category.findUnique.mockResolvedValue({ id: 'uuid-1', name: 'Eletrônicos' });
+      mockPrismaService.category.findUnique.mockResolvedValue({
+        id: 'uuid-1',
+        name: 'Eletrônicos',
+      });
       mockPrismaService.product.count.mockResolvedValue(5); // 5 produtos vinculados
 
       await expect(service.remove('uuid-1')).rejects.toThrow(ConflictException);
@@ -124,7 +148,9 @@ describe('CategoriesService', () => {
     it('deve lançar NotFoundException ao tentar deletar categoria inexistente', async () => {
       mockPrismaService.category.findUnique.mockResolvedValue(null);
 
-      await expect(service.remove('invalid-id')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('invalid-id')).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockPrismaService.product.count).not.toHaveBeenCalled();
     });
   });

@@ -8,6 +8,7 @@
 
 import { create } from 'zustand';
 import { api } from '@/lib/api';
+import { buildQueryString } from '@/lib/utils';
 import type {
   Product,
   PaginatedResponse,
@@ -42,25 +43,6 @@ interface ProductActions {
   setQuery: (params: Partial<ProductQueryParams>) => void;
   clearSelectedProduct: () => void;
   clearError: () => void;
-}
-
-/**
- * @description Constrói uma query string a partir dos parâmetros de busca de produtos.
- * Omite parâmetros com valores falsy para não poluir a URL com `&search=`.
- *
- * @param {ProductQueryParams} params - Filtros e parâmetros de paginação.
- * @returns {string} Query string formatada (ex: `?search=shampoo&page=2`) ou string vazia.
- */
-function buildQueryString(params: ProductQueryParams): string {
-  const searchParams = new URLSearchParams();
-  if (params.search) searchParams.set('search', params.search);
-  if (params.categoryId) searchParams.set('categoryId', params.categoryId);
-  if (params.page) searchParams.set('page', String(params.page));
-  if (params.limit) searchParams.set('limit', String(params.limit));
-  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
-  if (params.sortOrder) searchParams.set('sortOrder', params.sortOrder);
-  const qs = searchParams.toString();
-  return qs ? `?${qs}` : '';
 }
 
 /**
@@ -110,7 +92,7 @@ export const useProductStore = create<ProductState & ProductActions>(
       try {
         await api.post<Product>('/products', data);
         set({ isSubmitting: false });
-        await get().fetchProducts(); // Recarregar lista
+        await get().fetchProducts();
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : 'Erro ao criar produto';
@@ -142,7 +124,7 @@ export const useProductStore = create<ProductState & ProductActions>(
       try {
         await api.delete(`/products/${id}`);
         set({ isSubmitting: false });
-        await get().fetchProducts(); // Recarregar lista
+        await get().fetchProducts();
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : 'Erro ao deletar produto';

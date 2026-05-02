@@ -13,22 +13,22 @@ import type { NextRequest } from 'next/server';
  * Migrado de middleware.ts -> proxy.ts (Next.js 16).
  */
 
-// Rotas que NÃO precisam de autenticação
+/** Lista de rotas públicas que ignoram o middleware de autenticação */
 const publicPaths = ['/login', '/register'];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Rotas públicas - deixar passar
+  /** Libera acesso irrestrito para rotas estáticas ou de autenticação */
   if (publicPaths.some((path) => pathname.startsWith(path))) {
     return NextResponse.next();
   }
 
-  // Verificar token no cookie (setado pelo login)
+  /** Extrai e valida o token JWT persistido nos cookies da requisição */
   const token = request.cookies.get('stocksnap-token')?.value;
 
   if (!token) {
-    // Redirecionar para login se não autenticado
+    /** Intercepta acessos anônimos a rotas protegidas e redireciona ao login */
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
@@ -38,6 +38,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Aplicar proxy apenas nas rotas do app (não em _next, imagens, etc.)
+  /** Aplica as regras de middleware exclusivamente em páginas, ignorando assets e rotas internas do Next.js */
   matcher: ['/((?!_next/static|_next/image|favicon.ico|api).*)'],
 };

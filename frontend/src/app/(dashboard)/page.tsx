@@ -50,7 +50,7 @@ export default function DashboardPage() {
   }, [fetchDashboardData]);
 
   const handleActionComplete = () => {
-    // Quando fechar os modais recarregamos a dashboard silenciosamente
+    /** Assegura a revalidação dos dados do painel após o fechamento de um modal de mutação */
     fetchDashboardData();
     fetchProducts();
   };
@@ -76,14 +76,17 @@ export default function DashboardPage() {
     );
   }
 
-  // Calcula a tendência (Delta) de movimentações de forma segura (previne NaN caso o cache do Redis não tenha expirado ainda)
+  /**
+   * Calcula a tendência (Delta) de movimentações de forma segura.
+   * Evita divisão por zero ou retornos NaN durante a invalidação de cache do Redis.
+   */
   const yMov = summary.yesterdayMovements || 0;
   const tMov = summary.todayMovements || 0;
   const movementDiff = tMov - yMov;
   const movementDelta =
     yMov === 0 ? (tMov > 0 ? 100 : 0) : Math.round((movementDiff / yMov) * 100);
 
-  // Calcula volume total do dia pro gráfico misto (linha)
+  /** Agrega o volume financeiro diário para composição do gráfico misto (área/linha) */
   const chartDataWithVolume = chart.map((c) => ({
     ...c,
     volume: c.entries + c.exits,

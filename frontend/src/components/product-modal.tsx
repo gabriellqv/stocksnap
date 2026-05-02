@@ -80,16 +80,19 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
     if (isOpen && categories.length === 0) {
       fetchCategories().catch(console.error);
     }
-    // Reseta estado inline de categoria quando o modal é fechado
+    /** Reset imperativo do formulário aninhado de categoria ao colapsar a interface */
     if (!isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsCreatingCategory(false);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setNewCategoryName('');
     }
   }, [isOpen, categories.length, fetchCategories]);
 
-  // A criação da categoria agora ocorre apenas no momento do submit do Produto
+  /**
+   * Previne a inserção antecipada da categoria.
+   * O flush no banco de dados agora é atrelado exclusivamente à finalização do produto raiz.
+   */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,7 +126,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
     try {
       let finalCategoryId = form.categoryId;
 
-      // Se estiver criando uma nova categoria, fazemos a requisição primeiro
+      /** Resolvimento da dependência hierárquica: cadastra a categoria in-flight antes do produto */
       if (isCreatingCategory) {
         const newCat = await createCategory({ name: newCategoryName.trim() });
         finalCategoryId = newCat.id;

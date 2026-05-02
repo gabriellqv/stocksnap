@@ -76,7 +76,9 @@ describe('API Client Wrapper (api.ts)', () => {
   it('deve limpar o token da sessão local e disparar erro em caso de HTTP 401 (Sessão Expirada)', async () => {
     // Mock location href for JSDOM
     const originalLocation = window.location;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (window as any).location;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     window.location = { href: '' } as any;
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -91,6 +93,7 @@ describe('API Client Wrapper (api.ts)', () => {
     );
 
     // Restore location
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     window.location = originalLocation as any;
   });
 });

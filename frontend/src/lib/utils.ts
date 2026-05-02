@@ -1,3 +1,6 @@
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
 /**
  * @description Formata um valor numérico como moeda brasileira (R$).
  *
@@ -28,9 +31,6 @@ export function formatDate(dateString: string): string {
   });
 }
 
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
 /**
  * @description Combina classes CSS condicionalmente e resolve conflitos do Tailwind.
  * Utiliza `clsx` para classes condicionais e `tailwind-merge` para garantir
@@ -41,4 +41,23 @@ import { twMerge } from 'tailwind-merge';
  */
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
+}
+
+/**
+ * @description Constrói uma query string a partir de um objeto de parâmetros.
+ * Filtra automaticamente valores falsy (null, undefined, string vazia).
+ * Utiliza URLSearchParams para escape correto de caracteres especiais.
+ *
+ * @param {Record<string, unknown>} params - Pares chave-valor dos filtros.
+ * @returns {string} Query string formatada (ex: `?search=shampoo&page=2`) ou string vazia.
+ */
+export function buildQueryString(params: Record<string, unknown>): string {
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.set(key, String(value));
+    }
+  }
+  const qs = searchParams.toString();
+  return qs ? `?${qs}` : '';
 }

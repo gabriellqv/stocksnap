@@ -4,6 +4,7 @@ node_modules/
 # Build
 dist/
 .next/
+.swc/
 out/
 
 # Prisma (gerado automaticamente por npx prisma generate)
@@ -19,7 +20,6 @@ pgdata/
 
 # TypeScript
 *.tsbuildinfo
-next-env.d.ts
 
 # Testes
 coverage/

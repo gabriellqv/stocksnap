@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 /**
@@ -10,17 +6,17 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
  *
  * @example
  * \@Get('me')
- * getProfile(\@CurrentUser() user: any) {
+ * getProfile(\@CurrentUser() user: unknown) {
  *   return user;
  * }
  *
  * @param {unknown} data - Propriedade específica do usuário a ser extraída (opcional).
  * @param {ExecutionContext} ctx - Contexto de execução da requisição HTTP no NestJS.
- * @returns {any} Objeto do usuário autenticado validado.
+ * @returns {unknown} Objeto do usuário autenticado validado.
  */
 export const CurrentUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
+    const request = ctx.switchToHttp().getRequest<{ user: unknown }>();
     return request.user;
   },
 );
