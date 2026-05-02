@@ -45,12 +45,16 @@ import { DashboardModule } from './dashboard/dashboard.module';
       useFactory: async (config: ConfigService) => {
         const url = config.get<string>('REDIS_URL');
         return {
-          store: await redisStore(url ? { url } : {
-            socket: {
-              host: config.get('REDIS_HOST', 'localhost'),
-              port: config.get('REDIS_PORT', 6379),
-            },
-          }),
+          store: await redisStore(
+            url
+              ? { url }
+              : {
+                  socket: {
+                    host: config.get('REDIS_HOST', 'localhost'),
+                    port: config.get('REDIS_PORT', 6379),
+                  },
+                },
+          ),
           ttl: 60 * 1000,
         };
       },
