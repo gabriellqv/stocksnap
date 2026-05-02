@@ -1,10 +1,8 @@
 # StockSnap
 
-![CI](https://github.com/gabriellqv/stocksnap/actions/workflows/ci.yml/badge.svg)
-![Coverage](https://img.shields.io/badge/coverage-100%25-success)
-![License](https://img.shields.io/badge/license-MIT-blue)
-![Node Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)
-![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=flat&logo=typescript&logoColor=white)
+![CI](https://img.shields.io/github/actions/workflow/status/gabriellqv/stocksnap/ci.yml?label=CI&logo=github) ![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white) ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs&logoColor=white) ![Zustand](https://img.shields.io/badge/Zustand-5-ea580c?logo=react&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-5-007ACC?logo=typescript&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+
+![Coverage](https://img.shields.io/badge/coverage-100%25-success) ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## Visão geral
 
@@ -55,10 +53,17 @@ graph TD
 
 ## Tecnologias
 
-1. **Backend:** NestJS 11, Prisma ORM 6, Swagger.
-2. **Banco de Dados:** PostgreSQL 16, Redis 7.
-3. **Frontend:** Next.js 16, React 19, Zustand 5, Tailwind CSS 4.
-4. **Infraestrutura:** Docker Multi-stage Builds, GitHub Actions.
+| Camada | Tecnologia |
+|---|---|
+| **Frontend** | Next.js 16, React 19, TypeScript, Tailwind CSS 4, Zustand |
+| **Backend** | NestJS 11, TypeScript, Prisma ORM, Swagger |
+| **Banco** | PostgreSQL 16 |
+| **Cache** | Redis 7 |
+| **Validação** | class-validator, class-transformer, Zod |
+| **Gráficos** | Recharts |
+| **Testes** | Jest, React Testing Library |
+| **DevOps** | Docker Compose, GitHub Actions |
+| **Deploy** | Railway (API + DB + Redis), Vercel (Frontend) |
 
 ## Funcionalidades
 
