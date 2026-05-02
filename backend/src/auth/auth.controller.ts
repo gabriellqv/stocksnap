@@ -7,6 +7,8 @@ import { LoginDto } from './dto/login.dto';
 /**
  * @description Controller responsável pelos endpoints públicos de autenticação.
  * Expõe as rotas REST para registro de novos usuários e emissão de tokens JWT.
+ * Ambos os endpoints possuem rate limiting restritivo via @Throttle para
+ * proteção contra ataques de força bruta e spam de contas.
  */
 @Controller('auth')
 export class AuthController {
@@ -17,6 +19,7 @@ export class AuthController {
    *
    * @param {RegisterDto} dto - Corpo da requisição validado com as informações do novo usuário.
    * @returns {Promise<unknown>} Dados do usuário registrado com sucesso.
+   * @throttle 3 requisições por minuto por IP (proteção contra spam de contas).
    */
   @Throttle({ default: { ttl: 60000, limit: 3 } })
   @Post('register')
@@ -31,6 +34,7 @@ export class AuthController {
    *
    * @param {LoginDto} dto - Corpo da requisição validado com as credenciais.
    * @returns {Promise<unknown>} Token JWT e informações básicas do usuário.
+   * @throttle 5 requisições por minuto por IP (proteção contra força bruta).
    */
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('login')

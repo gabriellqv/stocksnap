@@ -1,6 +1,7 @@
 /**
  * @fileoverview Página de gerenciamento de produtos com integração Zustand.
  * Responsável por exibir a tabela de produtos, filtros, busca e acionar o modal de edição.
+ * Operações de mutação (criar, editar, deletar) são restritas ao perfil ADMIN via RBAC.
  */
 
 'use client';
@@ -22,11 +23,14 @@ import { StockBadge } from '@/components/ui/stock-badge';
 import { ProductModal } from '@/components/product-modal';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
+import { useIsAdmin } from '@/hooks/use-is-admin';
 import type { Product } from '@/types';
 
 /**
  * @description Componente principal da rota de produtos.
  * Orquestra o estado global via Zustand para busca paginada e CRUD.
+ * Aplica controle de acesso baseado em papéis (RBAC): botões de criação,
+ * edição e exclusão são renderizados condicionalmente via `useIsAdmin()`.
  */
 export default function ProductsPage() {
   const { products, meta, query, isLoading, fetchProducts, deleteProduct } =
@@ -38,6 +42,7 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [searchInput, setSearchInput] = useState('');
+  const isAdmin = useIsAdmin();
 
   useEffect(() => {
     fetchProducts();
@@ -110,13 +115,15 @@ export default function ProductsPage() {
           </h1>
           <p className="text-muted mt-1">{meta.total} produtos cadastrados</p>
         </div>
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="gap-2 w-full sm:w-auto"
-        >
-          <Plus className="w-5 h-5" />
-          Novo Produto
-        </Button>
+        {isAdmin && (
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="gap-2 w-full sm:w-auto"
+          >
+            <Plus className="w-5 h-5" />
+            Novo Produto
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -181,9 +188,11 @@ export default function ProductsPage() {
                   )}
                 </button>
               </th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-muted uppercase">
-                Ações
-              </th>
+              {isAdmin && (
+                <th className="text-right px-6 py-3 text-xs font-medium text-muted uppercase">
+                  Ações
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -226,24 +235,26 @@ export default function ProductsPage() {
                       minQuantity={product.minQuantity}
                     />
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="p-1.5 text-muted hover:text-accent transition cursor-pointer"
-                        title="Editar"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product)}
-                        className="p-1.5 text-muted hover:text-destructive transition cursor-pointer"
-                        title="Deletar"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+                  {isAdmin && (
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="p-1.5 text-muted hover:text-accent transition cursor-pointer"
+                          title="Editar"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product)}
+                          className="p-1.5 text-muted hover:text-destructive transition cursor-pointer"
+                          title="Deletar"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

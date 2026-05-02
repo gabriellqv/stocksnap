@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { CustomThrottlerGuard } from './auth/guards/custom-throttler.guard';
 import { redisStore } from 'cache-manager-redis-yet';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -61,13 +62,13 @@ import { DashboardModule } from './dashboard/dashboard.module';
   ],
   providers: [
     /**
-     * Registra o ThrottlerGuard globalmente via APP_GUARD,
-     * aplicando rate limiting a todos os endpoints sem necessidade
-     * de decorators individuais em cada controller.
+     * Registra o CustomThrottlerGuard globalmente via APP_GUARD,
+     * aplicando rate limiting a todos os endpoints com mensagem
+     * de erro personalizada em português.
      */
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: CustomThrottlerGuard,
     },
   ],
 })
