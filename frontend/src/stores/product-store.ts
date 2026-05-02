@@ -1,9 +1,9 @@
 /**
- * Zustand store para gerenciamento de produtos.
+ * @fileoverview Store Zustand para gerenciamento centralizado de produtos.
  *
- * Centraliza: lista paginada, busca, filtros, CRUD completo.
- * Todas as chamadas de API usam o client centralizado que
- * injeta o Bearer Token automaticamente.
+ * Centraliza a lista paginada com busca textual, filtros por categoria,
+ * ordenação dinâmica e operações CRUD completas. Todas as chamadas de API
+ * utilizam o client centralizado que injeta o Bearer Token automaticamente.
  */
 
 import { create } from 'zustand';
@@ -18,7 +18,7 @@ import type {
 } from '@/types';
 
 /**
- * Propriedades de estado para Produtos.
+ * @description Define o esquema de estado reativo para o domínio de Produtos.
  */
 interface ProductState {
   products: Product[];
@@ -31,7 +31,7 @@ interface ProductState {
 }
 
 /**
- * Funções mutadoras do Zustand para manipulação do estado de Produtos.
+ * @description Define as ações disponíveis para mutação do estado de Produtos.
  */
 interface ProductActions {
   fetchProducts: (params?: ProductQueryParams) => Promise<void>;
