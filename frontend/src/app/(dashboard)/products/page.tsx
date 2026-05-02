@@ -59,19 +59,19 @@ export default function ProductsPage() {
 
   const handleSortQuantity = () => {
     const isCurrentlyQuantity = query.sortBy === 'quantity';
-    let newOrder: 'asc' | 'desc' | undefined = 'desc'; // Padrão: mostra os maiores estoques
+    let newOrder: 'asc' | 'desc' | undefined = 'desc';
 
     if (isCurrentlyQuantity && query.sortOrder === 'desc') {
-      newOrder = 'asc'; // Menores estoques
+      newOrder = 'asc';
     } else if (isCurrentlyQuantity && query.sortOrder === 'asc') {
-      newOrder = undefined; // Limpa ordenação
+      newOrder = undefined;
     }
 
     fetchProducts({
       ...query,
       sortBy: newOrder ? 'quantity' : undefined,
       sortOrder: newOrder,
-      page: 1, // Reseta a paginação ao reordenar
+      page: 1,
     });
   };
 

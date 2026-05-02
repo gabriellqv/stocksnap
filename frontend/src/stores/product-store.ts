@@ -92,7 +92,7 @@ export const useProductStore = create<ProductState & ProductActions>(
       try {
         await api.post<Product>('/products', data);
         set({ isSubmitting: false });
-        await get().fetchProducts(); // Recarregar lista
+        await get().fetchProducts();
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : 'Erro ao criar produto';
@@ -124,7 +124,7 @@ export const useProductStore = create<ProductState & ProductActions>(
       try {
         await api.delete(`/products/${id}`);
         set({ isSubmitting: false });
-        await get().fetchProducts(); // Recarregar lista
+        await get().fetchProducts();
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : 'Erro ao deletar produto';

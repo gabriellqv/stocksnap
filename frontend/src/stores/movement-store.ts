@@ -96,7 +96,7 @@ export const useMovementStore = create<MovementState & MovementActions>()(
         set({ isLoading: true, error: null });
         await api.post('/movements', data);
 
-        // Atualiza a lista após criar nova movimentação
+
         await get().fetchMovements({ page: 1 });
       } catch (err) {
         const message =

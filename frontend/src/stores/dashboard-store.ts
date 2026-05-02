@@ -47,7 +47,10 @@ export const useDashboardStore = create<DashboardState & DashboardActions>()(
       try {
         set({ isLoading: true, error: null });
 
-        // Busca os 3 endpoints simultaneamente para otimização de latência
+        /** 
+         * Orquestração paralela das queries analíticas (Summary, Chart, Critical).
+         * Mitiga waterfalling effects e otimiza a latência agregada da renderização do painel.
+         */
         const [summaryResponse, chartResponse, lowStockResponse] =
           await Promise.all([
             api.get<DashboardSummary>('/dashboard/summary'),
