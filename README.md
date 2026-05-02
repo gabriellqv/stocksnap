@@ -1,8 +1,14 @@
 # StockSnap
 
+![CI](https://github.com/gabriellqv/stocksnap/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Status](https://img.shields.io/badge/status-active-success)
+
+> Sistema full stack de gerenciamento de estoque com foco em consistência de dados, performance e arquitetura escalável.
+
 ## Descrição Geral
 
-O StockSnap é um sistema completo de gerenciamento de estoque desenvolvido com arquitetura desacoplada, composto por uma API RESTful no backend e uma interface web moderna no frontend. O projeto implementa o ciclo operacional completo de controle de inventário: cadastro de produtos e categorias, registro de movimentações de entrada e saída com transações atômicas, painel analítico com métricas em tempo real e autenticação segura via JSON Web Tokens.
+O StockSnap é um sistema completo de gerenciamento de estoque desenvolvido com arquitetura modular e desacoplada, composto por uma API RESTful no backend e uma interface web moderna no frontend. O projeto implementa o ciclo operacional completo de controle de inventário: cadastro de produtos e categorias, registro de movimentações de entrada e saída com transações atômicas, painel analítico com métricas em tempo real e autenticação segura via JSON Web Tokens.
 
 A base de código foi construída com foco em boas práticas de engenharia de software, incluindo tipagem estática de ponta a ponta com TypeScript, camada de cache com Redis para otimização de consultas pesadas, containerização com Docker e pipeline de integração contínua via GitHub Actions.
 
