@@ -27,7 +27,9 @@ O StockSnap resolve o problema de controle de inventário para pequenas e média
 * Painel analítico (Dashboard) com métricas de KPI: total de produtos, valor total em estoque, itens críticos, movimentações do dia e comparativo com o dia anterior
 * Gráfico de movimentações dos últimos sete dias com visualização combinada de entradas e saídas
 * Lista de produtos com estoque crítico (abaixo do mínimo definido), ordenados por severidade
+* Exportação de relatórios (CSV) com proteção ativa contra ataques de Macro/CSV Injection
 * Cache Redis com TTL de 60 segundos nas consultas do Dashboard, com invalidação automática após operações de escrita
+* Documentação de API interativa (Swagger/OpenAPI) refletindo contratos de DTOs e Responses em tempo real
 * Interface responsiva com tema escuro, Design System baseado em CSS Variables e integração com Tailwind CSS 4
 * Cliente API centralizado com injeção automática de Bearer Token e interceptor de sessão expirada (401)
 
@@ -61,11 +63,13 @@ O StockSnap resolve o problema de controle de inventário para pequenas e média
 
 * **Lucide React**: Biblioteca de ícones SVG otimizados. Fornece iconografia consistente em toda a interface, incluindo indicadores de status, ações de CRUD e elementos de navegação.
 
-### Infraestrutura
+### Infraestrutura e DevOps
 
-* **Docker e Docker Compose**: Containerização da aplicação completa. Orquestra quatro serviços (PostgreSQL, Redis, API e Frontend) com healthchecks para garantir a ordem correta de inicialização.
+* **Docker Multi-stage Builds**: Containerização de alto desempenho. Utiliza builds multi-estágio para separar as dependências de desenvolvimento do ambiente de runtime, gerando imagens Alpine extremamente enxutas e seguras (rodando como non-root users). Orquestra os serviços com healthchecks garantindo a ordem correta de inicialização.
 
-* **GitHub Actions**: Pipeline de integração contínua. Executa automaticamente lint, testes e build para backend e frontend em cada push ou pull request nas branches `main` e `develop`.
+* **Swagger / OpenAPI**: Documentação viva e interativa da API. Implementada com o plugin do compilador do NestJS para extração automática de metadados dos DTOs, fornecendo uma interface rica para exploração e testes de endpoints diretamente do navegador.
+
+* **GitHub Actions**: Pipeline de integração contínua (CI). Executa automaticamente validação de tipagem, regras de linting estritas (eslint), testes unitários e relatórios de Code Coverage para backend e frontend em cada pull request.
 
 ## Arquitetura do Sistema
 
@@ -309,6 +313,14 @@ npm install
 npm run dev
 ```
 
+### 📚 Acessando a Documentação da API (Swagger)
+
+Com o backend em execução (seja via Docker ou Manualmente), a documentação interativa da API fica disponível no endpoint oficial:
+
+👉 **[http://localhost:3001/api/docs](http://localhost:3001/api/docs)**
+
+Lá é possível validar os schemas, testar parâmetros, simular integrações e autenticar diretamente pela interface.
+
 ## Variáveis de Ambiente
 
 O arquivo `backend/.env` deve conter as seguintes variáveis:
@@ -385,6 +397,12 @@ npm test
 * **Segurança Anti-enumeração no Login**: Tanto para email inexistente quanto para senha incorreta, o sistema retorna a mesma mensagem genérica ("Email ou senha incorretos"), conforme recomendação de segurança OWASP A07:2021.
   * **Impacto Arquitetural:** Impede que pessoas mal-intencionadas realizem varreduras para descobrir se determinados emails possuem cadastro ativo no sistema.
 
+* **Segurança Profissional com Helmet e Throttler**: Injeção automática de headers de segurança HTTP contra clickjacking, XSS e MIME sniffing via Helmet, além de proteção contra ataques de força bruta usando Rate Limiting global (Throttler).
+  * **Impacto Arquitetural:** Blinda as conexões e estabiliza a aplicação contra scripts maliciosos e abusos de tráfego, padrão essencial em sistemas expostos.
+
+* **Proteção contra Macro/CSV Injection na Exportação**: O utilitário de exportação de dados implementa sanitização defensiva, prefixando caracteres sensíveis (como `=`, `+`, `-`, `@`) para evitar execução de comandos locais no Excel/Planilhas do cliente.
+  * **Impacto Arquitetural:** Impede vulnerabilidades críticas durante o processamento de dados do cliente, mostrando maturidade em desenvolvimento seguro (SecDevOps).
+
 * **Design System com CSS Variables**: A interface utiliza um sistema de tokens semânticos definidos em CSS Variables (cores, superfícies, bordas), integrados nativamente à nova diretiva `@theme` do Tailwind CSS 4.
   * **Impacto Arquitetural:** Facilita muito a manutenção da identidade visual (Design Tokens centralizados) e simplifica drasticamente a futura implementação de um modo claro/escuro.
 
@@ -394,15 +412,12 @@ npm test
 
 ## Possíveis Melhorias Futuras
 
-* Implementação de controle de acesso baseado em papéis (RBAC) no frontend, restringindo componentes e ações com base no campo role do usuário autenticado
 * Adição de testes de integração (E2E) com supertest no backend para validar o fluxo HTTP completo
-* Implementação de paginação e filtros no módulo de categorias
-* Rate limiting via @nestjs/throttler para proteção contra ataques de força bruta nos endpoints de autenticação
-* Headers de segurança HTTP via helmet para proteção contra ataques XSS, clickjacking e sniffing de MIME type
-* Implementação de refresh tokens para renovação silenciosa de sessões expiradas
+* Implementação de refresh tokens e rotação de chaves para sessões estendidas seguras
+* Implementação de paginação e filtros complexos no módulo de categorias
+* Controle refinado de acessos por rota baseado em papéis (RBAC UI) ocultando componentes específicos do Frontend
 * Monitoramento de aplicação com instrumentação OpenTelemetry para rastreamento de latência e taxa de erros
-* Exportação de relatórios de movimentações em formato PDF e CSV
-* Introdução de filas assíncronas com BullMQ (melhora de performance e desacoplamento)
+* Introdução de filas assíncronas e processamento em background com BullMQ para fluxos pesados
 
 ## Considerações Finais
 
