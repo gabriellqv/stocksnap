@@ -47,7 +47,7 @@ export const useDashboardStore = create<DashboardState & DashboardActions>()(
       try {
         set({ isLoading: true, error: null });
 
-        /** 
+        /**
          * Orquestração paralela das queries analíticas (Summary, Chart, Critical).
          * Mitiga waterfalling effects e otimiza a latência agregada da renderização do painel.
          */

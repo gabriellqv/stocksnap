@@ -38,13 +38,13 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
       /** Limpeza forçada do estado transient do React Control */
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setType('ENTRY');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setProductId('');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setQuantity('');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setReason('');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setError(null);
     }
   }, [isOpen, fetchProducts]);

@@ -48,10 +48,10 @@ describe('AuthService', () => {
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       mockJwt.sign.mockReturnValue('fake-jwt-token');
 
-      const result = await service.login({
+      const result = (await service.login({
         email: 'test@test.com',
         password: 'password',
-      });
+      })) as any;
 
       expect(bcrypt.compare).toHaveBeenCalledWith(
         'password',

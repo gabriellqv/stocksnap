@@ -76,7 +76,7 @@ export default function DashboardPage() {
     );
   }
 
-  /** 
+  /**
    * Calcula a tendência (Delta) de movimentações de forma segura.
    * Evita divisão por zero ou retornos NaN durante a invalidação de cache do Redis.
    */

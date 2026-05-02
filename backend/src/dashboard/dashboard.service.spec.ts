@@ -43,7 +43,7 @@ describe('DashboardService', () => {
       const cachedSummary = { totalProducts: 10 };
       mockCache.get.mockResolvedValue(cachedSummary);
 
-      const result = await service.getSummary();
+      const result = (await service.getSummary()) as any;
 
       expect(mockCache.get).toHaveBeenCalledWith('dashboard:summary');
       expect(result).toEqual(cachedSummary);
@@ -62,14 +62,14 @@ describe('DashboardService', () => {
         .mockResolvedValueOnce(5) // today
         .mockResolvedValueOnce(3); // yesterday
 
-      mockPrisma.movement.groupBy = jest
+      (mockPrisma.movement as any).groupBy = jest
         .fn()
         .mockResolvedValue([{ productId: 'prod-1', _sum: { quantity: 10 } }]);
-      mockPrisma.product.findUnique = jest
+      (mockPrisma.product as any).findUnique = jest
         .fn()
         .mockResolvedValue({ name: 'Produto X' });
 
-      const result = await service.getSummary();
+      const result = (await service.getSummary()) as any;
 
       expect(mockPrisma.product.count).toHaveBeenCalled();
       expect(mockCache.set).toHaveBeenCalled();

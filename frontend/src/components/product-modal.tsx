@@ -84,12 +84,12 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
     if (!isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsCreatingCategory(false);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setNewCategoryName('');
     }
   }, [isOpen, categories.length, fetchCategories]);
 
-  /** 
+  /**
    * Previne a inserção antecipada da categoria.
    * O flush no banco de dados agora é atrelado exclusivamente à finalização do produto raiz.
    */
