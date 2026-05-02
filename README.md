@@ -10,6 +10,22 @@ A base de código foi construída com foco em boas práticas de engenharia de so
 
 O StockSnap resolve o problema de controle de inventário para pequenas e médias operações comerciais que necessitam de visibilidade em tempo real sobre seu estoque. O sistema permite que operadores registrem entradas (compras de fornecedores) e saídas (vendas) com rastreabilidade completa, enquanto gestores acompanham indicadores críticos como produtos abaixo do estoque mínimo, valor total em estoque e tendências de movimentação dos últimos sete dias.
 
+## Arquitetura de Alto Nível
+
+O fluxo de dados segue um modelo cliente-servidor padrão, projetado para separar responsabilidades e garantir escalabilidade:
+
+```text
+[Frontend (Next.js + Zustand)] 
+             │
+             ↓ Requisições HTTP (REST + JWT)
+             │
+   [Backend API (NestJS)] 
+             │
+             ├───→ [Redis] (Cache rápido para o Dashboard)
+             │
+             └───→ [PostgreSQL] (Persistência definitiva via Prisma)
+```
+
 ## Funcionalidades Principais
 
 * Autenticação de usuários com registro, login e emissão de tokens JWT com suporte a papéis (ADMIN e OPERATOR)
@@ -35,7 +51,7 @@ O StockSnap resolve o problema de controle de inventário para pequenas e média
 
 * **PostgreSQL 16**: Sistema gerenciador de banco de dados relacional. Armazena todas as entidades do domínio (usuários, categorias, produtos e movimentações) com suporte a tipos decimais de alta precisão para valores monetários e UUIDs como chaves primárias.
 
-* **Redis 7**: Armazenamento em memória de alto desempenho utilizado como camada de cache. Reduz a carga sobre o banco de dados nas consultas de agregação do Dashboard, com TTL de 60 segundos e invalidação cirúrgica após cada operação de escrita.
+* **Redis 7**: Armazenamento em memória de alto desempenho utilizado como camada de cache. Reduz a carga sobre o banco de dados nas consultas de agregação do Dashboard, com TTL de 60 segundos e invalidação seletiva do cache após operações de escrita.
 
 * **Passport.js com JWT**: Estratégia de autenticação stateless. O Passport gerencia a validação de tokens JWT em cada requisição protegida, enquanto o bcrypt garante o hash seguro de senhas com salt de 10 rounds.
 
@@ -345,21 +361,29 @@ npm test
 
 ## Decisões Técnicas Relevantes
 
-* **Transações Atômicas com Prisma**: O registro de movimentações de estoque utiliza `prisma.$transaction()` para garantir que a criação do registro e a atualização do saldo do produto ocorram de forma indivisível. Em caso de falha em qualquer etapa, toda a operação é revertida, prevenindo inconsistências de dados.
+* **Transações Atômicas com Prisma**: O registro de movimentações de estoque utiliza `prisma.$transaction()` para garantir que a criação do registro e a atualização do saldo do produto ocorram de forma indivisível. Em caso de falha em qualquer etapa, toda a operação é revertida.
+  * 👉 **Impacto:** Prevenção de erros operacionais graves (ex: estoque negativo, produtos "fantasma" ou inconsistências contábeis).
 
-* **Cache Redis com Invalidação Seletiva**: As consultas de agregação do Dashboard (métricas, gráficos e alertas de estoque crítico) são cacheadas por 60 segundos. Após cada operação de escrita nos módulos de Products e Movements, apenas as chaves de cache afetadas são invalidadas, evitando a penalização de performance de um flush global.
+* **Cache Redis com Invalidação Seletiva**: As consultas de agregação do Dashboard (métricas, gráficos e alertas de estoque crítico) são cacheadas por 60 segundos. Após operações de escrita (Products e Movements), apenas as chaves afetadas são invalidadas, evitando a lentidão de um flush global.
+  * 👉 **Impacto:** Redução drástica de carga no banco de dados durante o acesso ao painel, entregando uma interface instantânea para o gestor.
 
-* **Zustand sobre Context API**: A escolha do Zustand como gerenciador de estado se justifica pela eliminação de boilerplate (nenhum Provider necessário), renderizações otimizadas por fragmento de estado e o middleware `persist` nativo para sincronização transparente com localStorage. O callback `onRehydrateStorage` restaura o token JWT no cliente API ao recarregar a página.
+* **Zustand sobre Context API**: A escolha do Zustand elimina o boilerplate comum (nenhum Provider na árvore) e fornece renderizações isoladas por fragmento de estado, com suporte nativo de persistência via localStorage.
+  * 👉 **Impacto:** Código do client-side mais limpo e interface do usuário livre de "engasgos" (re-renders desnecessários de componentes não afetados).
 
-* **ValidationPipe Global Rigoroso**: O NestJS é configurado com `whitelist: true` e `forbidNonWhitelisted: true`, rejeitando automaticamente qualquer campo não declarado nos DTOs. Essa abordagem previne ataques de mass assignment e garante que a API processe exclusivamente os dados esperados.
+* **ValidationPipe Global Rigoroso**: O NestJS é configurado com `whitelist: true` e `forbidNonWhitelisted: true`, rejeitando automaticamente qualquer campo não declarado nos DTOs.
+  * 👉 **Impacto:** API blindada logo na porta de entrada, evitando ataques de injeção massiva e economizando processamento de payloads sujos.
 
-* **ParseUUIDPipe nos Controllers**: Todos os endpoints que recebem identificadores via path parameter utilizam `ParseUUIDPipe` para validar o formato UUID antes de atingir a camada de serviço. Requisições com IDs malformados retornam HTTP 400 imediatamente, protegendo o banco de dados contra queries desnecessárias.
+* **ParseUUIDPipe nos Controllers**: Todos os endpoints com parâmetros de rota utilizam `ParseUUIDPipe` para validar o formato UUID antes de atingir a camada de serviço. Requisições malformadas retornam HTTP 400 imediatamente.
+  * 👉 **Impacto:** Protege o banco de dados contra consultas inúteis com IDs inválidos, otimizando os recursos do servidor.
 
-* **Segurança Anti-enumeração no Login**: Tanto para email inexistente quanto para senha incorreta, o sistema retorna a mesma mensagem genérica ("Email ou senha incorretos"), conforme recomendação OWASP A07:2021, impedindo que atacantes identifiquem quais emails estão registrados.
+* **Segurança Anti-enumeração no Login**: Tanto para email inexistente quanto para senha incorreta, o sistema retorna a mesma mensagem genérica ("Email ou senha incorretos"), conforme recomendação de segurança OWASP A07:2021.
+  * 👉 **Impacto:** Impede que pessoas mal-intencionadas realizem varreduras para descobrir se determinados emails possuem cadastro ativo no sistema.
 
-* **Design System com CSS Variables**: A interface utiliza um sistema de tokens semânticos definidos em CSS Variables (cores de status, superfícies, bordas), integrados ao Tailwind CSS 4 via diretiva `@theme`. Essa abordagem garante consistência visual e facilita a manutenção do tema.
+* **Design System com CSS Variables**: A interface utiliza um sistema de tokens semânticos definidos em CSS Variables (cores, superfícies, bordas), integrados nativamente à nova diretiva `@theme` do Tailwind CSS 4.
+  * 👉 **Impacto:** Facilita muito a manutenção da identidade visual (Design Tokens centralizados) e simplifica drasticamente a futura implementação de um modo claro/escuro.
 
-* **Cliente API Centralizado**: Todas as requisições HTTP do frontend passam por um wrapper único (`api.ts`) que injeta automaticamente o Bearer Token, trata respostas 401 com redirect e limpeza de sessão, e encapsula erros em uma classe `ApiError` customizada com status HTTP e payload.
+* **Cliente API Centralizado**: Todas as requisições HTTP do frontend passam por um wrapper único (`api.ts`) que injeta automaticamente o Bearer Token, trata respostas 401 e padroniza erros de rede.
+  * 👉 **Impacto:** Reduz fortemente a duplicação de lógica repetitiva no frontend e garante que a sessão do usuário nunca "trave" de forma silenciosa após o JWT expirar.
 
 
 ## Considerações Finais
