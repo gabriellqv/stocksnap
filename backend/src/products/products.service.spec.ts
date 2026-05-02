@@ -131,6 +131,7 @@ describe('ProductsService', () => {
 
       expect(mockPrisma.product.delete).toHaveBeenCalledWith({
         where: { id: 'prod-1' },
+        include: { category: true },
       });
       expect(mockCache.del).toHaveBeenCalledWith('dashboard:summary');
       expect(mockCache.del).toHaveBeenCalledWith('dashboard:low-stock');

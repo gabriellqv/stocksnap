@@ -10,6 +10,11 @@ import { MovementType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { QueryMovementDto } from './dto/query-movement.dto';
+import type {
+  CreateMovementResponse,
+  MovementResponse,
+} from './interfaces/movement-response.interface';
+import type { PaginatedResponse } from '../products/interfaces/product-response.interface';
 
 /**
  * @description Serviço responsável pela lógica de negócios do módulo de movimentações.
@@ -33,11 +38,14 @@ export class MovementsService {
    *
    * @param {CreateMovementDto} dto - Payload com tipo, quantidade, motivo e ID do produto.
    * @param {string} userId - ID do usuário autenticado, extraído do token JWT pelo guard.
-   * @returns {Promise<unknown>} Objeto contendo a movimentação criada e o saldo atualizado (`updatedStock`).
+   * @returns {Promise<CreateMovementResponse>} Objeto contendo a movimentação criada e o saldo atualizado (`updatedStock`).
    * @throws {NotFoundException} Se o produto informado não existir.
    * @throws {BadRequestException} Se o tipo for EXIT e a quantidade solicitada superar o saldo.
    */
-  async create(dto: CreateMovementDto, userId: string) {
+  async create(
+    dto: CreateMovementDto,
+    userId: string,
+  ): Promise<CreateMovementResponse> {
     const product = await this.prisma.product.findUnique({
       where: { id: dto.productId },
     });
@@ -79,7 +87,7 @@ export class MovementsService {
       });
 
       return {
-        movement,
+        movement: movement as unknown as MovementResponse,
         updatedStock: updatedProduct.quantity,
       };
     });
@@ -97,9 +105,11 @@ export class MovementsService {
    * Movimentações são ordenadas da mais recente para a mais antiga.
    *
    * @param {QueryMovementDto} query - Filtros (`productId`, `type`) e parâmetros de paginação.
-   * @returns {Promise<unknown>} Objeto com `data` (movimentações da página) e `meta` (paginação).
+   * @returns {Promise<PaginatedResponse<MovementResponse>>} Objeto com `data` (movimentações da página) e `meta` (paginação).
    */
-  async findAll(query: QueryMovementDto) {
+  async findAll(
+    query: QueryMovementDto,
+  ): Promise<PaginatedResponse<MovementResponse>> {
     const { productId, type, page = 1, limit = 20 } = query;
 
     const where: Prisma.MovementWhereInput = {};

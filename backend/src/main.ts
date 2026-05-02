@@ -1,13 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 
 /**
  * @description Inicializa e configura a aplicação NestJS do StockSnap.
  *
  * Esta função é o ponto de entrada do servidor backend. Ela estabelece
- * quatro camadas de configuração global antes de iniciar o listener HTTP:
+ * cinco camadas de configuração global antes de iniciar o listener HTTP:
  *
  * 1. **Helmet**: injeta headers HTTP de segurança (X-Content-Type-Options,
  *    X-Frame-Options, Strict-Transport-Security, etc.) para proteção contra
@@ -19,6 +20,7 @@ import helmet from 'helmet';
  *    aplicando transformação automática de tipos primitivos.
  * 4. **CORS**: restringe chamadas cross-origin exclusivamente ao
  *    domínio do frontend Next.js, com suporte a cookies de sessão.
+ * 5. **Swagger/OpenAPI**: documentação interativa da API acessível em `/api/docs`.
  *
  * @returns {Promise<void>} Resolve quando o servidor estiver ouvindo conexões.
  *
@@ -27,6 +29,7 @@ import helmet from 'helmet';
  * void bootstrap();
  */
 async function bootstrap(): Promise<void> {
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
   app.use(helmet());
@@ -45,9 +48,23 @@ async function bootstrap(): Promise<void> {
     credentials: true,
   });
 
-  await app.listen(process.env.PORT ?? 3001);
-  console.log(
-    `Backend rodando em http://localhost:${process.env.PORT ?? 3001}`,
-  );
+  /** Configuração do Swagger/OpenAPI */
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('StockSnap API')
+    .setDescription(
+      'API REST para gerenciamento de estoque com autenticação JWT, ' +
+        'controle de movimentações atômicas e dashboard analítico com cache Redis.',
+    )
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document);
+
+  const port = process.env.PORT ?? 3001;
+  await app.listen(port);
+  logger.log(`Servidor HTTP ativo na porta ${port}`);
+  logger.log(`Documentação Swagger: http://localhost:${port}/api/docs`);
 }
 void bootstrap();

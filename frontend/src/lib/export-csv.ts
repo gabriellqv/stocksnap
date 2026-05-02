@@ -37,7 +37,7 @@ export function exportToCsv(
   /** Extrai os cabeçalhos das chaves do primeiro objeto */
   const headers = Object.keys(data[0]);
 
-  // Monta as linhas sanitizadas
+  /** Monta as linhas sanitizadas */
   const csvContent = [
     /** Linha 1: Cabeçalhos */
     headers.map(sanitizeCsvValue).join(';'),

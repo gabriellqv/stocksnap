@@ -43,7 +43,7 @@ export default function LoginPage() {
       await login({ email, password });
       router.push('/');
     } catch {
-      // Omitindo erro intencionalmente, já lidamos com ele de forma global na store
+      /** Omitindo erro intencionalmente, já lidamos com ele de forma global na store */
     }
   };
 
