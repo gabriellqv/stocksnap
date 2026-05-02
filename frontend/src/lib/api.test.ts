@@ -75,7 +75,9 @@ describe('API Client Wrapper (api.ts)', () => {
 
   it('deve limpar o token da sessão local e disparar erro em caso de HTTP 401 (Sessão Expirada)', async () => {
     /** Suppress JSDOM navigation error in console */
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
