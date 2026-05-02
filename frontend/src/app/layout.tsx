@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   description: 'Sistema de controle de estoque para pequenos comércios',
 };
 
+import { ThemeProvider } from '@/components/theme-provider';
+
 /**
  * @description Layout raiz da aplicação Next.js.
  * Configura as fontes Inter (interface) e JetBrains Mono (dados técnicos)
@@ -35,24 +37,33 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       className={`${inter.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
     >
       <body className="bg-background text-foreground antialiased font-sans">
-        {children}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            unstyled: true,
-            classNames: {
-              toast:
-                'w-full flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl bg-surface font-sans',
-              title: 'text-sm font-medium text-foreground',
-              description: 'text-sm text-muted',
-              success: 'border-status-ok-text/30 text-status-ok-text',
-              error: 'border-status-critical-text/30 text-status-critical-text',
-              icon: 'w-5 h-5 flex-shrink-0',
-            },
-          }}
-        />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={true}
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              unstyled: true,
+              classNames: {
+                toast:
+                  'w-full flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl bg-surface font-sans',
+                title: 'text-sm font-medium text-foreground',
+                description: 'text-sm text-muted',
+                success: 'border-status-ok-text/30 text-status-ok-text',
+                error:
+                  'border-status-critical-text/30 text-status-critical-text',
+                icon: 'w-5 h-5 flex-shrink-0',
+              },
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );
