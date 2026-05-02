@@ -53,10 +53,17 @@ graph TD
 
 ## Tecnologias
 
-1. **Backend:** NestJS 11, Prisma ORM 6, Swagger.
-2. **Banco de Dados:** PostgreSQL 16, Redis 7.
-3. **Frontend:** Next.js 16, React 19, Zustand 5, Tailwind CSS 4.
-4. **Infraestrutura:** Docker Multi-stage Builds, GitHub Actions.
+| Camada | Tecnologia |
+|---|---|
+| **Frontend** | Next.js 16, React 19, TypeScript, Tailwind CSS 4, Zustand |
+| **Backend** | NestJS 11, TypeScript, Prisma ORM, Swagger |
+| **Banco** | PostgreSQL 16 |
+| **Cache** | Redis 7 |
+| **Validação** | class-validator, class-transformer, Zod |
+| **Gráficos** | Recharts |
+| **Testes** | Jest, React Testing Library |
+| **DevOps** | Docker Compose, GitHub Actions |
+| **Deploy** | Railway (API + DB + Redis), Vercel (Frontend) |
 
 ## Funcionalidades
 
