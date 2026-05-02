@@ -116,7 +116,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <Button
             variant="outline"
             className="gap-2"
@@ -221,8 +221,8 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[350px] w-full">
-              <ResponsiveContainer width="100%" height={350}>
+            <div className="h-72 lg:h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart
                   data={chartDataWithVolume}
                   margin={{ top: 10, right: 10, left: -20, bottom: 0 }}

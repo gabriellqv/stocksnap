@@ -81,7 +81,7 @@ export function CategoryModal({
 
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-surface border border-border rounded-xl shadow-xl w-full max-w-sm mx-4">
+      <div className="bg-surface border border-border rounded-xl shadow-xl w-full max-w-sm mx-4 max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-lg font-semibold text-foreground">
             {isEditing ? 'Editar Categoria' : 'Nova Categoria'}

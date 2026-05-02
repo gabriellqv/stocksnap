@@ -70,7 +70,10 @@ export default function CategoriesPage() {
           </p>
         </div>
 
-        <Button onClick={handleCreate} className="flex items-center gap-2">
+        <Button
+          onClick={handleCreate}
+          className="flex items-center gap-2 w-full sm:w-auto"
+        >
           <Plus className="w-4 h-4" /> Nova Categoria
         </Button>
       </div>

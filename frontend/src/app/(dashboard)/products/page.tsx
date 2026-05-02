@@ -103,20 +103,23 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Produtos
           </h1>
           <p className="text-muted mt-1">{meta.total} produtos cadastrados</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2">
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          className="gap-2 w-full sm:w-auto"
+        >
           <Plus className="w-5 h-5" />
           Novo Produto
         </Button>
       </div>
 
-      <div className="flex gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <form onSubmit={handleSearch} className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
           <input
@@ -130,7 +133,7 @@ export default function ProductsPage() {
         <select
           value={query.categoryId || ''}
           onChange={(e) => handleCategoryFilter(e.target.value)}
-          className="px-4 py-2 bg-surface border border-border text-foreground rounded-lg focus:ring-2 focus:ring-accent/40 outline-none cursor-pointer"
+          className="w-full sm:w-auto px-4 py-2 bg-surface border border-border text-foreground rounded-lg focus:ring-2 focus:ring-accent/40 outline-none cursor-pointer"
         >
           <option value="">Todas as categorias</option>
           {categories.map((c) => (
@@ -141,8 +144,8 @@ export default function ProductsPage() {
         </select>
       </div>
 
-      <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
-        <table className="w-full">
+      <div className="bg-surface rounded-xl shadow-sm border border-border overflow-x-auto">
+        <table className="w-full min-w-[50rem]">
           <thead className="bg-background border-b border-border">
             <tr>
               <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">
@@ -249,8 +252,8 @@ export default function ProductsPage() {
       </div>
 
       {meta.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-muted">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+          <p className="text-sm text-muted text-center sm:text-left">
             Mostrando {(meta.page - 1) * meta.limit + 1} a{' '}
             {Math.min(meta.page * meta.limit, meta.total)} de {meta.total}{' '}
             resultados
