@@ -36,8 +36,8 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Testes
-        run: npm test -- --passWithNoTests
+      - name: Testes com Cobertura
+        run: npm test -- --coverage --coverageReporters=text-summary --passWithNoTests
 
       - name: Build
         run: npm run build
@@ -68,8 +68,8 @@ jobs:
       - name: Lint
         run: npx eslint .
       
-      - name: Testes
-        run: npm run test
+      - name: Testes com Cobertura
+        run: npm run test -- --coverage --coverageReporters=text-summary
 
       - name: Build
         run: npm run build

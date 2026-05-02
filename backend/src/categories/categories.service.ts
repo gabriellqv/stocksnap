@@ -6,6 +6,10 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import type {
+  CategoryResponse,
+  CategoryWithCountResponse,
+} from './interfaces/category-response.interface';
 
 /**
  * @description Serviço responsável pela lógica de negócios do módulo de categorias.
@@ -21,9 +25,9 @@ export class CategoriesService {
    * @description Retorna todas as categorias cadastradas, ordenadas alfabeticamente.
    * Inclui a contagem de produtos vinculados a cada categoria.
    *
-   * @returns {Promise<unknown>} Lista de categorias com o campo `_count.products`.
+   * @returns {Promise<CategoryWithCountResponse[]>} Lista de categorias com o campo `_count.products`.
    */
-  async findAll() {
+  async findAll(): Promise<CategoryWithCountResponse[]> {
     return this.prisma.category.findMany({
       orderBy: { name: 'asc' },
       include: {
@@ -36,10 +40,10 @@ export class CategoriesService {
    * @description Cria uma nova categoria após validar a unicidade do nome.
    *
    * @param {CreateCategoryDto} dto - Payload contendo o nome da categoria.
-   * @returns {Promise<unknown>} A categoria recém-criada.
+   * @returns {Promise<CategoryResponse>} A categoria recém-criada.
    * @throws {ConflictException} Se já existir uma categoria com o mesmo nome.
    */
-  async create(dto: CreateCategoryDto) {
+  async create(dto: CreateCategoryDto): Promise<CategoryResponse> {
     const existing = await this.prisma.category.findUnique({
       where: { name: dto.name },
     });
@@ -56,10 +60,10 @@ export class CategoriesService {
    *
    * @param {string} id - Identificador único (UUID) da categoria a ser atualizada.
    * @param {UpdateCategoryDto} dto - Payload com os campos a serem alterados.
-   * @returns {Promise<unknown>} A categoria com os dados atualizados.
+   * @returns {Promise<CategoryResponse>} A categoria com os dados atualizados.
    * @throws {NotFoundException} Se a categoria não for encontrada.
    */
-  async update(id: string, dto: UpdateCategoryDto) {
+  async update(id: string, dto: UpdateCategoryDto): Promise<CategoryResponse> {
     await this.findOneOrFail(id);
 
     if (dto.name) {
@@ -84,11 +88,11 @@ export class CategoriesService {
    * protegendo a integridade referencial dos dados.
    *
    * @param {string} id - Identificador único (UUID) da categoria a ser removida.
-   * @returns {Promise<unknown>} A categoria removida.
+   * @returns {Promise<CategoryResponse>} A categoria removida.
    * @throws {NotFoundException} Se a categoria não for encontrada.
    * @throws {ConflictException} Se existirem produtos vinculados à categoria.
    */
-  async remove(id: string) {
+  async remove(id: string): Promise<CategoryResponse> {
     await this.findOneOrFail(id);
 
     const productsCount = await this.prisma.product.count({
@@ -109,10 +113,10 @@ export class CategoriesService {
    * Método auxiliar interno reutilizado pelas operações de update e remove.
    *
    * @param {string} id - Identificador único (UUID) da categoria.
-   * @returns {Promise<unknown>} A categoria encontrada.
+   * @returns {Promise<CategoryResponse>} A categoria encontrada.
    * @throws {NotFoundException} Se a categoria não existir no banco de dados.
    */
-  private async findOneOrFail(id: string) {
+  private async findOneOrFail(id: string): Promise<CategoryResponse> {
     const category = await this.prisma.category.findUnique({ where: { id } });
     if (!category) {
       throw new NotFoundException('Categoria não encontrada');
