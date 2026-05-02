@@ -63,7 +63,7 @@ graph TD
 | **Gráficos** | Recharts |
 | **Testes** | Jest, React Testing Library |
 | **DevOps** | Docker Compose, GitHub Actions |
-| **Deploy** | Railway (API + DB + Redis), Vercel (Frontend) |
+| **Deploy** | Render (API), Neon (PostgreSQL), Upstash (Redis), Vercel (Frontend) |
 
 ## Funcionalidades
 
