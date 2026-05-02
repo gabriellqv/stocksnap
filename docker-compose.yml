@@ -1,5 +1,5 @@
 services:
-  # Banco de Dados PostgreSQL
+  # === INFRAESTRUTURA ===
   postgres:
     image: postgres:16-alpine
     container_name: stocksnap-db
@@ -17,7 +17,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Cache Redis
   redis:
     image: redis:7-alpine
     container_name: stocksnap-redis
@@ -28,6 +27,36 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  # === APLICAÇÃO ===
+  api:
+    build: ./backend
+    container_name: stocksnap-api
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: "postgresql://stocksnap:stocksnap123@postgres:5432/stocksnap?schema=public"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 3001
+      CORS_ORIGIN: http://localhost:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: stocksnap-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api
+    depends_on:
+      - api
 
 volumes:
   pgdata:

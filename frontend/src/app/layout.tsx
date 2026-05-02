@@ -1,48 +1,70 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Toaster } from 'sonner';
 import './globals.css';
 
-/** Fonte principal sans-serif utilizada em toda a interface do StockSnap. */
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const inter = Inter({
   subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
 });
 
-/** Fonte monoespaçada utilizada em tabelas de dados e elementos técnicos. */
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
+  variable: '--font-jetbrains',
+  display: 'swap',
 });
 
-/** Metadata global do Next.js para SEO e compartilhamento social. */
 export const metadata: Metadata = {
-  title: 'StockSnap | Gestão de Estoque',
-  description:
-    'Sistema de gestão de estoque com controle de produtos, movimentações e dashboard analítico.',
+  title: 'StockSnap - Controle de Estoque',
+  description: 'Sistema de controle de estoque para pequenos comércios',
 };
 
+import { ThemeProvider } from '@/components/theme-provider';
+
 /**
- * @description Layout raiz da aplicação StockSnap.
- *
- * Envolve todas as páginas do sistema, aplicando as fontes customizadas
- * (Geist Sans e Geist Mono) via CSS variables e configurando o elemento
- * `<html>` com anti-aliasing para melhor legibilidade tipográfica.
- *
- * @param {object} props - Propriedades do componente.
- * @param {React.ReactNode} props.children - Página ativa renderizada pelo App Router.
- * @returns {JSX.Element} Estrutura HTML raiz com fontes e estilos globais aplicados.
+ * @description Layout raiz da aplicação Next.js.
+ * Configura as fontes Inter (interface) e JetBrains Mono (dados técnicos)
+ * via `next/font`, injeta as CSS variables no elemento `<html>` e aplica
+ * a paleta dark premium como padrão global.
  */
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="bg-background text-foreground antialiased font-sans">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={true}
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              unstyled: true,
+              classNames: {
+                toast:
+                  'w-full flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl bg-surface font-sans',
+                title: 'text-sm font-medium text-foreground',
+                description: 'text-sm text-muted',
+                success: 'border-status-ok-text/30 text-status-ok-text',
+                error:
+                  'border-status-critical-text/30 text-status-critical-text',
+                icon: 'w-5 h-5 flex-shrink-0',
+              },
+            }}
+          />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

@@ -1,0 +1,27 @@
+node_modules
+.next
+out
+.swc
+coverage
+npm-debug.log*
+yarn-debug.log
+yarn-error.log
+
+# Logs locais e testes
+*.log
+test-results/
+
+# Arquivos de ambiente
+.env
+.env.*
+!.env.example
+.env.local
+
+# Arquivos gerados e OS
+.git
+.gitignore
+.dockerignore
+.DS_Store
+Thumbs.db
+README.md
+docs/

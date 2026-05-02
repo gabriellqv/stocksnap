@@ -2,6 +2,11 @@ import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
+import type {
+  DashboardSummaryResponse,
+  ChartDataPoint,
+  LowStockItemResponse,
+} from './interfaces/dashboard-response.interface';
 
 /**
  * @description Serviço responsável pelas queries de agregação do dashboard.
@@ -19,13 +24,16 @@ export class DashboardService {
   /**
    * @description Retorna as métricas principais do dashboard: total de produtos,
    * valor total em estoque, contagem de itens críticos e movimentações do dia.
+   * Calcula também o comparativo de movimentações do dia anterior (Delta) e o
+   * produto com mais saídas nos últimos 7 dias (Top Product).
    * O resultado é cacheado por 60 segundos para evitar queries repetidas.
    *
-   * @returns {Promise<unknown>} Objeto com `totalProducts`, `totalValue`, `criticalItems` e `todayMovements`.
+   * @returns {Promise<DashboardSummaryResponse>} Objeto com as métricas do painel.
    */
-  async getSummary() {
+  async getSummary(): Promise<DashboardSummaryResponse> {
     const cacheKey = 'dashboard:summary';
-    const cached = await this.cacheManager.get(cacheKey);
+    const cached =
+      await this.cacheManager.get<DashboardSummaryResponse>(cacheKey);
     if (cached) return cached;
 
     const totalProducts = await this.prisma.product.count();
@@ -45,15 +53,51 @@ export class DashboardService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const todayMovements = await this.prisma.movement.count({
-      where: { createdAt: { gte: today } },
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const [todayMovements, yesterdayMovements] = await Promise.all([
+      this.prisma.movement.count({
+        where: { createdAt: { gte: today } },
+      }),
+      this.prisma.movement.count({
+        where: { createdAt: { gte: yesterday, lt: today } },
+      }),
+    ]);
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    // Produto com mais saídas (EXIT) nos últimos 7 dias
+    const topExit = await this.prisma.movement.groupBy({
+      by: ['productId'],
+      where: { type: 'EXIT', createdAt: { gte: sevenDaysAgo } },
+      _sum: { quantity: true },
+      orderBy: { _sum: { quantity: 'desc' } },
+      take: 1,
     });
 
-    const result = {
+    let topProduct: { name: string; quantity: number } | null = null;
+    if (topExit.length > 0) {
+      const productInfo = await this.prisma.product.findUnique({
+        where: { id: topExit[0].productId },
+        select: { name: true },
+      });
+      if (productInfo) {
+        topProduct = {
+          name: productInfo.name,
+          quantity: topExit[0]._sum.quantity || 0,
+        };
+      }
+    }
+
+    const result: DashboardSummaryResponse = {
       totalProducts,
       totalValue: Math.round(totalValue * 100) / 100,
       criticalItems: Number(criticalCount[0].count),
       todayMovements,
+      yesterdayMovements,
+      topProduct,
     };
 
     await this.cacheManager.set(cacheKey, result, 60000);
@@ -67,11 +111,11 @@ export class DashboardService {
    * mesmo que não haja movimentações naquele dia (valores zerados).
    * O resultado é cacheado por 60 segundos.
    *
-   * @returns {Promise<unknown>} Array de objetos com `date`, `entries` e `exits` para cada dia.
+   * @returns {Promise<ChartDataPoint[]>} Array de objetos com `date`, `entries` e `exits` para cada dia.
    */
-  async getChart() {
+  async getChart(): Promise<ChartDataPoint[]> {
     const cacheKey = 'dashboard:chart';
-    const cached = await this.cacheManager.get(cacheKey);
+    const cached = await this.cacheManager.get<ChartDataPoint[]>(cacheKey);
     if (cached) return cached;
 
     const sevenDaysAgo = new Date();
@@ -119,14 +163,15 @@ export class DashboardService {
    * Utiliza raw query pois o Prisma não suporta comparar dois campos da mesma tabela.
    * O resultado é cacheado por 60 segundos.
    *
-   * @returns {Promise<unknown>} Array de produtos com estoque crítico.
+   * @returns {Promise<LowStockItemResponse[]>} Array de produtos com estoque crítico.
    */
-  async getLowStock() {
+  async getLowStock(): Promise<LowStockItemResponse[]> {
     const cacheKey = 'dashboard:low-stock';
-    const cached = await this.cacheManager.get(cacheKey);
+    const cached =
+      await this.cacheManager.get<LowStockItemResponse[]>(cacheKey);
     if (cached) return cached;
 
-    const result = await this.prisma.$queryRaw`
+    const result = await this.prisma.$queryRaw<LowStockItemResponse[]>`
       SELECT
         p.id,
         p.name,

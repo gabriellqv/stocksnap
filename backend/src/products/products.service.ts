@@ -2,11 +2,20 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  Inject,
 } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
+import { Prisma } from '@prisma/client';
+import type {
+  ProductResponse,
+  ProductDetailResponse,
+  PaginatedResponse,
+} from './interfaces/product-response.interface';
 
 /**
  * @description Serviço responsável pela lógica de negócios do módulo de produtos.
@@ -16,7 +25,10 @@ import { QueryProductDto } from './dto/query-product.dto';
  */
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   /**
    * @description Retorna uma lista paginada de produtos com suporte a filtros.
@@ -24,12 +36,14 @@ export class ProductsService {
    * para minimizar a latência da consulta.
    *
    * @param {QueryProductDto} query - Filtros e parâmetros de paginação.
-   * @returns {Promise<unknown>} Objeto com `data` (produtos da página) e `meta` (paginação).
+   * @returns {Promise<PaginatedResponse<ProductResponse>>} Objeto com `data` (produtos da página) e `meta` (paginação).
    */
-  async findAll(query: QueryProductDto) {
+  async findAll(
+    query: QueryProductDto,
+  ): Promise<PaginatedResponse<ProductResponse>> {
     const { search, categoryId, page = 1, limit = 10 } = query;
 
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
 
     if (search) {
       where.OR = [
@@ -42,11 +56,18 @@ export class ProductsService {
       where.categoryId = categoryId;
     }
 
+    const orderBy: Prisma.ProductOrderByWithRelationInput = {};
+    if (query.sortBy) {
+      orderBy[query.sortBy] = query.sortOrder || 'asc';
+    } else {
+      orderBy.name = 'asc';
+    }
+
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
         where,
         include: { category: true },
-        orderBy: { name: 'asc' },
+        orderBy,
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -69,10 +90,10 @@ export class ProductsService {
    * sua categoria e as últimas 20 movimentações de estoque.
    *
    * @param {string} id - Identificador único (UUID) do produto.
-   * @returns {Promise<unknown>} O produto com categoria e histórico de movimentações.
+   * @returns {Promise<ProductDetailResponse>} O produto com categoria e histórico de movimentações.
    * @throws {NotFoundException} Se o produto não for encontrado.
    */
-  async findOne(id: string) {
+  async findOne(id: string): Promise<ProductDetailResponse> {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
@@ -97,11 +118,11 @@ export class ProductsService {
    * e a existência da categoria informada.
    *
    * @param {CreateProductDto} dto - Payload com os dados do produto a ser criado.
-   * @returns {Promise<unknown>} O produto recém-criado com os dados da categoria.
+   * @returns {Promise<ProductResponse>} O produto recém-criado com os dados da categoria.
    * @throws {ConflictException} Se o SKU já estiver em uso por outro produto.
    * @throws {NotFoundException} Se a categoria informada não existir.
    */
-  async create(dto: CreateProductDto) {
+  async create(dto: CreateProductDto): Promise<ProductResponse> {
     const existing = await this.prisma.product.findUnique({
       where: { sku: dto.sku },
     });
@@ -118,10 +139,15 @@ export class ProductsService {
       throw new NotFoundException('Categoria não encontrada');
     }
 
-    return this.prisma.product.create({
+    const newProduct = await this.prisma.product.create({
       data: dto,
       include: { category: true },
     });
+
+    await this.cacheManager.del('dashboard:summary');
+    await this.cacheManager.del('dashboard:low-stock');
+
+    return newProduct;
   }
 
   /**
@@ -130,11 +156,11 @@ export class ProductsService {
    *
    * @param {string} id - Identificador único (UUID) do produto a ser atualizado.
    * @param {UpdateProductDto} dto - Payload com os campos a serem alterados.
-   * @returns {Promise<unknown>} O produto com os dados atualizados.
+   * @returns {Promise<ProductResponse>} O produto com os dados atualizados.
    * @throws {NotFoundException} Se o produto não for encontrado.
    * @throws {ConflictException} Se o novo SKU já estiver em uso por outro produto.
    */
-  async update(id: string, dto: UpdateProductDto) {
+  async update(id: string, dto: UpdateProductDto): Promise<ProductResponse> {
     await this.findOneOrFail(id);
 
     if (dto.sku) {
@@ -146,11 +172,16 @@ export class ProductsService {
       }
     }
 
-    return this.prisma.product.update({
+    const updatedProduct = await this.prisma.product.update({
       where: { id },
       data: dto,
       include: { category: true },
     });
+
+    await this.cacheManager.del('dashboard:summary');
+    await this.cacheManager.del('dashboard:low-stock');
+
+    return updatedProduct;
   }
 
   /**
@@ -159,11 +190,11 @@ export class ProductsService {
    * garantindo a integridade do histórico de estoque.
    *
    * @param {string} id - Identificador único (UUID) do produto a ser removido.
-   * @returns {Promise<unknown>} O produto removido.
+   * @returns {Promise<ProductResponse>} O produto removido.
    * @throws {NotFoundException} Se o produto não for encontrado.
    * @throws {ConflictException} Se o produto possuir movimentações registradas.
    */
-  async remove(id: string) {
+  async remove(id: string): Promise<ProductResponse> {
     await this.findOneOrFail(id);
 
     const movementsCount = await this.prisma.movement.count({
@@ -176,7 +207,15 @@ export class ProductsService {
       );
     }
 
-    return this.prisma.product.delete({ where: { id } });
+    const deletedProduct = await this.prisma.product.delete({
+      where: { id },
+      include: { category: true },
+    });
+
+    await this.cacheManager.del('dashboard:summary');
+    await this.cacheManager.del('dashboard:low-stock');
+
+    return deletedProduct;
   }
 
   /**
@@ -184,10 +223,10 @@ export class ProductsService {
    * Método auxiliar interno reutilizado pelas operações de update e remove.
    *
    * @param {string} id - Identificador único (UUID) do produto.
-   * @returns {Promise<unknown>} O produto encontrado.
+   * @returns {Promise<{ id: string }>} O produto encontrado.
    * @throws {NotFoundException} Se o produto não existir no banco de dados.
    */
-  private async findOneOrFail(id: string) {
+  private async findOneOrFail(id: string): Promise<{ id: string }> {
     const product = await this.prisma.product.findUnique({ where: { id } });
     if (!product) {
       throw new NotFoundException('Produto não encontrado');

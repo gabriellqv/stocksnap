@@ -1,15 +1,23 @@
 import { Controller, Post, Get, Body, Query, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { MovementsService } from './movements.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { QueryMovementDto } from './dto/query-movement.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type {
+  CreateMovementResponse,
+  MovementResponse,
+} from './interfaces/movement-response.interface';
+import type { PaginatedResponse } from '../products/interfaces/product-response.interface';
 
 /**
  * @description Controller responsável pelos endpoints REST do módulo de movimentações.
  * Todas as rotas são protegidas por autenticação JWT. O `@CurrentUser` decorator
  * extrai o payload do token JWT para obter o `userId` sem que o cliente precise enviá-lo.
  */
+@ApiTags('Movimentações')
+@ApiBearerAuth()
 @Controller('movements')
 @UseGuards(JwtAuthGuard)
 export class MovementsController {
@@ -22,10 +30,16 @@ export class MovementsController {
    *
    * @param {CreateMovementDto} dto - Corpo da requisição com tipo, quantidade, motivo e produto.
    * @param {{ id: string }} user - Payload do JWT injetado pelo decorator `@CurrentUser`.
-   * @returns {Promise<unknown>} A movimentação criada e o saldo atualizado do produto.
+   * @returns {Promise<CreateMovementResponse>} A movimentação criada e o saldo atualizado do produto.
    */
+  @ApiOperation({
+    summary: 'Registrar movimentação de estoque (entrada/saída)',
+  })
   @Post()
-  create(@Body() dto: CreateMovementDto, @CurrentUser() user: { id: string }) {
+  create(
+    @Body() dto: CreateMovementDto,
+    @CurrentUser() user: { id: string },
+  ): Promise<CreateMovementResponse> {
     return this.movementsService.create(dto, user.id);
   }
 
@@ -33,10 +47,13 @@ export class MovementsController {
    * @description Retorna uma lista paginada de movimentações com suporte a filtros.
    *
    * @param {QueryMovementDto} query - Query params: `productId`, `type`, `page`, `limit`.
-   * @returns {Promise<unknown>} Objeto com `data` e `meta` de paginação.
+   * @returns {Promise<PaginatedResponse<MovementResponse>>} Objeto com `data` e `meta` de paginação.
    */
+  @ApiOperation({ summary: 'Listar movimentações com filtros e paginação' })
   @Get()
-  findAll(@Query() query: QueryMovementDto) {
+  findAll(
+    @Query() query: QueryMovementDto,
+  ): Promise<PaginatedResponse<MovementResponse>> {
     return this.movementsService.findAll(query);
   }
 }
