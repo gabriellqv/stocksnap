@@ -22,8 +22,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         secret: config.get<string>('JWT_SECRET')!,
         signOptions: {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-          expiresIn: config.get<string>('JWT_EXPIRATION', '7d') as any,
+          expiresIn: config.get<string>('JWT_EXPIRATION', '7d'),
         },
       }),
     }),

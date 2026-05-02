@@ -48,10 +48,10 @@ export function cn(...inputs: ClassValue[]): string {
  * Filtra automaticamente valores falsy (null, undefined, string vazia).
  * Utiliza URLSearchParams para escape correto de caracteres especiais.
  *
- * @param {Record<string, any>} params - Pares chave-valor dos filtros.
+ * @param {Record<string, unknown>} params - Pares chave-valor dos filtros.
  * @returns {string} Query string formatada (ex: `?search=shampoo&page=2`) ou string vazia.
  */
-export function buildQueryString(params: Record<string, any>): string {
+export function buildQueryString(params: Record<string, unknown>): string {
   const searchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== null && value !== '') {
