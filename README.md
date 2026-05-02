@@ -99,31 +99,167 @@ Componente React -> Store Zustand -> Cliente API -> Backend REST
 
 ```
 stocksnap/
-├── .github/workflows/       # Pipeline CI/CD (GitHub Actions)
-├── backend/
-│   ├── prisma/
-│   │   ├── migrations/       # Historico de migrations versionadas
-│   │   ├── schema.prisma     # Definicao dos modelos de dominio
-│   │   └── seed.ts           # Script de populacao do banco de dados
-│   └── src/
-│       ├── auth/             # Modulo de autenticacao (JWT, bcrypt, guards)
-│       ├── categories/       # Modulo de categorias (CRUD com unicidade)
-│       ├── dashboard/        # Modulo de metricas e graficos (cache Redis)
-│       ├── movements/        # Modulo de movimentacoes (transacoes atomicas)
-│       ├── prisma/           # Modulo global do Prisma ORM
-│       ├── products/         # Modulo de produtos (CRUD com paginacao)
-│       ├── app.module.ts     # Modulo raiz com configuracao de cache global
-│       └── main.ts           # Ponto de entrada com CORS e ValidationPipe
-├── frontend/
-│   └── src/
-│       ├── app/
-│       │   ├── (auth)/       # Grupo de rotas de autenticacao (login)
-│       │   └── (dashboard)/  # Grupo de rotas protegidas do painel
-│       ├── components/       # Componentes reutilizaveis (modais, UI)
-│       ├── lib/              # Cliente API centralizado e utilitarios
-│       ├── stores/           # Stores Zustand por dominio
-│       └── types/            # Interfaces TypeScript compartilhadas
-├── docker-compose.yml        # Orquestracao dos servicos containerizados
+├── .github
+│   └── workflows
+│       └── ci.yml
+├── backend
+│   ├── http
+│   │   └── api.http
+│   ├── prisma
+│   │   ├── migrations
+│   │   │   ├── 20260430004028_init
+│   │   │   │   └── migration.sql
+│   │   │   └── migration_lock.toml
+│   │   ├── schema.prisma
+│   │   └── seed.ts
+│   ├── src
+│   │   ├── auth
+│   │   │   ├── decorators
+│   │   │   │   └── current-user.decorator.ts
+│   │   │   ├── dto
+│   │   │   │   ├── login.dto.ts
+│   │   │   │   └── register.dto.ts
+│   │   │   ├── guards
+│   │   │   │   └── jwt-auth.guard.ts
+│   │   │   ├── strategies
+│   │   │   │   └── jwt.strategy.ts
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.module.ts
+│   │   │   ├── auth.service.spec.ts
+│   │   │   └── auth.service.ts
+│   │   ├── categories
+│   │   │   ├── dto
+│   │   │   │   ├── create-category.dto.ts
+│   │   │   │   └── update-category.dto.ts
+│   │   │   ├── categories.controller.ts
+│   │   │   ├── categories.module.ts
+│   │   │   ├── categories.service.spec.ts
+│   │   │   └── categories.service.ts
+│   │   ├── dashboard
+│   │   │   ├── dashboard.controller.ts
+│   │   │   ├── dashboard.module.ts
+│   │   │   ├── dashboard.service.spec.ts
+│   │   │   └── dashboard.service.ts
+│   │   ├── movements
+│   │   │   ├── dto
+│   │   │   │   ├── create-movement.dto.ts
+│   │   │   │   └── query-movement.dto.ts
+│   │   │   ├── movements.controller.ts
+│   │   │   ├── movements.module.ts
+│   │   │   ├── movements.service.spec.ts
+│   │   │   └── movements.service.ts
+│   │   ├── prisma
+│   │   │   ├── prisma.module.ts
+│   │   │   └── prisma.service.ts
+│   │   ├── products
+│   │   │   ├── dto
+│   │   │   │   ├── create-product.dto.ts
+│   │   │   │   ├── query-product.dto.ts
+│   │   │   │   └── update-product.dto.ts
+│   │   │   ├── products.controller.ts
+│   │   │   ├── products.module.ts
+│   │   │   ├── products.service.spec.ts
+│   │   │   └── products.service.ts
+│   │   ├── app.controller.spec.ts
+│   │   ├── app.controller.ts
+│   │   ├── app.module.ts
+│   │   ├── app.service.ts
+│   │   └── main.ts
+│   ├── test
+│   │   ├── app.e2e-spec.ts
+│   │   └── jest-e2e.json
+│   ├── .dockerignore
+│   ├── .env
+│   ├── Dockerfile
+│   ├── eslint.config.mjs
+│   ├── nest-cli.json
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── tsconfig.build.json
+│   └── tsconfig.json
+├── docs
+│   ├── 00-visao-geral.md
+│   ├── 01-setup-ambiente.md
+│   ├── 02-banco-de-dados.md
+│   ├── 03-backend-auth.md
+│   ├── 04-backend-produtos.md
+│   ├── 05-backend-movimentacoes.md
+│   ├── 06-backend-dashboard.md
+│   ├── 07-frontend-setup-e-auth.md
+│   ├── 08-frontend-produtos.md
+│   ├── 09-frontend-movimentacoes.md
+│   ├── 10-frontend-dashboard.md
+│   ├── 11-testes.md
+│   ├── 12-docker-ci-deploy.md
+│   └── README-portfolio.md
+├── frontend
+│   ├── public
+│   ├── src
+│   │   ├── app
+│   │   │   ├── (auth)
+│   │   │   │   └── login
+│   │   │   │       └── page.tsx
+│   │   │   ├── (dashboard)
+│   │   │   │   ├── categories
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── movements
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── products
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── layout.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── globals.css
+│   │   │   ├── icon.svg
+│   │   │   └── layout.tsx
+│   │   ├── components
+│   │   │   ├── ui
+│   │   │   │   ├── badge.tsx
+│   │   │   │   ├── button.test.tsx
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── card.tsx
+│   │   │   │   ├── input.tsx
+│   │   │   │   ├── stock-badge.test.tsx
+│   │   │   │   └── stock-badge.tsx
+│   │   │   ├── category-modal.tsx
+│   │   │   ├── header.tsx
+│   │   │   ├── movement-modal.test.tsx
+│   │   │   ├── movement-modal.tsx
+│   │   │   ├── product-modal.tsx
+│   │   │   └── sidebar.tsx
+│   │   ├── lib
+│   │   │   ├── api.test.ts
+│   │   │   ├── api.ts
+│   │   │   ├── utils.test.ts
+│   │   │   └── utils.ts
+│   │   ├── stores
+│   │   │   ├── auth-store.test.ts
+│   │   │   ├── auth-store.ts
+│   │   │   ├── category-store.test.ts
+│   │   │   ├── category-store.ts
+│   │   │   ├── dashboard-store.ts
+│   │   │   ├── movement-store.ts
+│   │   │   └── product-store.ts
+│   │   ├── types
+│   │   │   └── index.ts
+│   │   └── proxy.ts
+│   ├── .dockerignore
+│   ├── .env.local
+│   ├── Dockerfile
+│   ├── eslint.config.mjs
+│   ├── jest.config.ts
+│   ├── jest.setup.ts
+│   ├── next-env.d.ts
+│   ├── next.config.ts
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.mjs
+│   ├── tsconfig.json
+│   └── tsconfig.tsbuildinfo
+├── .dockerignore
+├── .gitignore
+├── .prettierignore
+├── .prettierrc
+├── docker-compose.yml
 └── README.md
 ```
 
