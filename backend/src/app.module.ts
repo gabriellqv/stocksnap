@@ -42,15 +42,18 @@ import { DashboardModule } from './dashboard/dashboard.module';
     CacheModule.registerAsync({
       isGlobal: true,
       inject: [ConfigService],
-      useFactory: async (config: ConfigService) => ({
-        store: await redisStore({
-          socket: {
-            host: config.get('REDIS_HOST', 'localhost'),
-            port: config.get('REDIS_PORT', 6379),
-          },
-        }),
-        ttl: 60 * 1000,
-      }),
+      useFactory: async (config: ConfigService) => {
+        const url = config.get<string>('REDIS_URL');
+        return {
+          store: await redisStore(url ? { url } : {
+            socket: {
+              host: config.get('REDIS_HOST', 'localhost'),
+              port: config.get('REDIS_PORT', 6379),
+            },
+          }),
+          ttl: 60 * 1000,
+        };
+      },
     }),
 
     PrismaModule,
