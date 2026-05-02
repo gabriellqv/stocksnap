@@ -113,8 +113,8 @@ export default function ProductsPage() {
       Nome: p.name,
       SKU: p.sku,
       Categoria: p.category.name,
-      'Preço Custo': p.costPrice,
-      'Preço Venda': p.sellPrice,
+      'Preço Custo': String(p.costPrice).replace('.', ','),
+      'Preço Venda': String(p.sellPrice).replace('.', ','),
       Quantidade: p.quantity,
       'Estoque Mínimo': p.minQuantity,
     }));
