@@ -160,7 +160,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
 
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-surface border border-border rounded-xl shadow-xl w-full max-w-lg mx-4">
+      <div className="bg-surface border border-border rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-lg font-semibold text-foreground">
             {isEditing ? 'Editar Produto' : 'Novo Produto'}
@@ -173,15 +173,15 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="p-6 space-y-4 overflow-y-auto">
           {error && (
             <div className="bg-destructive-muted border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-foreground mb-1">
                 Nome
               </label>
@@ -319,7 +319,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
               />
             </div>
 
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-foreground mb-1">
                 Descrição (opcional)
               </label>

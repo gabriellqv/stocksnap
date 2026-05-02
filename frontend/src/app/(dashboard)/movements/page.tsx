@@ -43,7 +43,7 @@ export default function MovementsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Movimentações
@@ -52,13 +52,13 @@ export default function MovementsPage() {
             Histórico de entradas e saídas do estoque
           </p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2">
+        <Button onClick={() => setIsModalOpen(true)} className="gap-2 w-full sm:w-auto">
           <Plus className="w-5 h-5" />
           Nova Movimentação
         </Button>
       </div>
 
-      <div className="flex gap-4 mb-6 bg-surface p-4 rounded-xl border border-border">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6 bg-surface p-4 rounded-xl border border-border">
         <div className="flex-1">
           <label className="block text-xs font-medium text-muted uppercase mb-1.5">
             Filtrar por Produto
@@ -80,7 +80,7 @@ export default function MovementsPage() {
           </select>
         </div>
 
-        <div className="w-64">
+        <div className="w-full sm:w-64">
           <label className="block text-xs font-medium text-muted uppercase mb-1.5">
             Tipo de Movimento
           </label>
@@ -99,8 +99,8 @@ export default function MovementsPage() {
         </div>
       </div>
 
-      <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
-        <table className="w-full">
+      <div className="bg-surface rounded-xl shadow-sm border border-border overflow-x-auto">
+        <table className="w-full min-w-[50rem]">
           <thead className="bg-background border-b border-border">
             <tr>
               <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">
@@ -176,7 +176,7 @@ export default function MovementsPage() {
                     {movement.type === 'ENTRY' ? '+' : '-'}
                     {movement.quantity}
                   </td>
-                  <td className="px-6 py-4 text-muted text-sm max-w-[200px] truncate">
+                  <td className="px-6 py-4 text-muted text-sm max-w-48 truncate">
                     {movement.reason || '-'}
                   </td>
                   <td className="px-6 py-4 text-right text-muted text-sm">
@@ -190,8 +190,8 @@ export default function MovementsPage() {
       </div>
 
       {meta.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-muted">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+          <p className="text-sm text-muted text-center sm:text-left">
             Mostrando {(meta.page - 1) * meta.limit + 1} a{' '}
             {Math.min(meta.page * meta.limit, meta.total)} de {meta.total}{' '}
             resultados
