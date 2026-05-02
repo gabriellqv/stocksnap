@@ -86,6 +86,7 @@ export interface ProductQueryParams {
   limit?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  [key: string]: unknown;
 }
 
 export interface PaginationMeta {
@@ -127,6 +128,7 @@ export interface MovementQueryParams {
   type?: MovementType;
   page?: number;
   limit?: number;
+  [key: string]: unknown;
 }
 
 /**
