@@ -58,60 +58,70 @@ function buildQueryString(params: MovementQueryParams): string {
  * Mantém em sincronia o histórico de movimentações, metadados de paginação e
  * gerencia as interações assíncronas com o backend (GET e POST).
  */
-export const useMovementStore = create<MovementState & MovementActions>()((set, get) => ({
-  movements: [],
-  meta: {
-    total: 0,
-    page: 1,
-    limit: 20,
-    totalPages: 0,
-  },
-  isLoading: false,
-  error: null,
-  query: {
-    page: 1,
-    limit: 20,
-  },
+export const useMovementStore = create<MovementState & MovementActions>()(
+  (set, get) => ({
+    movements: [],
+    meta: {
+      total: 0,
+      page: 1,
+      limit: 20,
+      totalPages: 0,
+    },
+    isLoading: false,
+    error: null,
+    query: {
+      page: 1,
+      limit: 20,
+    },
 
-  setQuery: (params) => {
-    set((state) => ({ query: { ...state.query, ...params } }));
-  },
+    setQuery: (params) => {
+      set((state) => ({ query: { ...state.query, ...params } }));
+    },
 
-  clearError: () => set({ error: null }),
+    clearError: () => set({ error: null }),
 
-  fetchMovements: async (params) => {
-    try {
-      set({ isLoading: true, error: null });
-      
-      const newQuery = params ? { ...get().query, ...params } : get().query;
-      if (params) set({ query: newQuery });
+    fetchMovements: async (params) => {
+      try {
+        set({ isLoading: true, error: null });
 
-      const qs = buildQueryString(newQuery);
-      const data = await api.get<PaginatedResponse<Movement>>(`/movements${qs}`);
+        const newQuery = params ? { ...get().query, ...params } : get().query;
+        if (params) set({ query: newQuery });
 
-      set({
-        movements: data.data,
-        meta: data.meta,
-        isLoading: false,
-      });
-    } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Erro ao buscar movimentações';
-      set({ error: message, isLoading: false });
-      throw err;
-    }
-  },
+        const qs = buildQueryString(newQuery);
+        const data = await api.get<PaginatedResponse<Movement>>(
+          `/movements${qs}`,
+        );
 
-  createMovement: async (data) => {
-    try {
-      set({ isLoading: true, error: null });
-      await api.post('/movements', data);
-      
-      // Atualiza a lista após criar nova movimentação
-      await get().fetchMovements({ page: 1 });
-    } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Erro ao registrar movimentação';
-      set({ error: message, isLoading: false });
-      throw err;
-    }
-  },
-}));
+        set({
+          movements: data.data,
+          meta: data.meta,
+          isLoading: false,
+        });
+      } catch (err) {
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : 'Erro ao buscar movimentações';
+        set({ error: message, isLoading: false });
+        throw err;
+      }
+    },
+
+    createMovement: async (data) => {
+      try {
+        set({ isLoading: true, error: null });
+        await api.post('/movements', data);
+
+        // Atualiza a lista após criar nova movimentação
+        await get().fetchMovements({ page: 1 });
+      } catch (err) {
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : 'Erro ao registrar movimentação';
+        set({ error: message, isLoading: false });
+        throw err;
+      }
+    },
+  }),
+);

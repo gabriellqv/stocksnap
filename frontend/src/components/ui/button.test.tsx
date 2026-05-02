@@ -26,10 +26,10 @@ describe('Button Component', () => {
   it('chama onClick quando clicado e gerencia interatividade', () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Ação</Button>);
-    
+
     const button = screen.getByRole('button');
     fireEvent.click(button);
-    
+
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
@@ -38,12 +38,12 @@ describe('Button Component', () => {
     render(
       <Button disabled onClick={handleClick}>
         Desabilitado
-      </Button>
+      </Button>,
     );
-    
+
     const button = screen.getByRole('button');
     expect(button).toBeDisabled();
-    
+
     fireEvent.click(button);
     expect(handleClick).not.toHaveBeenCalled();
     // Confirma que a opacidade sofreu mutação no design

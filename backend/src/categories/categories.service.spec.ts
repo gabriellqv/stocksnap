@@ -5,7 +5,6 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('CategoriesService', () => {
   let service: CategoriesService;
-  let prisma: PrismaService;
 
   const mockPrismaService = {
     category: {
@@ -29,7 +28,6 @@ describe('CategoriesService', () => {
     }).compile();
 
     service = module.get<CategoriesService>(CategoriesService);
-    prisma = module.get<PrismaService>(PrismaService);
 
     jest.clearAllMocks();
   });
@@ -44,8 +42,8 @@ describe('CategoriesService', () => {
 
       const result = await service.create(payload);
 
-      expect(prisma.category.findUnique).toHaveBeenCalledWith({ where: { name: 'Eletrônicos' } });
-      expect(prisma.category.create).toHaveBeenCalledWith({ data: payload });
+      expect(mockPrismaService.category.findUnique).toHaveBeenCalledWith({ where: { name: 'Eletrônicos' } });
+      expect(mockPrismaService.category.create).toHaveBeenCalledWith({ data: payload });
       expect(result).toEqual(createdCategory);
     });
 
@@ -55,7 +53,7 @@ describe('CategoriesService', () => {
       const payload = { name: 'Eletrônicos' };
 
       await expect(service.create(payload)).rejects.toThrow(ConflictException);
-      expect(prisma.category.create).not.toHaveBeenCalled();
+      expect(mockPrismaService.category.create).not.toHaveBeenCalled();
     });
   });
 
@@ -74,7 +72,7 @@ describe('CategoriesService', () => {
 
       const result = await service.update('uuid-1', payload);
 
-      expect(prisma.category.update).toHaveBeenCalledWith({
+      expect(mockPrismaService.category.update).toHaveBeenCalledWith({
         where: { id: 'uuid-1' },
         data: payload,
       });
@@ -85,7 +83,7 @@ describe('CategoriesService', () => {
       mockPrismaService.category.findUnique.mockResolvedValue(null);
 
       await expect(service.update('invalid-id', { name: 'Teste' })).rejects.toThrow(NotFoundException);
-      expect(prisma.category.update).not.toHaveBeenCalled();
+      expect(mockPrismaService.category.update).not.toHaveBeenCalled();
     });
 
     it('deve lançar ConflictException ao tentar renomear para um nome já existente', async () => {
@@ -98,7 +96,7 @@ describe('CategoriesService', () => {
         .mockResolvedValueOnce(anotherCategory);
 
       await expect(service.update('uuid-1', { name: 'Móveis' })).rejects.toThrow(ConflictException);
-      expect(prisma.category.update).not.toHaveBeenCalled();
+      expect(mockPrismaService.category.update).not.toHaveBeenCalled();
     });
   });
 
@@ -110,8 +108,8 @@ describe('CategoriesService', () => {
 
       const result = await service.remove('uuid-1');
 
-      expect(prisma.product.count).toHaveBeenCalledWith({ where: { categoryId: 'uuid-1' } });
-      expect(prisma.category.delete).toHaveBeenCalledWith({ where: { id: 'uuid-1' } });
+      expect(mockPrismaService.product.count).toHaveBeenCalledWith({ where: { categoryId: 'uuid-1' } });
+      expect(mockPrismaService.category.delete).toHaveBeenCalledWith({ where: { id: 'uuid-1' } });
       expect(result).toEqual({ id: 'uuid-1', name: 'Eletrônicos' });
     });
 
@@ -120,14 +118,14 @@ describe('CategoriesService', () => {
       mockPrismaService.product.count.mockResolvedValue(5); // 5 produtos vinculados
 
       await expect(service.remove('uuid-1')).rejects.toThrow(ConflictException);
-      expect(prisma.category.delete).not.toHaveBeenCalled();
+      expect(mockPrismaService.category.delete).not.toHaveBeenCalled();
     });
 
     it('deve lançar NotFoundException ao tentar deletar categoria inexistente', async () => {
       mockPrismaService.category.findUnique.mockResolvedValue(null);
 
       await expect(service.remove('invalid-id')).rejects.toThrow(NotFoundException);
-      expect(prisma.product.count).not.toHaveBeenCalled();
+      expect(mockPrismaService.product.count).not.toHaveBeenCalled();
     });
   });
 });

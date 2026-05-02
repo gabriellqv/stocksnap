@@ -6,8 +6,6 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('ProductsService', () => {
   let service: ProductsService;
-  let prisma: PrismaService;
-  let cacheManager: any;
 
   const mockPrisma = {
     product: {
@@ -41,8 +39,6 @@ describe('ProductsService', () => {
     }).compile();
 
     service = module.get<ProductsService>(ProductsService);
-    prisma = module.get<PrismaService>(PrismaService);
-    cacheManager = module.get(CACHE_MANAGER);
 
     jest.clearAllMocks();
   });
@@ -64,9 +60,9 @@ describe('ProductsService', () => {
 
       const result = await service.create(dto);
 
-      expect(prisma.product.create).toHaveBeenCalledWith({ data: dto, include: { category: true } });
-      expect(cacheManager.del).toHaveBeenCalledWith('dashboard:summary');
-      expect(cacheManager.del).toHaveBeenCalledWith('dashboard:low-stock');
+      expect(mockPrisma.product.create).toHaveBeenCalledWith({ data: dto, include: { category: true } });
+      expect(mockCache.del).toHaveBeenCalledWith('dashboard:summary');
+      expect(mockCache.del).toHaveBeenCalledWith('dashboard:low-stock');
       expect(result.id).toEqual('prod-1');
     });
 
@@ -74,7 +70,7 @@ describe('ProductsService', () => {
       mockPrisma.product.findUnique.mockResolvedValue({ id: 'prod-1' });
 
       await expect(service.create({ sku: 'SKU-001', name: 'X', costPrice: 10, sellPrice: 20, categoryId: 'cat-1' })).rejects.toThrow(ConflictException);
-      expect(prisma.product.create).not.toHaveBeenCalled();
+      expect(mockPrisma.product.create).not.toHaveBeenCalled();
     });
 
     it('deve lançar NotFoundException se a categoria não existir', async () => {
@@ -82,7 +78,7 @@ describe('ProductsService', () => {
       mockPrisma.category.findUnique.mockResolvedValue(null); // Categoria não existe
 
       await expect(service.create({ sku: 'SKU-001', name: 'X', costPrice: 10, sellPrice: 20, categoryId: 'cat-invalid' })).rejects.toThrow(NotFoundException);
-      expect(prisma.product.create).not.toHaveBeenCalled();
+      expect(mockPrisma.product.create).not.toHaveBeenCalled();
     });
   });
 
@@ -94,7 +90,7 @@ describe('ProductsService', () => {
       mockPrisma.product.findFirst.mockResolvedValueOnce({ id: 'prod-2', sku: 'SKU-002' });
 
       await expect(service.update('prod-1', { sku: 'SKU-002' })).rejects.toThrow(ConflictException);
-      expect(prisma.product.update).not.toHaveBeenCalled();
+      expect(mockPrisma.product.update).not.toHaveBeenCalled();
     });
   });
 
@@ -106,9 +102,9 @@ describe('ProductsService', () => {
 
       await service.remove('prod-1');
 
-      expect(prisma.product.delete).toHaveBeenCalledWith({ where: { id: 'prod-1' } });
-      expect(cacheManager.del).toHaveBeenCalledWith('dashboard:summary');
-      expect(cacheManager.del).toHaveBeenCalledWith('dashboard:low-stock');
+      expect(mockPrisma.product.delete).toHaveBeenCalledWith({ where: { id: 'prod-1' } });
+      expect(mockCache.del).toHaveBeenCalledWith('dashboard:summary');
+      expect(mockCache.del).toHaveBeenCalledWith('dashboard:low-stock');
     });
   });
 });

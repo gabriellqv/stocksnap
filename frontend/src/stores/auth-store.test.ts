@@ -11,7 +11,13 @@ jest.mock('@/lib/api', () => ({
 describe('AuthStore', () => {
   beforeEach(() => {
     // Reset da store antes de cada teste
-    useAuthStore.setState({ user: null, token: null, error: null, isLoading: false, isHydrated: false });
+    useAuthStore.setState({
+      user: null,
+      token: null,
+      error: null,
+      isLoading: false,
+      isHydrated: false,
+    });
     jest.clearAllMocks();
   });
 
@@ -22,16 +28,25 @@ describe('AuthStore', () => {
   });
 
   it('deve realizar login com sucesso', async () => {
-    const mockUser = { id: '1', name: 'Test', email: 'test@test.com', role: 'ADMIN' as const };
+    const mockUser = {
+      id: '1',
+      name: 'Test',
+      email: 'test@test.com',
+      role: 'ADMIN' as const,
+    };
     const mockResponse = { access_token: 'fake-token', user: mockUser };
-    
+
     (api.post as jest.Mock).mockResolvedValue(mockResponse);
 
     const { login } = useAuthStore.getState();
     await login({ email: 'test@test.com', password: 'password' });
 
     const state = useAuthStore.getState();
-    expect(api.post).toHaveBeenCalledWith('/auth/login', { email: 'test@test.com', password: 'password' }, { skipAuth: true });
+    expect(api.post).toHaveBeenCalledWith(
+      '/auth/login',
+      { email: 'test@test.com', password: 'password' },
+      { skipAuth: true },
+    );
     expect(setAccessToken).toHaveBeenCalledWith('fake-token');
     expect(state.user).toEqual(mockUser);
     expect(state.token).toEqual('fake-token');
@@ -39,11 +54,15 @@ describe('AuthStore', () => {
   });
 
   it('deve falhar no login e refletir o erro no estado', async () => {
-    (api.post as jest.Mock).mockRejectedValue(new Error('Credenciais inválidas'));
+    (api.post as jest.Mock).mockRejectedValue(
+      new Error('Credenciais inválidas'),
+    );
 
     const { login } = useAuthStore.getState();
-    
-    await expect(login({ email: 'test@test.com', password: 'wrong' })).rejects.toThrow('Credenciais inválidas');
+
+    await expect(
+      login({ email: 'test@test.com', password: 'wrong' }),
+    ).rejects.toThrow('Credenciais inválidas');
 
     const state = useAuthStore.getState();
     expect(state.user).toBeNull();

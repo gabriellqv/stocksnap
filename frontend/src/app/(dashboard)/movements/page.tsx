@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowDownLeft, ArrowUpRight, Search, Plus } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Plus } from 'lucide-react';
 import { useMovementStore } from '@/stores/movement-store';
 import { useProductStore } from '@/stores/product-store';
 import { MovementModal } from '@/components/movement-modal';
@@ -16,7 +16,7 @@ import type { MovementType } from '@/types';
  * server-side, suportando filtros por ID de Produto e Tipo de Movimento.
  */
 export default function MovementsPage() {
-  const { movements, meta, query, isLoading, fetchMovements } = useMovementStore();
+  const { movements, meta, isLoading, fetchMovements } = useMovementStore();
   const { products, fetchProducts } = useProductStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,8 +54,12 @@ export default function MovementsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Movimentações</h1>
-          <p className="text-muted mt-1">Histórico de entradas e saídas do estoque</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Movimentações
+          </h1>
+          <p className="text-muted mt-1">
+            Histórico de entradas e saídas do estoque
+          </p>
         </div>
         <Button onClick={() => setIsModalOpen(true)} className="gap-2">
           <Plus className="w-5 h-5" />
@@ -108,12 +112,24 @@ export default function MovementsPage() {
         <table className="w-full">
           <thead className="bg-background border-b border-border">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">Data</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">Tipo</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">Produto</th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-muted uppercase">Quantidade</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">Motivo/Obs</th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-muted uppercase">Responsável</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">
+                Data
+              </th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">
+                Tipo
+              </th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">
+                Produto
+              </th>
+              <th className="text-right px-6 py-3 text-xs font-medium text-muted uppercase">
+                Quantidade
+              </th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">
+                Motivo/Obs
+              </th>
+              <th className="text-right px-6 py-3 text-xs font-medium text-muted uppercase">
+                Responsável
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -131,29 +147,43 @@ export default function MovementsPage() {
               </tr>
             ) : (
               movements.map((movement) => (
-                <tr key={movement.id} className="hover:bg-border/30 transition-colors">
+                <tr
+                  key={movement.id}
+                  className="hover:bg-border/30 transition-colors"
+                >
                   <td className="px-6 py-4 text-muted font-mono text-sm">
                     {formatDate(movement.createdAt)}
                   </td>
                   <td className="px-6 py-4">
                     {movement.type === 'ENTRY' ? (
-                      <Badge variant="default" className="bg-status-ok-bg/20 text-status-ok-text border-status-ok-text/30 gap-1.5 flex w-fit items-center">
+                      <Badge
+                        variant="default"
+                        className="bg-status-ok-bg/20 text-status-ok-text border-status-ok-text/30 gap-1.5 flex w-fit items-center"
+                      >
                         <ArrowDownLeft className="w-3.5 h-3.5" />
                         ENTRADA
                       </Badge>
                     ) : (
-                      <Badge variant="destructive" className="bg-status-critical-bg/20 text-status-critical-text border-status-critical-text/30 gap-1.5 flex w-fit items-center">
+                      <Badge
+                        variant="destructive"
+                        className="bg-status-critical-bg/20 text-status-critical-text border-status-critical-text/30 gap-1.5 flex w-fit items-center"
+                      >
                         <ArrowUpRight className="w-3.5 h-3.5" />
                         SAÍDA
                       </Badge>
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="font-medium text-foreground">{movement.product.name}</div>
-                    <div className="text-xs text-muted font-mono">{movement.product.sku}</div>
+                    <div className="font-medium text-foreground">
+                      {movement.product.name}
+                    </div>
+                    <div className="text-xs text-muted font-mono">
+                      {movement.product.sku}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-right font-mono font-medium text-foreground">
-                    {movement.type === 'ENTRY' ? '+' : '-'}{movement.quantity}
+                    {movement.type === 'ENTRY' ? '+' : '-'}
+                    {movement.quantity}
                   </td>
                   <td className="px-6 py-4 text-muted text-sm max-w-[200px] truncate">
                     {movement.reason || '-'}
@@ -172,7 +202,8 @@ export default function MovementsPage() {
         <div className="flex items-center justify-between mt-4">
           <p className="text-sm text-muted">
             Mostrando {(meta.page - 1) * meta.limit + 1} a{' '}
-            {Math.min(meta.page * meta.limit, meta.total)} de {meta.total} resultados
+            {Math.min(meta.page * meta.limit, meta.total)} de {meta.total}{' '}
+            resultados
           </p>
           <div className="flex gap-2">
             <Button
@@ -193,7 +224,10 @@ export default function MovementsPage() {
         </div>
       )}
 
-      <MovementModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <MovementModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

@@ -15,7 +15,9 @@ export default function CategoriesPage() {
   const deleteCategory = useCategoryStore((s) => s.deleteCategory);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
 
   useEffect(() => {
     fetchCategories();
@@ -33,16 +35,24 @@ export default function CategoriesPage() {
 
   const handleDelete = async (category: Category) => {
     if (category._count && category._count.products > 0) {
-      toast.error(`Não é possível excluir. Existem ${category._count.products} produto(s) vinculado(s) a esta categoria.`);
+      toast.error(
+        `Não é possível excluir. Existem ${category._count.products} produto(s) vinculado(s) a esta categoria.`,
+      );
       return;
     }
 
-    if (window.confirm(`Tem certeza que deseja excluir a categoria "${category.name}"?`)) {
+    if (
+      window.confirm(
+        `Tem certeza que deseja excluir a categoria "${category.name}"?`,
+      )
+    ) {
       try {
         await deleteCategory(category.id);
         toast.success('Categoria excluída com sucesso!');
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : 'Erro ao excluir categoria');
+        toast.error(
+          err instanceof Error ? err.message : 'Erro ao excluir categoria',
+        );
       }
     }
   };
@@ -67,13 +77,18 @@ export default function CategoriesPage() {
 
       <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-muted">Carregando categorias...</div>
+          <div className="p-8 text-center text-muted">
+            Carregando categorias...
+          </div>
         ) : categories.length === 0 ? (
           <div className="p-12 flex flex-col items-center justify-center text-center">
             <Tag className="w-12 h-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-1">Nenhuma categoria encontrada</h3>
+            <h3 className="text-lg font-medium text-foreground mb-1">
+              Nenhuma categoria encontrada
+            </h3>
             <p className="text-muted max-w-sm mb-4">
-              Você ainda não possui nenhuma categoria cadastrada. Crie a sua primeira para organizar seus produtos.
+              Você ainda não possui nenhuma categoria cadastrada. Crie a sua
+              primeira para organizar seus produtos.
             </p>
             <Button onClick={handleCreate} variant="outline" className="gap-2">
               <Plus className="w-4 h-4" /> Cadastrar Primeira Categoria
@@ -85,7 +100,9 @@ export default function CategoriesPage() {
               <thead className="text-xs text-muted-foreground uppercase bg-background border-b border-border">
                 <tr>
                   <th className="px-6 py-4 font-medium">Nome da Categoria</th>
-                  <th className="px-6 py-4 font-medium text-center">Produtos Vinculados</th>
+                  <th className="px-6 py-4 font-medium text-center">
+                    Produtos Vinculados
+                  </th>
                   <th className="px-6 py-4 font-medium text-right">Ações</th>
                 </tr>
               </thead>

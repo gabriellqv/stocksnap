@@ -36,10 +36,15 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
       // Busca produtos para popular o select (limit alto para garantir que aparecam na listagem)
       fetchProducts({ limit: 100, page: 1 });
       // Resetar form
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setType('ENTRY');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setProductId('');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setQuantity('');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setReason('');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError(null);
     }
   }, [isOpen, fetchProducts]);
@@ -70,11 +75,14 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
       });
 
       toast.success(
-        type === 'ENTRY' ? 'Entrada registrada com sucesso!' : 'Saída registrada com sucesso!'
+        type === 'ENTRY'
+          ? 'Entrada registrada com sucesso!'
+          : 'Saída registrada com sucesso!',
       );
       onClose();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao registrar movimentação';
+      const msg =
+        err instanceof Error ? err.message : 'Erro ao registrar movimentação';
       setError(msg);
       toast.error(msg);
     }
@@ -84,7 +92,9 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-surface border border-border w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-xl font-bold text-foreground">Nova Movimentação</h2>
+          <h2 className="text-xl font-bold text-foreground">
+            Nova Movimentação
+          </h2>
           <button
             onClick={onClose}
             className="p-2 text-muted hover:text-foreground hover:bg-background rounded-full transition-colors cursor-pointer"
@@ -128,7 +138,9 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Produto</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">
+              Produto
+            </label>
             <select
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
@@ -145,7 +157,9 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Quantidade</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">
+              Quantidade
+            </label>
             <Input
               type="number"
               min="1"
@@ -158,7 +172,8 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-1.5">
-              Motivo / Observação <span className="text-muted font-normal">(Opcional)</span>
+              Motivo / Observação{' '}
+              <span className="text-muted font-normal">(Opcional)</span>
             </label>
             <Input
               type="text"
@@ -169,7 +184,12 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={onClose}
+            >
               Cancelar
             </Button>
             <Button type="submit" disabled={isLoading} className="flex-1">
