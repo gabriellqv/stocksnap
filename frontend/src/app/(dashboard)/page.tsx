@@ -291,7 +291,7 @@ export default function DashboardPage() {
           {/* Campeão de Vendas (Top Product) */}
           <Card className="border-accent/30 bg-gradient-to-br from-surface to-accent-muted/10 relative overflow-hidden">
             <CardHeader className="pb-2">
-              <CardTitle className="text-accent-foreground flex items-center gap-2 text-sm">
+              <CardTitle className="text-foreground flex items-center gap-2 text-sm font-semibold">
                 <Trophy className="w-4 h-4 text-status-warning-text" />
                 Destaque da Semana
               </CardTitle>
