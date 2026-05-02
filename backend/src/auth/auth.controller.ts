@@ -1,4 +1,5 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -17,6 +18,7 @@ export class AuthController {
    * @param {RegisterDto} dto - Corpo da requisição validado com as informações do novo usuário.
    * @returns {Promise<unknown>} Dados do usuário registrado com sucesso.
    */
+  @Throttle({ default: { ttl: 60000, limit: 3 } })
   @Post('register')
   async register(@Body() dto: RegisterDto): Promise<unknown> {
     return this.authService.register(dto);
@@ -30,6 +32,7 @@ export class AuthController {
    * @param {LoginDto} dto - Corpo da requisição validado com as credenciais.
    * @returns {Promise<unknown>} Token JWT e informações básicas do usuário.
    */
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() dto: LoginDto): Promise<unknown> {
