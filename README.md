@@ -263,7 +263,35 @@ stocksnap/
 └── README.md
 ```
 
-## Como Executar o Projeto Localmente
+A estrutura do projeto e dividida em dois blocos logicos principais: o backend (API REST) e o frontend (Single Page Application). Abaixo, detalhamos as responsabilidades dos principais diretorios e arquivos da base de codigo:
+
+### Backend (NestJS e Prisma)
+
+* **`backend/prisma/`**: Contem o schema de dados (`schema.prisma`), o historico rigoroso de migrations geradas automaticamente e o script de seed (`seed.ts`) para populacao inicial do banco de dados.
+* **`backend/src/`**: Diretorio raiz da aplicacao server-side.
+  * **`backend/src/auth/`**: Modulo de seguranca. Contem a estrategia JWT, decorators customizados para extracao do usuario da requisicao, guards de protecao de rotas e logica de hash de senhas via bcrypt.
+  * **`backend/src/<dominios>/`**: Modulos de negocio isolados (`categories`, `dashboard`, `movements`, `products`). Cada pasta encapsula seu respectivo Controller (exposicao de endpoints), Service (regras de negocio) e DTOs (validacao estrita de payload de entrada).
+  * **`backend/src/app.module.ts`**: Modulo raiz responsavel por orquestrar a injecao de dependencias global e a configuracao do cache em memoria (Redis).
+* **`backend/test/`**: Suite de testes automatizados E2E para garantir o funcionamento correto e integrado dos endpoints HTTP.
+* **`backend/Dockerfile`**: Receita de construcao da imagem Docker de producao da API, otimizada com Alpine Linux.
+
+### Frontend (Next.js e Zustand)
+
+* **`frontend/src/app/`**: Diretorio central utilizando o padrao App Router do Next.js.
+  * **`(auth)/`**: Grupo de rotas publicas dedicadas a autenticacao (paineis de login).
+  * **`(dashboard)/`**: Grupo de rotas privadas (com layout compartilhado) abrigando o painel administrativo, listagens com paginacao e CRUDs.
+* **`frontend/src/components/`**: Camada de interface baseada em componentes React isolados e reutilizaveis. Inclui elementos granulares (`ui/`), modais de criacao/edicao e modulos estruturais da tela (`sidebar.tsx`, `header.tsx`).
+* **`frontend/src/lib/`**: Biblioteca de utilitarios transversais. Destaca-se o `api.ts`, um wrapper centralizado para chamadas HTTP que intercepta e injeta o token de sessao (Bearer) de forma autonoma em cada requisicao.
+* **`frontend/src/stores/`**: Camada de gerenciamento de estado global, implementada com Zustand. O `auth-store.ts` sincroniza e hidrata a sessao diretamente do localStorage, enquanto as demais stores gerenciam regras de busca, limites e memoria em listagens de dominio.
+* **`frontend/src/proxy.ts`**: Camada de seguranca do Next.js, responsavel por validar a integridade dos cookies e redirecionar acessos nao autorizados de forma veloz.
+
+### Infraestrutura e Configuracoes Globais
+
+* **`docs/`**: Diretorio que abriga a documentacao complementar sobre o modelo mental e decisoes de escopo arquitetural do projeto.
+* **`.github/workflows/ci.yml`**: Configuracao do pipeline de Integracao Continua executado pelo GitHub Actions (realiza validacao de linting, testes e rotinas de build em cada pull request).
+* **`docker-compose.yml`**: Orquestrador central utilizado para subir e intercomunicar simultaneamente o banco de dados PostgreSQL, o servidor cache Redis, a API e a Interface Web em ambiente de desenvolvimento.
+
+## Como Executar O Projeto Localmente
 
 ### Pre-requisitos
 
