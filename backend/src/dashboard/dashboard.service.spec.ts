@@ -62,10 +62,12 @@ describe('DashboardService', () => {
         .mockResolvedValueOnce(5) // today
         .mockResolvedValueOnce(3); // yesterday
 
-      mockPrisma.movement.groupBy = jest.fn().mockResolvedValue([
-        { productId: 'prod-1', _sum: { quantity: 10 } }
-      ]);
-      mockPrisma.product.findUnique = jest.fn().mockResolvedValue({ name: 'Produto X' });
+      mockPrisma.movement.groupBy = jest
+        .fn()
+        .mockResolvedValue([{ productId: 'prod-1', _sum: { quantity: 10 } }]);
+      mockPrisma.product.findUnique = jest
+        .fn()
+        .mockResolvedValue({ name: 'Produto X' });
 
       const result = await service.getSummary();
 

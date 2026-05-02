@@ -60,7 +60,10 @@ describe('ProductsService', () => {
 
       const result = await service.create(dto);
 
-      expect(mockPrisma.product.create).toHaveBeenCalledWith({ data: dto, include: { category: true } });
+      expect(mockPrisma.product.create).toHaveBeenCalledWith({
+        data: dto,
+        include: { category: true },
+      });
       expect(mockCache.del).toHaveBeenCalledWith('dashboard:summary');
       expect(mockCache.del).toHaveBeenCalledWith('dashboard:low-stock');
       expect(result.id).toEqual('prod-1');
@@ -69,7 +72,15 @@ describe('ProductsService', () => {
     it('deve lançar ConflictException se SKU já existir', async () => {
       mockPrisma.product.findUnique.mockResolvedValue({ id: 'prod-1' });
 
-      await expect(service.create({ sku: 'SKU-001', name: 'X', costPrice: 10, sellPrice: 20, categoryId: 'cat-1' })).rejects.toThrow(ConflictException);
+      await expect(
+        service.create({
+          sku: 'SKU-001',
+          name: 'X',
+          costPrice: 10,
+          sellPrice: 20,
+          categoryId: 'cat-1',
+        }),
+      ).rejects.toThrow(ConflictException);
       expect(mockPrisma.product.create).not.toHaveBeenCalled();
     });
 
@@ -77,7 +88,15 @@ describe('ProductsService', () => {
       mockPrisma.product.findUnique.mockResolvedValue(null);
       mockPrisma.category.findUnique.mockResolvedValue(null); // Categoria não existe
 
-      await expect(service.create({ sku: 'SKU-001', name: 'X', costPrice: 10, sellPrice: 20, categoryId: 'cat-invalid' })).rejects.toThrow(NotFoundException);
+      await expect(
+        service.create({
+          sku: 'SKU-001',
+          name: 'X',
+          costPrice: 10,
+          sellPrice: 20,
+          categoryId: 'cat-invalid',
+        }),
+      ).rejects.toThrow(NotFoundException);
       expect(mockPrisma.product.create).not.toHaveBeenCalled();
     });
   });
@@ -85,11 +104,19 @@ describe('ProductsService', () => {
   describe('update', () => {
     it('deve lançar ConflictException ao atualizar para um SKU que já pertence a outro produto', async () => {
       // O produto que estamos atualizando (retornado pelo findOneOrFail)
-      mockPrisma.product.findUnique.mockResolvedValueOnce({ id: 'prod-1', sku: 'SKU-001' });
+      mockPrisma.product.findUnique.mockResolvedValueOnce({
+        id: 'prod-1',
+        sku: 'SKU-001',
+      });
       // O check de duplicidade no update usa findFirst com NOT id
-      mockPrisma.product.findFirst.mockResolvedValueOnce({ id: 'prod-2', sku: 'SKU-002' });
+      mockPrisma.product.findFirst.mockResolvedValueOnce({
+        id: 'prod-2',
+        sku: 'SKU-002',
+      });
 
-      await expect(service.update('prod-1', { sku: 'SKU-002' })).rejects.toThrow(ConflictException);
+      await expect(
+        service.update('prod-1', { sku: 'SKU-002' }),
+      ).rejects.toThrow(ConflictException);
       expect(mockPrisma.product.update).not.toHaveBeenCalled();
     });
   });
@@ -102,7 +129,9 @@ describe('ProductsService', () => {
 
       await service.remove('prod-1');
 
-      expect(mockPrisma.product.delete).toHaveBeenCalledWith({ where: { id: 'prod-1' } });
+      expect(mockPrisma.product.delete).toHaveBeenCalledWith({
+        where: { id: 'prod-1' },
+      });
       expect(mockCache.del).toHaveBeenCalledWith('dashboard:summary');
       expect(mockCache.del).toHaveBeenCalledWith('dashboard:low-stock');
     });

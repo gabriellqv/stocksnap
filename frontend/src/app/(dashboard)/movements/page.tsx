@@ -7,6 +7,7 @@ import { useProductStore } from '@/stores/product-store';
 import { MovementModal } from '@/components/movement-modal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { formatDate } from '@/lib/utils';
 import type { MovementType } from '@/types';
 
 /**
@@ -38,16 +39,6 @@ export default function MovementsPage() {
 
   const handlePageChange = (newPage: number) => {
     fetchMovements({ page: newPage });
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(dateString));
   };
 
   return (

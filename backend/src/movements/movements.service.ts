@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
-import { MovementType } from '@prisma/client';
+import { MovementType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { QueryMovementDto } from './dto/query-movement.dto';
@@ -102,7 +102,7 @@ export class MovementsService {
   async findAll(query: QueryMovementDto) {
     const { productId, type, page = 1, limit = 20 } = query;
 
-    const where: any = {};
+    const where: Prisma.MovementWhereInput = {};
 
     if (productId) where.productId = productId;
     if (type) where.type = type;

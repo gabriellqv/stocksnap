@@ -8,6 +8,7 @@ import {
   Param,
   Query,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -43,7 +44,7 @@ export class ProductsController {
    * @returns {Promise<unknown>} O produto com relacionamentos incluídos.
    */
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.findOne(id);
   }
 
@@ -66,7 +67,10 @@ export class ProductsController {
    * @returns {Promise<unknown>} O produto com os dados atualizados.
    */
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateProductDto,
+  ) {
     return this.productsService.update(id, dto);
   }
 
@@ -77,7 +81,7 @@ export class ProductsController {
    * @returns {Promise<unknown>} O produto removido.
    */
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.remove(id);
   }
 }

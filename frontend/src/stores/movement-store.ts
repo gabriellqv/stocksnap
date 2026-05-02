@@ -7,6 +7,7 @@
 
 import { create } from 'zustand';
 import { api, ApiError } from '@/lib/api';
+import { buildQueryString } from '@/lib/utils';
 import type {
   Movement,
   CreateMovementData,
@@ -34,23 +35,6 @@ interface MovementActions {
   createMovement: (data: CreateMovementData) => Promise<void>;
   setQuery: (params: Partial<MovementQueryParams>) => void;
   clearError: () => void;
-}
-
-/**
- * @description Constrói a Query String da URL baseada nos parâmetros de filtro.
- * Utiliza a API nativa URLSearchParams para lidar com a formatação e escape corretos.
- *
- * @param {MovementQueryParams} params - Filtros e paginação da movimentação.
- * @returns {string} Query string final (ex: "?productId=123&type=ENTRY&page=1").
- */
-function buildQueryString(params: MovementQueryParams): string {
-  const searchParams = new URLSearchParams();
-  if (params.productId) searchParams.set('productId', params.productId);
-  if (params.type) searchParams.set('type', params.type);
-  if (params.page) searchParams.set('page', String(params.page));
-  if (params.limit) searchParams.set('limit', String(params.limit));
-  const qs = searchParams.toString();
-  return qs ? `?${qs}` : '';
 }
 
 /**

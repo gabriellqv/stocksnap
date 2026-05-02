@@ -10,6 +10,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
+import { Prisma } from '@prisma/client';
 
 /**
  * @description Serviço responsável pela lógica de negócios do módulo de produtos.
@@ -35,7 +36,7 @@ export class ProductsService {
   async findAll(query: QueryProductDto) {
     const { search, categoryId, page = 1, limit = 10 } = query;
 
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
 
     if (search) {
       where.OR = [
@@ -48,7 +49,7 @@ export class ProductsService {
       where.categoryId = categoryId;
     }
 
-    const orderBy: any = {};
+    const orderBy: Prisma.ProductOrderByWithRelationInput = {};
     if (query.sortBy) {
       orderBy[query.sortBy] = query.sortOrder || 'asc';
     } else {
