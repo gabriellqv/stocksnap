@@ -361,16 +361,6 @@ npm test
 
 * **Cliente API Centralizado**: Todas as requisições HTTP do frontend passam por um wrapper único (`api.ts`) que injeta automaticamente o Bearer Token, trata respostas 401 com redirect e limpeza de sessão, e encapsula erros em uma classe `ApiError` customizada com status HTTP e payload.
 
-## Possíveis Melhorias Futuras
-
-* Implementação de controle de acesso baseado em papéis (RBAC) no frontend, restringindo componentes e ações com base no campo `role` do usuário autenticado
-* Adição de testes de integração (E2E) com `supertest` no backend para validar o fluxo HTTP completo
-* Implementação de paginação e filtros no módulo de categorias
-* Rate limiting via `@nestjs/throttler` para proteção contra ataques de força bruta nos endpoints de autenticação
-* Headers de segurança HTTP via `helmet` para proteção contra ataques XSS, clickjacking e sniffing de MIME type
-* Implementação de refresh tokens para renovação silenciosa de sessões expiradas
-* Monitoramento de aplicação com instrumentação OpenTelemetry para rastreamento de latência e taxa de erros
-* Exportação de relatórios de movimentações em formato PDF e CSV
 
 ## Considerações Finais
 
