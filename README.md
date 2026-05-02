@@ -268,6 +268,7 @@ A estrutura do projeto e dividida em dois blocos logicos principais: o backend (
 ### Backend (NestJS e Prisma)
 
 * **`backend/prisma/`**: Contem o schema de dados (`schema.prisma`), o historico rigoroso de migrations geradas automaticamente e o script de seed (`seed.ts`) para populacao inicial do banco de dados.
+* **`backend/http/`**: Colecao de requisicoes pre-configuradas (`api.http`) para uso em extensoes como o REST Client do VS Code. Facilita o teste manual isolado da API sem a necessidade de uma interface de usuario ou Postman.
 * **`backend/src/`**: Diretorio raiz da aplicacao server-side.
   * **`backend/src/auth/`**: Modulo de seguranca. Contem a estrategia JWT, decorators customizados para extracao do usuario da requisicao, guards de protecao de rotas e logica de hash de senhas via bcrypt.
   * **`backend/src/<dominios>/`**: Modulos de negocio isolados (`categories`, `dashboard`, `movements`, `products`). Cada pasta encapsula seu respectivo Controller (exposicao de endpoints), Service (regras de negocio) e DTOs (validacao estrita de payload de entrada).
@@ -285,9 +286,18 @@ A estrutura do projeto e dividida em dois blocos logicos principais: o backend (
 * **`frontend/src/stores/`**: Camada de gerenciamento de estado global, implementada com Zustand. O `auth-store.ts` sincroniza e hidrata a sessao diretamente do localStorage, enquanto as demais stores gerenciam regras de busca, limites e memoria em listagens de dominio.
 * **`frontend/src/proxy.ts`**: Camada de seguranca do Next.js, responsavel por validar a integridade dos cookies e redirecionar acessos nao autorizados de forma veloz.
 
+### Documentacao Tecnica (`docs/`)
+
+Este diretorio constitui um registro vivo da arquitetura e das decisoes de engenharia adotadas no projeto, servindo como base de conhecimento e onboarding:
+
+* **`00-visao-geral.md` ate `02-banco-de-dados.md`**: Documentos fundacionais que cobrem a configuracao do ambiente local, regras de negocio e a modelagem relacional via Prisma.
+* **`03-backend-auth.md` ate `06-backend-dashboard.md`**: Detalhamento da implementacao das rotas da API, abordando desde protecoes JWT ate as politicas de cache (Redis) do painel de metricas.
+* **`07-frontend-setup-e-auth.md` ate `10-frontend-dashboard.md`**: Mapeamento do client-side, cobrindo o gerenciamento de estado global com Zustand, interceptadores de request HTTP e construcao de interface.
+* **`11-testes.md` e `12-docker-ci-deploy.md`**: Registro detalhado da suite de testes Jest, containerizacao isolada e pipeline de Continuous Integration do GitHub Actions.
+* **`README-portfolio.md`**: Guia estrategico focado em Recrutadores e Tech Leads, detalhando como este projeto comprova a proficiencia nas tecnologias e padroes adotados.
+
 ### Infraestrutura e Configuracoes Globais
 
-* **`docs/`**: Diretorio que abriga a documentacao complementar sobre o modelo mental e decisoes de escopo arquitetural do projeto.
 * **`.github/workflows/ci.yml`**: Configuracao do pipeline de Integracao Continua executado pelo GitHub Actions (realiza validacao de linting, testes e rotinas de build em cada pull request).
 * **`docker-compose.yml`**: Orquestrador central utilizado para subir e intercomunicar simultaneamente o banco de dados PostgreSQL, o servidor cache Redis, a API e a Interface Web em ambiente de desenvolvimento.
 
