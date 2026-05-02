@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Página inicial do Dashboard com KPIs, gráficos e ações rápidas.
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';

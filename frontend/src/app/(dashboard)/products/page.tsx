@@ -15,7 +15,9 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  Download,
 } from 'lucide-react';
+import { exportToCsv } from '@/lib/export-csv';
 import { toast } from 'sonner';
 import { useProductStore } from '@/stores/product-store';
 import { useCategoryStore } from '@/stores/category-store';
@@ -106,6 +108,19 @@ export default function ProductsPage() {
     setEditingProduct(null);
   };
 
+  const handleExportCSV = () => {
+    const data = products.map((p) => ({
+      Nome: p.name,
+      SKU: p.sku,
+      Categoria: p.category.name,
+      'Preço Custo': String(p.costPrice).replace('.', ','),
+      'Preço Venda': String(p.sellPrice).replace('.', ','),
+      Quantidade: p.quantity,
+      'Estoque Mínimo': p.minQuantity,
+    }));
+    exportToCsv(data, 'Produtos');
+  };
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -149,6 +164,15 @@ export default function ProductsPage() {
             </option>
           ))}
         </select>
+        <Button
+          variant="outline"
+          onClick={handleExportCSV}
+          className="gap-2 w-full sm:w-auto hover:text-accent hover:border-accent/30 transition-colors"
+          disabled={products.length === 0}
+        >
+          <Download className="w-4 h-4" />
+          Exportar CSV
+        </Button>
       </div>
 
       <div className="bg-surface rounded-xl shadow-sm border border-border overflow-x-auto">

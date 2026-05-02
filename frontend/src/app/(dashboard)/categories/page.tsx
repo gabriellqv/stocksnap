@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Página de gerenciamento de Categorias, listagem e modal de edição.
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';
