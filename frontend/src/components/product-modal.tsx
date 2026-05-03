@@ -6,6 +6,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { X, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -23,9 +26,21 @@ interface ProductModalProps {
   product?: Product | null;
 }
 
+const productSchema = z.object({
+  name: z.string().min(1, 'O nome do produto é obrigatório.'),
+  sku: z.string().min(1, 'O SKU do produto é obrigatório.'),
+  description: z.string().optional(),
+  costPrice: z.number().min(0, 'Preço inválido.'),
+  sellPrice: z.number().min(0, 'Preço inválido.'),
+  minQuantity: z.number().min(0),
+  categoryId: z.string().optional(),
+});
+
+type ProductFormData = z.infer<typeof productSchema>;
+
 /**
  * @description Modal controlado via estado para gerenciar (Criar/Editar) produtos.
- * Utiliza integração direta com as stores `useProductStore` e `useCategoryStore`.
+ * Utiliza validação via react-hook-form e zod, integração direta com as stores.
  */
 export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
   const createProduct = useProductStore((s) => s.createProduct);
@@ -38,43 +53,50 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
 
-  const [form, setForm] = useState({
-    name: '',
-    sku: '',
-    description: '',
-    costPrice: '',
-    sellPrice: '',
-    minQuantity: '5',
-    categoryId: '',
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors },
+  } = useForm<ProductFormData>({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      name: '',
+      sku: '',
+      description: '',
+      costPrice: 0,
+      sellPrice: 0,
+      minQuantity: 5,
+      categoryId: '',
+    },
   });
-  const [error, setError] = useState('');
 
   const isEditing = !!product;
 
   useEffect(() => {
-    if (product) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setForm({
+    if (product && isOpen) {
+      reset({
         name: product.name,
         sku: product.sku,
         description: product.description || '',
-        costPrice: String(product.costPrice),
-        sellPrice: String(product.sellPrice),
-        minQuantity: String(product.minQuantity),
+        costPrice: product.costPrice as unknown as number,
+        sellPrice: product.sellPrice as unknown as number,
+        minQuantity: product.minQuantity,
         categoryId: product.categoryId,
       });
-    } else {
-      setForm({
+    } else if (isOpen) {
+      reset({
         name: '',
         sku: '',
         description: '',
-        costPrice: '',
-        sellPrice: '',
-        minQuantity: '5',
+        costPrice: 0,
+        sellPrice: 0,
+        minQuantity: 5,
         categoryId: categories[0]?.id || '',
       });
     }
-  }, [product, categories]);
+  }, [product, categories, isOpen, reset]);
 
   useEffect(() => {
     if (isOpen && categories.length === 0) {
@@ -94,37 +116,20 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
    * O flush no banco de dados agora é atrelado exclusivamente à finalização do produto raiz.
    */
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    if (!form.name.trim()) {
-      setError('O nome do produto é obrigatório.');
-      return;
-    }
-    if (!form.sku.trim()) {
-      setError('O SKU do produto é obrigatório.');
-      return;
-    }
+  const onSubmit = async (data: ProductFormData) => {
     if (isCreatingCategory && !newCategoryName.trim()) {
-      setError('O nome da nova categoria é obrigatório.');
+      setError('root', { message: 'O nome da nova categoria é obrigatório.' });
       return;
     }
-    if (!isCreatingCategory && !form.categoryId) {
-      setError('Selecione uma categoria ou crie uma nova.');
-      return;
-    }
-    if (!form.costPrice || isNaN(parseFloat(form.costPrice))) {
-      setError('Insira um preço de custo válido.');
-      return;
-    }
-    if (!form.sellPrice || isNaN(parseFloat(form.sellPrice))) {
-      setError('Insira um preço de venda válido.');
+    if (!isCreatingCategory && !data.categoryId) {
+      setError('categoryId', {
+        message: 'Selecione uma categoria ou crie uma nova.',
+      });
       return;
     }
 
     try {
-      let finalCategoryId = form.categoryId;
+      let finalCategoryId = data.categoryId as string;
 
       /** Resolvimento da dependência hierárquica: cadastra a categoria in-flight antes do produto */
       if (isCreatingCategory) {
@@ -133,11 +138,13 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
       }
 
       const payload = {
-        ...form,
+        name: data.name,
+        sku: data.sku,
+        description: data.description,
         categoryId: finalCategoryId,
-        costPrice: parseFloat(form.costPrice),
-        sellPrice: parseFloat(form.sellPrice),
-        minQuantity: parseInt(form.minQuantity),
+        costPrice: data.costPrice,
+        sellPrice: data.sellPrice,
+        minQuantity: data.minQuantity,
       };
 
       if (isEditing) {
@@ -151,7 +158,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
       onClose();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erro ao salvar';
-      setError(msg);
+      setError('root', { message: msg });
       toast.error(msg);
     }
   };
@@ -174,13 +181,13 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
         </div>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           noValidate
           className="p-6 space-y-4 overflow-y-auto"
         >
-          {error && (
+          {errors.root && (
             <div className="bg-destructive-muted border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
-              {error}
+              {errors.root.message}
             </div>
           )}
 
@@ -189,12 +196,12 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
               <label className="block text-sm font-medium text-foreground mb-1">
                 Nome
               </label>
-              <Input
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                required
-              />
+              <Input type="text" {...register('name')} />
+              {errors.name && (
+                <p className="text-destructive text-xs mt-1">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -203,12 +210,15 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
               </label>
               <Input
                 type="text"
-                value={form.sku}
-                onChange={(e) => setForm({ ...form, sku: e.target.value })}
+                {...register('sku')}
                 className="font-mono text-sm"
                 placeholder="HIG-001"
-                required
               />
+              {errors.sku && (
+                <p className="text-destructive text-xs mt-1">
+                  {errors.sku.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -257,12 +267,8 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
                 </div>
               ) : (
                 <select
-                  value={form.categoryId}
-                  onChange={(e) =>
-                    setForm({ ...form, categoryId: e.target.value })
-                  }
+                  {...register('categoryId')}
                   className="flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent transition-all duration-200 cursor-pointer"
-                  required
                 >
                   <option value="">Selecione...</option>
                   {categories.map((c) => (
@@ -271,6 +277,11 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
                     </option>
                   ))}
                 </select>
+              )}
+              {errors.categoryId && !isCreatingCategory && (
+                <p className="text-destructive text-xs mt-1">
+                  {errors.categoryId.message}
+                </p>
               )}
             </div>
 
@@ -282,13 +293,14 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
                 type="number"
                 step="0.01"
                 min="0"
-                value={form.costPrice}
-                onChange={(e) =>
-                  setForm({ ...form, costPrice: e.target.value })
-                }
+                {...register('costPrice', { valueAsNumber: true })}
                 className="font-mono text-sm"
-                required
               />
+              {errors.costPrice && (
+                <p className="text-destructive text-xs mt-1">
+                  {errors.costPrice.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -299,13 +311,14 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
                 type="number"
                 step="0.01"
                 min="0"
-                value={form.sellPrice}
-                onChange={(e) =>
-                  setForm({ ...form, sellPrice: e.target.value })
-                }
+                {...register('sellPrice', { valueAsNumber: true })}
                 className="font-mono text-sm"
-                required
               />
+              {errors.sellPrice && (
+                <p className="text-destructive text-xs mt-1">
+                  {errors.sellPrice.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -315,12 +328,14 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
               <Input
                 type="number"
                 min="0"
-                value={form.minQuantity}
-                onChange={(e) =>
-                  setForm({ ...form, minQuantity: e.target.value })
-                }
+                {...register('minQuantity', { valueAsNumber: true })}
                 className="font-mono text-sm"
               />
+              {errors.minQuantity && (
+                <p className="text-destructive text-xs mt-1">
+                  {errors.minQuantity.message}
+                </p>
+              )}
             </div>
 
             <div className="sm:col-span-2">
@@ -328,13 +343,15 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
                 Descrição (opcional)
               </label>
               <textarea
-                value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
+                {...register('description')}
                 className="flex w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent transition-all duration-200"
                 rows={2}
               />
+              {errors.description && (
+                <p className="text-destructive text-xs mt-1">
+                  {errors.description.message}
+                </p>
+              )}
             </div>
           </div>
 

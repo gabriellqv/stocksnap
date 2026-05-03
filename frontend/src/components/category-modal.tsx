@@ -7,7 +7,10 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -24,9 +27,15 @@ interface CategoryModalProps {
   category?: Category | null;
 }
 
+const categorySchema = z.object({
+  name: z.string().min(1, 'O nome da categoria é obrigatório.'),
+});
+
+type CategoryFormData = z.infer<typeof categorySchema>;
+
 /**
  * @description Modal reutilizável para gerenciamento de categorias (Criar/Editar).
- * Utiliza validação manual no frontend e tratamento de conflitos via API.
+ * Utiliza validação via react-hook-form e zod, com tratamento de conflitos da API.
  */
 export function CategoryModal({
   isOpen,
@@ -37,42 +46,41 @@ export function CategoryModal({
   const updateCategory = useCategoryStore((s) => s.updateCategory);
   const isSubmitting = useCategoryStore((s) => s.isSubmitting);
 
-  const [name, setName] = useState('');
-  const [error, setError] = useState('');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors },
+  } = useForm<CategoryFormData>({
+    resolver: zodResolver(categorySchema),
+    defaultValues: { name: '' },
+  });
 
   const isEditing = !!category;
 
   useEffect(() => {
-    if (category) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setName(category.name);
-    } else {
-      setName('');
+    if (category && isOpen) {
+      reset({ name: category.name });
+    } else if (isOpen) {
+      reset({ name: '' });
     }
-  }, [category, isOpen]);
+  }, [category, isOpen, reset]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    if (!name.trim()) {
-      setError('O nome da categoria é obrigatório.');
-      return;
-    }
-
+  const onSubmit = async (data: CategoryFormData) => {
     try {
       if (isEditing) {
-        await updateCategory(category!.id, { name: name.trim() });
+        await updateCategory(category!.id, { name: data.name.trim() });
         toast.success('Categoria atualizada com sucesso!');
       } else {
-        await createCategory({ name: name.trim() });
+        await createCategory({ name: data.name.trim() });
         toast.success('Categoria criada com sucesso!');
       }
       onClose();
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : 'Erro ao salvar categoria';
-      setError(msg);
+      setError('root', { message: msg });
       toast.error(msg);
     }
   };
@@ -94,10 +102,14 @@ export function CategoryModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="p-6 space-y-4">
-          {error && (
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className="p-6 space-y-4"
+        >
+          {errors.root && (
             <div className="bg-destructive-muted border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
-              {error}
+              {errors.root.message}
             </div>
           )}
 
@@ -107,12 +119,15 @@ export function CategoryModal({
             </label>
             <Input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              {...register('name')}
               placeholder="Ex: Eletrônicos"
               autoFocus
-              required
             />
+            {errors.name && (
+              <p className="text-destructive text-xs mt-1">
+                {errors.name.message}
+              </p>
+            )}
           </div>
 
           <div className="flex justify-end gap-3 pt-4">

@@ -61,6 +61,10 @@ describe('MovementModal Component', () => {
     const select = screen.getByRole('combobox');
     fireEvent.change(select, { target: { value: 'prod-1' } });
 
+    // Define quantidade como 0
+    const qtyInput = screen.getByPlaceholderText(/Ex: 10/i);
+    fireEvent.change(qtyInput, { target: { value: '0' } });
+
     const submitBtn = screen.getByRole('button', { name: /confirmar/i });
     fireEvent.click(submitBtn);
 
