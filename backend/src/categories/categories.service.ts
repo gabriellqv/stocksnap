@@ -4,12 +4,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { QueryCategoryDto } from './dto/query-category.dto';
 import type {
   CategoryResponse,
   CategoryWithCountResponse,
 } from './interfaces/category-response.interface';
+import type { PaginatedResponse } from '../products/interfaces/product-response.interface';
 
 /**
  * @description Serviço responsável pela lógica de negócios do módulo de categorias.
@@ -25,15 +28,42 @@ export class CategoriesService {
    * @description Retorna todas as categorias cadastradas, ordenadas alfabeticamente.
    * Inclui a contagem de produtos vinculados a cada categoria.
    *
-   * @returns {Promise<CategoryWithCountResponse[]>} Lista de categorias com o campo `_count.products`.
+   * @param {QueryCategoryDto} query - Filtros e parâmetros de paginação.
+   * @returns {Promise<PaginatedResponse<CategoryWithCountResponse>>} Lista de categorias paginada.
    */
-  async findAll(): Promise<CategoryWithCountResponse[]> {
-    return this.prisma.category.findMany({
-      orderBy: { name: 'asc' },
-      include: {
-        _count: { select: { products: true } },
+  async findAll(
+    query: QueryCategoryDto,
+  ): Promise<PaginatedResponse<CategoryWithCountResponse>> {
+    const { search, page = 1, limit = 10 } = query;
+
+    const where: Prisma.CategoryWhereInput = {};
+
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+
+    const [categories, total] = await Promise.all([
+      this.prisma.category.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        include: {
+          _count: { select: { products: true } },
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.category.count({ where }),
+    ]);
+
+    return {
+      data: categories,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
-    });
+    };
   }
 
   /**

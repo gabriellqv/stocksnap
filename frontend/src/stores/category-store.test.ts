@@ -25,13 +25,13 @@ describe('CategoryStore', () => {
       { id: '1', name: 'Cat 1' },
       { id: '2', name: 'Cat 2' },
     ];
-    (api.get as jest.Mock).mockResolvedValue(mockCategories);
+    (api.get as jest.Mock).mockResolvedValue({ data: mockCategories });
 
     const { fetchCategories } = useCategoryStore.getState();
     await fetchCategories();
 
     const state = useCategoryStore.getState();
-    expect(api.get).toHaveBeenCalledWith('/categories');
+    expect(api.get).toHaveBeenCalledWith('/categories?limit=1000');
     expect(state.categories).toEqual(mockCategories);
     expect(state.isLoading).toBe(false);
   });
@@ -39,13 +39,13 @@ describe('CategoryStore', () => {
   it('deve criar categoria e recarregar a lista', async () => {
     const mockNewCat = { id: '3', name: 'Cat 3' };
     (api.post as jest.Mock).mockResolvedValue(mockNewCat);
-    (api.get as jest.Mock).mockResolvedValue([mockNewCat]); // Mock da recarga
+    (api.get as jest.Mock).mockResolvedValue({ data: [mockNewCat] }); // Mock da recarga
 
     const { createCategory } = useCategoryStore.getState();
     const result = await createCategory({ name: 'Cat 3' });
 
     expect(api.post).toHaveBeenCalledWith('/categories', { name: 'Cat 3' });
-    expect(api.get).toHaveBeenCalledWith('/categories'); // Garante que atualizou a lista
+    expect(api.get).toHaveBeenCalledWith('/categories?limit=1000'); // Garante que atualizou a lista
     expect(result).toEqual(mockNewCat);
 
     const state = useCategoryStore.getState();
@@ -58,9 +58,9 @@ describe('CategoryStore', () => {
       id: '1',
       name: 'Cat 1 Editada',
     });
-    (api.get as jest.Mock).mockResolvedValue([
-      { id: '1', name: 'Cat 1 Editada' },
-    ]);
+    (api.get as jest.Mock).mockResolvedValue({
+      data: [{ id: '1', name: 'Cat 1 Editada' }],
+    });
 
     const { updateCategory } = useCategoryStore.getState();
     await updateCategory('1', { name: 'Cat 1 Editada' });
@@ -68,17 +68,17 @@ describe('CategoryStore', () => {
     expect(api.patch).toHaveBeenCalledWith('/categories/1', {
       name: 'Cat 1 Editada',
     });
-    expect(api.get).toHaveBeenCalledWith('/categories');
+    expect(api.get).toHaveBeenCalledWith('/categories?limit=1000');
   });
 
   it('deve deletar categoria e recarregar a lista', async () => {
     (api.delete as jest.Mock).mockResolvedValue({ id: '1' });
-    (api.get as jest.Mock).mockResolvedValue([]);
+    (api.get as jest.Mock).mockResolvedValue({ data: [] });
 
     const { deleteCategory } = useCategoryStore.getState();
     await deleteCategory('1');
 
     expect(api.delete).toHaveBeenCalledWith('/categories/1');
-    expect(api.get).toHaveBeenCalledWith('/categories');
+    expect(api.get).toHaveBeenCalledWith('/categories?limit=1000');
   });
 });
