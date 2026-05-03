@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
@@ -13,11 +14,16 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { QueryCategoryDto } from './dto/query-category.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 import type {
   CategoryResponse,
   CategoryWithCountResponse,
 } from './interfaces/category-response.interface';
+import type { PaginatedResponse } from '../products/interfaces/product-response.interface';
 
 /**
  * @description Controller responsável pelos endpoints REST do módulo de categorias.
@@ -26,19 +32,22 @@ import type {
 @ApiTags('Categorias')
 @ApiBearerAuth()
 @Controller('categories')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   /**
    * @description Retorna a lista completa de categorias.
    *
-   * @returns {Promise<CategoryWithCountResponse[]>} Array de categorias com contagem de produtos.
+   * @param {QueryCategoryDto} query - Filtros e paginação.
+   * @returns {Promise<PaginatedResponse<CategoryWithCountResponse>>} Lista paginada de categorias.
    */
   @ApiOperation({ summary: 'Listar todas as categorias' })
   @Get()
-  findAll(): Promise<CategoryWithCountResponse[]> {
-    return this.categoriesService.findAll();
+  findAll(
+    @Query() query: QueryCategoryDto,
+  ): Promise<PaginatedResponse<CategoryWithCountResponse>> {
+    return this.categoriesService.findAll(query);
   }
 
   /**
@@ -48,6 +57,7 @@ export class CategoriesController {
    * @returns {Promise<CategoryResponse>} A categoria recém-criada.
    */
   @ApiOperation({ summary: 'Criar nova categoria' })
+  @Roles(Role.ADMIN)
   @Post()
   create(@Body() dto: CreateCategoryDto): Promise<CategoryResponse> {
     return this.categoriesService.create(dto);
@@ -61,6 +71,7 @@ export class CategoriesController {
    * @returns {Promise<CategoryResponse>} A categoria com os dados atualizados.
    */
   @ApiOperation({ summary: 'Atualizar categoria' })
+  @Roles(Role.ADMIN)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -76,6 +87,7 @@ export class CategoriesController {
    * @returns {Promise<CategoryResponse>} A categoria removida.
    */
   @ApiOperation({ summary: 'Deletar categoria' })
+  @Roles(Role.ADMIN)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string): Promise<CategoryResponse> {
     return this.categoriesService.remove(id);
