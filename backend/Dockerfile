@@ -7,6 +7,7 @@ RUN npm ci
 
 COPY prisma ./prisma
 RUN npx prisma generate
+RUN npx tsc prisma/seed.ts --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop
 
 COPY . .
 RUN npm run build
@@ -34,4 +35,4 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
   CMD wget -qO- http://localhost:3001/api || exit 1
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed.js && node dist/main.js"]

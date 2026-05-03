@@ -280,21 +280,25 @@ async function main(): Promise<void> {
     },
   ];
 
-  await Promise.all(
-    movimentacoes.map((m) =>
-      prisma.movement.create({
-        data: {
-          type: m.type,
-          quantity: m.quantity,
-          reason: m.reason,
-          productId: produtosDb[m.productIndex].id,
-          userId: admin.id,
-        },
-      }),
-    ),
-  );
-
-  console.log('✅ Movimentações criadas');
+  const movementsCount = await prisma.movement.count();
+  if (movementsCount === 0) {
+    await Promise.all(
+      movimentacoes.map((m) =>
+        prisma.movement.create({
+          data: {
+            type: m.type,
+            quantity: m.quantity,
+            reason: m.reason,
+            productId: produtosDb[m.productIndex].id,
+            userId: admin.id,
+          },
+        }),
+      ),
+    );
+    console.log('✅ Movimentações criadas');
+  } else {
+    console.log('⚡ Movimentações já existem, pulando...');
+  }
   console.log('🌱 Seed finalizado com sucesso!');
 }
 
