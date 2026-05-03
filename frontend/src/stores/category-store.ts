@@ -41,8 +41,10 @@ export const useCategoryStore = create<CategoryState & CategoryActions>(
     fetchCategories: async () => {
       set({ isLoading: true, error: null });
       try {
-        const categories = await api.get<Category[]>('/categories');
-        set({ categories, isLoading: false });
+        const response = await api.get<{ data: Category[] }>(
+          '/categories?limit=1000',
+        ); // limit high to avoid breaking existing UI that doesn't paginate yet
+        set({ categories: response.data, isLoading: false });
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : 'Erro ao buscar categorias';

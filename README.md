@@ -4,14 +4,14 @@
 
 ![Coverage](https://img.shields.io/badge/coverage-100%25-success) ![License](https://img.shields.io/badge/license-MIT-blue)
 
-## Visão geral
+## Visao geral
 
-O StockSnap automatiza o controle de inventário garantindo a exatidão dos saldos por meio de arquitetura transacional e atualização imediata via cache.
+O StockSnap automatiza o controle de inventario garantindo a exatidao dos saldos por meio de arquitetura transacional e atualizacao imediata via cache.
 
 1. **Stack principal:** Node.js, NestJS, Prisma, PostgreSQL, Redis, Next.js, Zustand e Tailwind CSS.
-2. **Diferenciais:** Prevenção de saldos negativos via transações no banco de dados, carregamento rápido de métricas com cache distribuído e blindagem contra injeção em exportações.
-3. **Repositório oficial:** [github.com/gabriellqv/stocksnap](https://github.com/gabriellqv/stocksnap)
-4. **Demonstração online:** [Acessar Aplicação Web](https://stocksnap-dashboard.vercel.app/) | [Documentação da API](https://stocksnap-api.onrender.com/api/docs)
+2. **Diferenciais:** Prevencao de saldos negativos via transacoes no banco de dados, carregamento rapido de metricas com cache distribuido e blindagem contra injecao em exportacoes.
+3. **Repositorio oficial:** [github.com/gabriellqv/stocksnap](https://github.com/gabriellqv/stocksnap)
+4. **Demonstracao online:** [Acessar Aplicacao Web](https://stocksnap-dashboard.vercel.app/) | [Documentacao da API](https://stocksnap-api.onrender.com/api/docs)
 
 ## Preview
 
@@ -23,32 +23,51 @@ O StockSnap automatiza o controle de inventário garantindo a exatidão dos sald
 <br/>
 
 <div align="center">
-  <img src="./frontend/public/screenshots/movements.png" alt="Listagem de Movimentações" width="800"/>
+  <img src="./frontend/public/screenshots/movements.png" alt="Listagem de Movimentacoes" width="800"/>
   <br/>
-  <i>Tabela de registro de movimentações com histórico auditável de entradas e saídas.</i>
+  <i>Tabela de registro de movimentacoes com historico auditavel de entradas e saidas.</i>
 </div>
 <br/>
 
 <div align="center">
-  <img src="./frontend/public/screenshots/products.png" alt="Gestão de Produtos" width="800"/>
+  <img src="./frontend/public/screenshots/products.png" alt="Gestao de Produtos" width="800"/>
   <br/>
-  <i>Interface de gerenciamento de produtos com controle de quantidade mínima e categorias.</i>
+  <i>Interface de gerenciamento de produtos com controle de quantidade minima e categorias.</i>
 </div>
 
 ## Resultados e impacto
 
-1. **Performance acelerada:** O cache em memória com Redis elimina a demora nas consultas pesadas do dashboard, entregando as métricas em tempo real.
-2. **Consistência garantida:** O uso de blocos transacionais no banco de dados impossibilita a criação de saldos negativos, mesmo com requisições simultâneas.
-3. **Experiência do usuário fluida:** O controle de estado local via Zustand reduz renderizações desnecessárias da interface, evitando lentidão no navegador.
-4. **Segurança preventiva:** O bloqueio estrito de dados não mapeados e a proteção de rotas impedem manipulações e acessos não autorizados.
+1. **Performance acelerada:** O cache em memoria com Redis elimina a demora nas consultas pesadas do dashboard, entregando as metricas em tempo real.
+2. **Consistencia garantida:** O uso de blocos transacionais no banco de dados impossibilita a criacao de saldos negativos, mesmo com requisicoes simultaneas.
+3. **Experiencia do usuario fluida:** O controle de estado local via Zustand reduz renderizacoes desnecessarias da interface, evitando lentidao no navegador.
+4. **Seguranca preventiva:** O bloqueio estrito de dados nao mapeados e a protecao de rotas impedem manipulacoes e acessos nao autorizados.
 
 ## Arquitetura do sistema
 
 ```mermaid
 graph TD
     Client[Cliente Web / Next.js] -->|HTTP REST / JWT| API(Backend API / NestJS)
-    API -->|Consulta Rápida| Redis[(Cache Redis)]
-    API -->|Persistência Transacional| Postgres[(PostgreSQL)]
+    API -->|Consulta Rapida| Redis[(Cache Redis)]
+    API -->|Persistencia Transacional| Postgres[(PostgreSQL)]
+```
+
+### Fluxo de movimentacao de estoque
+
+```mermaid
+sequenceDiagram
+    participant F as Frontend
+    participant A as API (NestJS)
+    participant P as PostgreSQL
+    participant R as Redis
+
+    F->>A: POST /movements (JWT + payload)
+    A->>P: BEGIN TRANSACTION
+    P-->>A: Saldo atual do produto
+    A->>A: Validacao (saldo >= quantidade para EXIT)
+    A->>P: INSERT movement + UPDATE product.quantity
+    A->>P: COMMIT
+    A->>R: DEL dashboard:summary, dashboard:low-stock
+    A-->>F: 201 { movement, updatedStock }
 ```
 
 ## Tecnologias
@@ -59,69 +78,142 @@ graph TD
 | **Backend** | NestJS 11, TypeScript, Prisma ORM, Swagger |
 | **Banco** | PostgreSQL 16 |
 | **Cache** | Redis 7 |
-| **Validação** | class-validator, class-transformer, Zod |
-| **Gráficos** | Recharts |
+| **Validacao** | class-validator, class-transformer, Zod |
+| **Graficos** | Recharts |
 | **Testes** | Jest, React Testing Library |
 | **DevOps** | Docker Compose, GitHub Actions |
 | **Deploy** | Render (API), Neon (PostgreSQL), Upstash (Redis), Vercel (Frontend) |
 
 ## Funcionalidades
 
-1. Autenticação via tokens JWT com restrição de rotas por perfis de acesso.
-2. Gestão hierárquica de categorias, impedindo a exclusão de categorias que possuam produtos ativos.
-3. Catalogação de produtos com exigência de identificador único (SKU).
-4. Registro de entradas e saídas com bloqueio ativo em caso de quantidades insuficientes.
-5. Visão analítica cruzando histórico semanal de vendas e produtos em nível crítico de estoque.
-6. Invalidação automática de chaves do cache no Redis sempre que uma movimentação ou produto é criado.
-7. Exportação de relatórios com proteção contra execução de macros maliciosas (CSV Injection).
-8. Documentação da API disponível e interativa via Swagger.
+1. Autenticacao via tokens JWT com restricao de rotas por perfis de acesso.
+2. Gestao hierarquica de categorias, impedindo a exclusao de categorias que possuam produtos ativos.
+3. Catalogacao de produtos com exigencia de identificador unico (SKU).
+4. Registro de entradas e saidas com bloqueio ativo em caso de quantidades insuficientes.
+5. Visao analitica cruzando historico semanal de vendas e produtos em nivel critico de estoque.
+6. Invalidacao automatica de chaves do cache no Redis sempre que uma movimentacao ou produto e criado.
+7. Exportacao de relatorios com protecao contra execucao de macros maliciosas (CSV Injection).
+8. Documentacao da API disponivel e interativa via Swagger.
 
-## Decisões técnicas
+## Decisoes tecnicas
 
-1. **Transações atômicas:** O registro de movimentações e a atualização de saldo ocorrem na mesma transação no Prisma. Se um falha, nada é salvo, evitando inconsistências.
-2. **Cache distribuído:** A comunicação com o Redis isola as consultas analíticas, poupando o PostgreSQL de processamentos repetitivos e caros.
-3. **Segurança e sanitização:** O sistema aplica a injeção automática de headers de segurança (Helmet) e sanitiza as entradas na camada de validação global do NestJS.
-4. **Estado reativo local:** O estado da aplicação no frontend é mantido via Zustand em fatias isoladas, garantindo que componentes distantes interajam sem provocar renderizações em cadeia.
+1. **Transacoes atomicas:** O registro de movimentacoes e a atualizacao de saldo ocorrem na mesma transacao no Prisma. Se um falha, nada e salvo, evitando inconsistencias.
+2. **Cache distribuido:** A comunicacao com o Redis isola as consultas analiticas, poupando o PostgreSQL de processamentos repetitivos e caros.
+3. **Seguranca e sanitizacao:** O sistema aplica a injecao automatica de headers de seguranca (Helmet) e sanitiza as entradas na camada de validacao global do NestJS.
+4. **Estado reativo local:** O estado da aplicacao no frontend e mantido via Zustand em fatias isoladas, garantindo que componentes distantes interajam sem provocar renderizacoes em cadeia.
+
+## Estrutura do projeto
+
+```
+stocksnap/
+  backend/
+    src/
+      auth/           # Autenticacao JWT, guards, strategies, decorators
+      categories/     # CRUD de categorias com integridade referencial
+      dashboard/      # Metricas analiticas com cache Redis
+      movements/      # Transacoes atomicas de entrada/saida
+      prisma/         # PrismaService global
+      products/       # CRUD de produtos com paginacao e filtros
+    prisma/
+      schema.prisma   # Schema do banco (User, Product, Movement, Category)
+    http/
+      api.http        # 36 cenarios de teste via REST Client
+    test/
+      app.e2e-spec.ts # Testes de integracao
+  frontend/
+    src/
+      app/
+        (auth)/       # Paginas publicas (login)
+        (dashboard)/  # Paginas protegidas (dashboard, products, movements, categories)
+      components/     # Sidebar, Header, Modais, UI primitives
+      hooks/          # useIsAdmin (RBAC frontend)
+      lib/            # API client, utils, export-csv
+      stores/         # Zustand stores (auth, product, category, movement, dashboard)
+      types/          # Tipagens compartilhadas
+  docker-compose.yml  # Orquestracao de containers
+  .github/workflows/  # CI/CD pipeline
+```
 
 ## Como executar
 
-### Pré-requisitos
+### Pre-requisitos
 
-1. Node.js 20 ou versão superior.
-2. Docker e utilitário Docker Compose.
+1. Node.js 20 ou versao superior.
+2. Docker e utilitario Docker Compose.
 
-### Configuração do ambiente
+### Configuracao do ambiente
 
-Insira as configurações listadas em um arquivo `.env` no diretório raiz do backend:
+Copie o arquivo de exemplo e preencha as variaveis:
 
-1. `DATABASE_URL`: String de conexão primária. Exemplo: `postgresql://user:pass@postgres:5432/db`
-2. `JWT_SECRET`: Chave secreta para assinatura dos tokens.
-3. `JWT_EXPIRATION`: Tempo de validade operacional do token. (ex: `7d`)
-4. `REDIS_HOST`: Endereço de comunicação de cache. Padrão: `redis`
-5. `REDIS_PORT`: Porta do cache. Padrão: `6379`
-6. `PORT`: Porta de serviço. Padrão: `3001`
-7. `CORS_ORIGIN`: Origem autorizada. Padrão: `http://localhost:3000`
+```bash
+cp backend/.env.example backend/.env
+```
 
-### Inicialização via Docker
+Variaveis necessarias:
 
-Para iniciar a montagem da infraestrutura local, utilize o terminal na raiz do projeto:
+| Variavel | Descricao | Exemplo |
+|---|---|---|
+| `DATABASE_URL` | String de conexao PostgreSQL | `postgresql://user:pass@postgres:5432/db` |
+| `JWT_SECRET` | Chave secreta para assinatura dos tokens | `troque-por-uma-chave-secreta-forte` |
+| `JWT_EXPIRATION` | Tempo de validade do token | `7d` |
+| `REDIS_HOST` | Endereco do servidor Redis | `redis` |
+| `REDIS_PORT` | Porta do Redis | `6379` |
+| `PORT` | Porta do backend | `3001` |
+| `CORS_ORIGIN` | Origem autorizada para CORS | `http://localhost:3000` |
+
+### Inicializacao via Docker
 
 ```bash
 docker-compose up --build -d
 ```
 
-1. Para acessar a aplicação visual: `http://localhost:3000`
-2. Para acessar a documentação da API: `http://localhost:3001/api/docs`
+1. Aplicacao visual: `http://localhost:3000`
+2. Documentacao da API: `http://localhost:3001/api/docs`
+
+### Desenvolvimento local (sem Docker)
+
+```bash
+# Backend
+cd backend
+npm install
+npx prisma generate
+npx prisma migrate dev
+npm run start:dev
+
+# Frontend (em outro terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+### Credenciais de teste
+
+| Campo | Valor |
+|---|---|
+| Email | `admin@stocksnap.com` |
+| Senha | `admin123` |
 
 ## Testes
 
-1. A suíte atua como filtro rigoroso com execução automática pelo GitHub Actions.
-2. Para validar o backend, acesse a pasta `backend/` e execute `npm test`.
-3. Para validar o frontend, acesse a pasta `frontend/` e execute `npm test`.
+A suite de testes atua como filtro rigoroso com execucao automatica pelo GitHub Actions.
+
+```bash
+# Backend
+cd backend && npm test
+
+# Frontend
+cd frontend && npm test
+```
+
+| Camada | Suites | Cenarios | Framework |
+|---|---|---|---|
+| Backend | 6 | ~20+ | Jest |
+| Frontend | 7 | ~26+ | Jest + React Testing Library |
+| API Manual | 1 | 36 | REST Client (.http) |
 
 ## Status do projeto
 
 1. Funcional e livre de impedimentos no fluxo principal.
-2. Integração contínua implantada, avaliando código e regressões automaticamente.
+2. Integracao continua implantada, avaliando codigo e regressoes automaticamente.
 3. Testes automatizados ativos e sem falhas.
-4. Sistema pronto para implantação em ambiente produtivo.
+4. Sistema pronto para implantacao em ambiente produtivo.

@@ -16,6 +16,9 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 import type {
   ProductResponse,
   ProductDetailResponse,
@@ -30,7 +33,7 @@ import type {
 @ApiTags('Produtos')
 @ApiBearerAuth()
 @Controller('products')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
@@ -69,6 +72,7 @@ export class ProductsController {
    * @returns {Promise<ProductResponse>} O produto recém-criado.
    */
   @ApiOperation({ summary: 'Criar novo produto' })
+  @Roles(Role.ADMIN)
   @Post()
   create(@Body() dto: CreateProductDto): Promise<ProductResponse> {
     return this.productsService.create(dto);
@@ -82,6 +86,7 @@ export class ProductsController {
    * @returns {Promise<ProductResponse>} O produto com os dados atualizados.
    */
   @ApiOperation({ summary: 'Atualizar produto' })
+  @Roles(Role.ADMIN)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -97,6 +102,7 @@ export class ProductsController {
    * @returns {Promise<ProductResponse>} O produto removido.
    */
   @ApiOperation({ summary: 'Deletar produto' })
+  @Roles(Role.ADMIN)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string): Promise<ProductResponse> {
     return this.productsService.remove(id);
