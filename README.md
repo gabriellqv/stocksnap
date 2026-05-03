@@ -11,7 +11,7 @@ O StockSnap automatiza o controle de inventário garantindo a exatidão dos sald
 1. **Stack principal:** Node.js, NestJS, Prisma, PostgreSQL, Redis, Next.js, Zustand e Tailwind CSS.
 2. **Diferenciais:** Prevenção de saldos negativos via transações no banco de dados, carregamento rápido de métricas com cache distribuído e blindagem contra injeção em exportações.
 3. **Repositório oficial:** [github.com/gabriellqv/stocksnap](https://github.com/gabriellqv/stocksnap)
-4. **Demonstração online:** [Indisponível no momento]
+4. **Demonstração online:** [Acessar Aplicação Web](https://stocksnap-dashboard.vercel.app/) | [Documentação da API](https://stocksnap-api.onrender.com/api/docs)
 
 ## Preview
 
