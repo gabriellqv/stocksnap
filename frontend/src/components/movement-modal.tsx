@@ -1,22 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useMovementStore } from '@/stores/movement-store';
 import { useProductStore } from '@/stores/product-store';
-import type { MovementType } from '@/types';
 
 interface MovementModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const movementSchema = z.object({
+  type: z.enum(['ENTRY', 'EXIT']),
+  productId: z.string().min(1, 'Selecione um produto.'),
+  quantity: z.number().min(1, 'A quantidade deve ser maior que zero.'),
+  reason: z.string().optional(),
+});
+
+type MovementFormData = z.infer<typeof movementSchema>;
+
 /**
  * @description Componente de Modal para inserção de novas Movimentações de Estoque.
- * Permite ao usuário registrar entradas e saídas, forçando a seleção de um produto
- * previamente carregado no store. Implementa validação nativa client-side rigorosa
- * antes de despachar a transação para o Zustand/Backend.
+ * Utiliza validação client-side via react-hook-form + zod antes de despachar
+ * a transação para o Zustand/Backend.
  *
  * @param {MovementModalProps} props - Controle de abertura e callback de fechamento do modal.
  * @returns {React.ReactElement | null} O componente renderizado ou nulo se fechado.
@@ -25,57 +35,49 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
   const { createMovement, isLoading } = useMovementStore();
   const { products, fetchProducts } = useProductStore();
 
-  const [type, setType] = useState<MovementType>('ENTRY');
-  const [productId, setProductId] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [reason, setReason] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    setError,
+    formState: { errors },
+  } = useForm<MovementFormData>({
+    resolver: zodResolver(movementSchema),
+    defaultValues: {
+      type: 'ENTRY',
+      productId: '',
+      quantity: 1,
+      reason: '',
+    },
+  });
 
   useEffect(() => {
     if (isOpen) {
       /** Carrega o dicionário de produtos sem paginação estrita para viabilizar busca no Select */
       fetchProducts({ limit: 100, page: 1 });
-      /** Limpeza forçada do estado transient do React Control */
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setType('ENTRY');
-
-      setProductId('');
-
-      setQuantity('');
-
-      setReason('');
-
-      setError(null);
+      reset({
+        type: 'ENTRY',
+        productId: '',
+        quantity: 1,
+        reason: '',
+      });
     }
-  }, [isOpen, fetchProducts]);
+  }, [isOpen, fetchProducts, reset]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (!productId) {
-      setError('Selecione um produto.');
-      return;
-    }
-
-    const qty = parseInt(quantity, 10);
-    if (isNaN(qty) || qty <= 0) {
-      setError('A quantidade deve ser maior que zero.');
-      return;
-    }
-
+  const onSubmit = async (data: MovementFormData) => {
     try {
       await createMovement({
-        type,
-        productId,
-        quantity: qty,
-        reason: reason || undefined,
+        type: data.type,
+        productId: data.productId,
+        quantity: data.quantity,
+        reason: data.reason || undefined,
       });
 
       toast.success(
-        type === 'ENTRY'
+        data.type === 'ENTRY'
           ? 'Entrada registrada com sucesso!'
           : 'Saída registrada com sucesso!',
       );
@@ -83,7 +85,7 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : 'Erro ao registrar movimentação';
-      setError(msg);
+      setError('root', { message: msg });
       toast.error(msg);
     }
   };
@@ -103,49 +105,59 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="p-6 space-y-5">
-          {error && (
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className="p-6 space-y-5"
+        >
+          {errors.root && (
             <div className="bg-status-critical-bg/10 text-status-critical-text px-4 py-3 rounded-lg text-sm border border-status-critical-text/30">
-              {error}
+              {errors.root.message}
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              type="button"
-              onClick={() => setType('ENTRY')}
-              className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
-                type === 'ENTRY'
-                  ? 'bg-status-ok-bg/10 border-status-ok-text text-status-ok-text'
-                  : 'bg-background border-border text-muted hover:border-muted'
-              }`}
-            >
-              <span className="font-semibold">ENTRADA</span>
-              <span className="text-xs opacity-80">+ Adicionar estoque</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setType('EXIT')}
-              className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
-                type === 'EXIT'
-                  ? 'bg-status-critical-bg/10 border-status-critical-text text-status-critical-text'
-                  : 'bg-background border-border text-muted hover:border-muted'
-              }`}
-            >
-              <span className="font-semibold">SAÍDA</span>
-              <span className="text-xs opacity-80">- Remover estoque</span>
-            </button>
-          </div>
+          <Controller
+            name="type"
+            control={control}
+            render={({ field }) => (
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => field.onChange('ENTRY')}
+                  className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
+                    field.value === 'ENTRY'
+                      ? 'bg-status-ok-bg/10 border-status-ok-text text-status-ok-text'
+                      : 'bg-background border-border text-muted hover:border-muted'
+                  }`}
+                >
+                  <span className="font-semibold">ENTRADA</span>
+                  <span className="text-xs opacity-80">
+                    + Adicionar estoque
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => field.onChange('EXIT')}
+                  className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
+                    field.value === 'EXIT'
+                      ? 'bg-status-critical-bg/10 border-status-critical-text text-status-critical-text'
+                      : 'bg-background border-border text-muted hover:border-muted'
+                  }`}
+                >
+                  <span className="font-semibold">SAÍDA</span>
+                  <span className="text-xs opacity-80">- Remover estoque</span>
+                </button>
+              </div>
+            )}
+          />
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-1.5">
               Produto
             </label>
             <select
-              value={productId}
-              onChange={(e) => setProductId(e.target.value)}
+              {...register('productId')}
               className="w-full px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:ring-2 focus:ring-accent/40 outline-none cursor-pointer"
-              required
             >
               <option value="">Selecione um produto...</option>
               {products.map((p) => (
@@ -154,6 +166,11 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
                 </option>
               ))}
             </select>
+            {errors.productId && (
+              <p className="text-destructive text-xs mt-1">
+                {errors.productId.message}
+              </p>
+            )}
           </div>
 
           <div>
@@ -163,11 +180,14 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
             <Input
               type="number"
               min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
+              {...register('quantity', { valueAsNumber: true })}
               placeholder="Ex: 10"
-              required
             />
+            {errors.quantity && (
+              <p className="text-destructive text-xs mt-1">
+                {errors.quantity.message}
+              </p>
+            )}
           </div>
 
           <div>
@@ -177,10 +197,14 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
             </label>
             <Input
               type="text"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
+              {...register('reason')}
               placeholder="Ex: Compra de fornecedor, Venda..."
             />
+            {errors.reason && (
+              <p className="text-destructive text-xs mt-1">
+                {errors.reason.message}
+              </p>
+            )}
           </div>
 
           <div className="flex gap-3 pt-4">

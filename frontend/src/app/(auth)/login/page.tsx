@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Package } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 /**
  * @description Página de autenticação do sistema (rota `/login`).
@@ -73,12 +74,11 @@ export default function LoginPage() {
               >
                 Email
               </label>
-              <input
+              <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder:text-muted focus:ring-2 focus:ring-accent/40 focus:border-accent outline-none transition-all duration-200"
                 placeholder="admin@stocksnap.com"
                 required
               />
@@ -91,12 +91,11 @@ export default function LoginPage() {
               >
                 Senha
               </label>
-              <input
+              <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder:text-muted focus:ring-2 focus:ring-accent/40 focus:border-accent outline-none transition-all duration-200"
                 placeholder="******"
                 required
               />
