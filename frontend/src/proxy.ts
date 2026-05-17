@@ -39,5 +39,5 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   /** Aplica as regras de middleware exclusivamente em páginas, ignorando assets e rotas internas do Next.js */
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.svg|api).*)'],
 };

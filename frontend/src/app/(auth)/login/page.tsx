@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Package } from 'lucide-react';
+import { Logo } from '@/components/logo';
 import { useAuthStore } from '@/stores/auth-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,7 +54,7 @@ export default function LoginPage() {
         <div className="bg-surface rounded-2xl border border-border p-8">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <Package className="w-8 h-8 text-accent" />
+              <Logo className="w-8 h-8 text-accent" />
               <h1 className="text-3xl font-bold text-foreground">StockSnap</h1>
             </div>
             <p className="text-muted">Entre na sua conta</p>
