@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, Package } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Sidebar } from '@/components/sidebar';
 import { Logo } from '@/components/logo';
 
