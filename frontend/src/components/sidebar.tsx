@@ -14,6 +14,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { cn } from '@/lib/utils';
 
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Logo } from '@/components/logo';
 
 /**
  * @description Itens do menu lateral com rota, label e ícone Lucide correspondente.
@@ -77,7 +78,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="p-6 border-b border-border flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <Package className="w-6 h-6 text-accent" />
+              <Logo className="w-6 h-6 text-accent" />
               StockSnap
             </h1>
             <p className="text-sm text-muted mt-1">Controle de Estoque</p>
