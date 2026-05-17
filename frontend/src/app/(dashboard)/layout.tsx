@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, Package } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Sidebar } from '@/components/sidebar';
+import { Logo } from '@/components/logo';
 
 /**
  * @description Layout compartilhado por todas as páginas do dashboard.
@@ -33,7 +34,7 @@ export default function DashboardLayout({
             <Menu className="w-5 h-5" />
           </button>
           <h1 className="text-lg font-bold text-foreground flex items-center gap-2">
-            <Package className="w-5 h-5 text-accent" />
+            <Logo className="w-5 h-5 text-accent" />
             StockSnap
           </h1>
         </header>
