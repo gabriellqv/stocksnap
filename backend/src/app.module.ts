@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -43,20 +43,55 @@ import { DashboardModule } from './dashboard/dashboard.module';
       isGlobal: true,
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
+        const logger = new Logger('CacheModule');
         const url = config.get<string>('REDIS_URL');
-        return {
-          store: await redisStore(
+        const host = config.get<string>('REDIS_HOST', 'localhost');
+        const port = config.get<number>('REDIS_PORT', 6379);
+
+        try {
+          const store = await redisStore(
             url
-              ? { url }
+              ? {
+                  url,
+                  socket: {
+                    connectTimeout: 5000,
+                    reconnectStrategy: (retries: number) => {
+                      if (retries > 3) {
+                        return new Error('Redis connection failed');
+                      }
+                      return Math.min(retries * 500, 2000);
+                    },
+                  },
+                }
               : {
                   socket: {
-                    host: config.get('REDIS_HOST', 'localhost'),
-                    port: config.get('REDIS_PORT', 6379),
+                    host,
+                    port,
+                    connectTimeout: 5000,
+                    reconnectStrategy: (retries: number) => {
+                      if (retries > 3) {
+                        return new Error('Redis connection failed');
+                      }
+                      return Math.min(retries * 500, 2000);
+                    },
                   },
                 },
-          ),
-          ttl: 60 * 1000,
-        };
+          );
+          logger.log(
+            `Conexão com Redis estabelecida com sucesso (${url ? 'via REDIS_URL' : `${host}:${port}`})`,
+          );
+          return {
+            store,
+            ttl: 60 * 1000,
+          };
+        } catch (error) {
+          logger.warn(
+            `Falha ao conectar ao Redis (${(error as Error).message}). Operando com cache em memória (fallback) para manter o serviço ativo.`,
+          );
+          return {
+            ttl: 60 * 1000,
+          };
+        }
       },
     }),
 
