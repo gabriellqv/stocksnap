@@ -62,11 +62,11 @@ sequenceDiagram
 
     F->>A: POST /movements (JWT + payload)
     A->>P: BEGIN TRANSACTION
-    P-->>A: Saldo atual do produto
-    A->>A: Validacao (saldo >= quantidade para EXIT)
-    A->>P: INSERT movement + UPDATE product.quantity
+    A->>P: UPDATE products SET quantity = quantity - :qtd WHERE id = :id AND quantity >= :qtd
+    P-->>A: linhas afetadas (0 = saldo insuficiente)
+    A->>P: INSERT movement
     A->>P: COMMIT
-    A->>R: DEL dashboard:summary, dashboard:low-stock
+    A->>R: DEL dashboard:summary, dashboard:chart, dashboard:low-stock
     A-->>F: 201 { movement, updatedStock }
 ```
 
@@ -154,10 +154,11 @@ Variaveis necessarias:
 | Variavel | Descricao | Exemplo |
 |---|---|---|
 | `DATABASE_URL` | String de conexao PostgreSQL | `postgresql://user:pass@postgres:5432/db` |
-| `JWT_SECRET` | Chave secreta para assinatura dos tokens | `troque-por-uma-chave-secreta-forte` |
+| `JWT_SECRET` | Chave secreta para assinatura dos tokens (min. 32 caracteres) | gerada com `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
 | `JWT_EXPIRATION` | Tempo de validade do token | `7d` |
 | `REDIS_HOST` | Endereco do servidor Redis | `redis` |
 | `REDIS_PORT` | Porta do Redis | `6379` |
+| `REDIS_PASSWORD` | Senha do Redis | `stocksnap123` |
 | `PORT` | Porta do backend | `3001` |
 | `CORS_ORIGIN` | Origem autorizada para CORS | `http://localhost:3000` |
 
@@ -186,12 +187,21 @@ npm install
 npm run dev
 ```
 
-### Credenciais de teste
+### Credenciais de demonstração
+
+O seed cria um usuário administrador. A senha **não é fixa**: informe
+`ADMIN_PASSWORD` no ambiente ou o seed gerará uma senha aleatória e a exibirá
+uma única vez no console.
+
+```bash
+# Exemplo (desenvolvimento/demonstração)
+SEED_ON_START=true ADMIN_PASSWORD="uma-senha-forte" docker-compose up --build -d
+```
 
 | Campo | Valor |
 |---|---|
-| Email | `admin@stocksnap.com` |
-| Senha | `admin123` |
+| Email | `ADMIN_EMAIL` (padrão: `admin@stocksnap.com`) |
+| Senha | `ADMIN_PASSWORD` ou a gerada e impressa no console |
 
 ## Testes
 
@@ -216,4 +226,23 @@ cd frontend && npm test
 1. Funcional e livre de impedimentos no fluxo principal.
 2. Integracao continua implantada, avaliando codigo e regressoes automaticamente.
 3. Testes automatizados ativos e sem falhas.
-4. Sistema pronto para implantacao em ambiente produtivo.
+4. Projeto de **portfolio / demonstracao**, sem clientes reais em producao.
+
+## Limitacoes e proximos passos
+
+Este projeto prioriza clareza de arquitetura e demonstracao de boas praticas. As
+limitacoes abaixo sao conhecidas e intencionalmente documentadas:
+
+1. **Sessoes JWT sem revogacao/rotacao** — nao ha refresh token nem denylist; um
+   token e valido ate expirar. Evolucao: refresh com rotacao e `jti` no Redis.
+2. **Token persistido no cliente** — o frontend guarda o JWT em `localStorage`.
+   Evolucao: mover para cookie `HttpOnly; Secure; SameSite`.
+3. **Rate limiting em memoria** — nao compartilhado entre replicas e sem ajuste de
+   `trust proxy`. Evolucao: storage no Redis e configuracao de proxy confiavel.
+4. **Agregacoes do dashboard em memoria** — `summary`/`chart` carregam linhas e
+   somam em JS. Funciona bem na escala de demonstracao; evoluir para `SUM`/`date_trunc`.
+5. **Sem idempotencia em movimentacoes** — reenvios podem duplicar registros.
+   Evolucao: `Idempotency-Key`.
+6. **Sem lazy loading do grafico** — o Recharts entra no chunk inicial do dashboard.
+7. **Testes e2e nao rodam no CI** — o pipeline cobre lint, testes unitarios e build.
+   Evolucao: subir Postgres/Redis no CI e executar a suite e2e.
