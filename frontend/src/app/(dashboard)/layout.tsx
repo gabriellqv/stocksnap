@@ -3,15 +3,14 @@
 import { useState } from 'react';
 import { Menu } from 'lucide-react';
 import { Sidebar } from '@/components/sidebar';
+import { BottomNav } from '@/components/bottom-nav';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/logo';
 
 /**
  * @description Layout compartilhado por todas as páginas do dashboard.
- * Renderiza a Sidebar à esquerda e o conteúdo da página à direita.
- * Em viewports mobile (<1024px), exibe um header com botão hamburger
- * para controlar a visibilidade da Sidebar (drawer offcanvas).
- * A proteção de rota é delegada ao proxy (Edge Runtime), dispensando
- * verificações de autenticação no client-side.
+ * Renderiza a Sidebar em telas desktop e a barra de navegação inferior (BottomNav)
+ * em dispositivos móveis, respeitando as áreas seguras (notches e home indicators).
  */
 export default function DashboardLayout({
   children,
@@ -24,25 +23,38 @@ export default function DashboardLayout({
     <div className="flex h-screen bg-background">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Mobile header — visible only below lg breakpoint */}
-        <header className="flex items-center gap-3 px-4 py-3 border-b border-border bg-surface lg:hidden">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 text-muted hover:text-foreground hover:bg-border/50 rounded-lg transition-colors cursor-pointer"
-            aria-label="Abrir menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <h1 className="text-lg font-bold text-foreground flex items-center gap-2">
+        {/* Mobile header — respeita a safe-area-top (notch/câmera frontal) */}
+        <header
+          className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface lg:hidden"
+          style={{
+            paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)',
+          }}
+        >
+          <div className="flex items-center gap-2.5">
             <Logo className="w-5 h-5 text-accent" />
-            StockSnap
-          </h1>
+            <h1 className="text-lg font-bold text-foreground">StockSnap</h1>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <ThemeToggle />
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-1.5 text-muted hover:text-foreground hover:bg-border/50 rounded-lg transition-colors cursor-pointer"
+              aria-label="Abrir menu lateral"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </div>
         </header>
-        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 2xl:p-10 3xl:p-12 4xl:p-16">
+
+        {/* Conteúdo com padding inferior em mobile para não colidir com o BottomNav */}
+        <main className="flex-1 overflow-auto p-4 pb-24 md:p-6 md:pb-24 lg:pb-8 lg:p-8 2xl:p-10 3xl:p-12 4xl:p-16">
           <div className="w-full max-w-[2560px] mx-auto min-h-full flex flex-col">
             {children}
           </div>
         </main>
+
+        {/* Barra de navegação inferior em mobile (Bottom Tab Bar) */}
+        <BottomNav onOpenMenu={() => setSidebarOpen(true)} />
       </div>
     </div>
   );
