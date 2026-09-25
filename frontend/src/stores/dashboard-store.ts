@@ -70,7 +70,6 @@ export const useDashboardStore = create<DashboardState & DashboardActions>()(
             ? err.message
             : 'Erro ao carregar os dados da Dashboard';
         set({ error: message, isLoading: false });
-        throw err;
       }
     },
   }),

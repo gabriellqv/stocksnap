@@ -62,23 +62,29 @@ export default function DashboardPage() {
     fetchProducts();
   };
 
+  if (error) {
+    return (
+      <div className="p-6 bg-status-critical-bg/10 border border-status-critical-text/30 rounded-xl text-status-critical-text flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 shrink-0" />
+          <h3 className="font-bold">Erro ao carregar Dashboard</h3>
+        </div>
+        <p className="text-sm">{error}</p>
+        <button
+          onClick={() => fetchDashboardData()}
+          className="self-start px-4 py-2 bg-accent text-accent-contrast rounded-lg text-sm font-medium hover:bg-accent-hover transition-colors"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    );
+  }
+
   if (isLoading || !summary) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-muted gap-4">
         <Activity className="w-8 h-8 animate-pulse text-accent" />
         <p>Carregando métricas em tempo real...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 bg-status-critical-bg/10 border border-status-critical-text/30 rounded-xl text-status-critical-text">
-        <h3 className="font-bold flex items-center gap-2 mb-2">
-          <AlertTriangle className="w-5 h-5" />
-          Erro ao carregar Dashboard
-        </h3>
-        <p>{error}</p>
       </div>
     );
   }
