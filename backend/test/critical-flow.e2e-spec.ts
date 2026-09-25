@@ -22,7 +22,7 @@ describe('Critical Flow (e2e)', () => {
   let accessToken: string;
   let categoryId: string;
   let productId: string;
-  let uniqueSuffix = Date.now().toString();
+  const uniqueSuffix = Date.now().toString();
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({

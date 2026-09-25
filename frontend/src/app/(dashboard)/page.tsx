@@ -4,7 +4,19 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+
+/**
+ * @description Retorna `true` no cliente após hidratação via `useSyncExternalStore`
+ * sem causar renderizações em cascata e eliminando o erro `react-hooks/set-state-in-effect`.
+ */
+function useIsMounted(): boolean {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
 import {
   Package,
   TrendingUp,
@@ -12,13 +24,13 @@ import {
   ArrowLeftRight,
   Activity,
   Plus,
-  Bell,
   Trophy,
 } from 'lucide-react';
 import {
   ComposedChart,
   Line,
   Bar,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -27,12 +39,13 @@ import {
   Legend,
 } from 'recharts';
 import { useDashboardStore } from '@/stores/dashboard-store';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MovementModal } from '@/components/movement-modal';
 import { ProductModal } from '@/components/product-modal';
+import { AnimatedNumber } from '@/components/ui/animated-number';
 import { useProductStore } from '@/stores/product-store';
 import { useIsAdmin } from '@/hooks/use-is-admin';
 
@@ -50,6 +63,7 @@ export default function DashboardPage() {
 
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const isMounted = useIsMounted();
   const isAdmin = useIsAdmin();
 
   useEffect(() => {
@@ -62,23 +76,29 @@ export default function DashboardPage() {
     fetchProducts();
   };
 
+  if (error) {
+    return (
+      <div className="p-6 bg-status-critical-bg/10 border border-status-critical-text/30 rounded-xl text-status-critical-text flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 shrink-0" />
+          <h3 className="font-bold">Erro ao carregar Dashboard</h3>
+        </div>
+        <p className="text-sm">{error}</p>
+        <button
+          onClick={() => fetchDashboardData()}
+          className="self-start px-4 py-2 bg-accent text-accent-contrast rounded-lg text-sm font-medium hover:bg-accent-hover transition-colors"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    );
+  }
+
   if (isLoading || !summary) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-muted gap-4">
         <Activity className="w-8 h-8 animate-pulse text-accent" />
         <p>Carregando métricas em tempo real...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 bg-status-critical-bg/10 border border-status-critical-text/30 rounded-xl text-status-critical-text">
-        <h3 className="font-bold flex items-center gap-2 mb-2">
-          <AlertTriangle className="w-5 h-5" />
-          Erro ao carregar Dashboard
-        </h3>
-        <p>{error}</p>
       </div>
     );
   }
@@ -100,229 +120,412 @@ export default function DashboardPage() {
   }));
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="w-full lg:flex-1 lg:min-h-0 flex flex-col gap-3 lg:gap-4 2xl:gap-5 animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl sm:text-2xl 2xl:text-3xl font-bold tracking-tight text-foreground">
               Dashboard
             </h1>
-            {summary.criticalItems > 0 && (
-              <div
-                className="relative flex h-3 w-3 mt-1"
-                title={`${summary.criticalItems} itens críticos`}
-              >
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-critical-text opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-status-critical-text"></span>
-              </div>
-            )}
+            <div
+              className="relative flex h-2.5 w-2.5 2xl:h-3 2xl:w-3 mt-1"
+              title="Sistema operacional e ativo"
+            >
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 2xl:h-3 2xl:w-3 bg-emerald-500"></span>
+            </div>
           </div>
-          <p className="text-muted mt-1">
+          <p className="text-xs 2xl:text-sm text-muted mt-0.5">
             Visão geral do seu negócio e status do inventário
           </p>
         </div>
 
         {/* Quick Actions */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant="outline"
-            className="gap-2"
+            className="gap-2 h-8 lg:h-9 px-3 text-xs 2xl:text-sm"
             onClick={() => setIsMovementModalOpen(true)}
           >
-            <ArrowLeftRight className="w-4 h-4" />
+            <ArrowLeftRight className="w-3.5 h-3.5" />
             Movimentar
           </Button>
           {isAdmin && (
             <Button
-              className="gap-2"
+              className="gap-2 h-8 lg:h-9 px-3 text-xs 2xl:text-sm"
               onClick={() => setIsProductModalOpen(true)}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5" />
               Novo Produto
             </Button>
           )}
         </div>
       </div>
 
-      {/* KPIs / Cards */}
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:border-accent/50 transition-colors relative overflow-hidden group">
-          <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity blur-xl"></div>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-muted">
-              Total de Produtos
-            </CardTitle>
-            <Package className="w-5 h-5 text-accent" />
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-foreground">
-              {summary.totalProducts}
+      {/* Bento Grid: 4 Cards com Badges e Orbes Suaves */}
+      <div className="shrink-0 grid gap-2.5 sm:gap-3 lg:gap-3.5 2xl:gap-4 grid-cols-2 lg:grid-cols-4">
+        {/* Card 1: Total de Produtos */}
+        <div className="p-2.5 sm:p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-accent/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+              <Package className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
             </div>
-            <p className="text-xs text-muted mt-1">Cadastrados no sistema</p>
-          </CardContent>
-        </Card>
+            <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+              100% da base
+            </span>
+          </div>
+          <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
+            Total de Produtos
+          </p>
+          <div className="text-lg sm:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5 truncate">
+            <AnimatedNumber value={summary.totalProducts} />
+          </div>
+          <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
+            Cadastrados no catálogo
+          </p>
+          {/* Orbe suave */}
+          <div className="pointer-events-none absolute -bottom-7 -right-7 w-28 h-28 rounded-full bg-blue-500/15 blur-2xl group-hover:bg-blue-500/22 transition-all duration-300" />
+        </div>
 
-        <Card className="hover:border-status-ok-text/50 transition-colors relative overflow-hidden group">
-          <div className="absolute inset-0 bg-status-ok-text/5 opacity-0 group-hover:opacity-100 transition-opacity blur-xl"></div>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-muted">
-              Valor em Estoque
-            </CardTitle>
-            <TrendingUp className="w-5 h-5 text-status-ok-text" />
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-foreground">
-              {formatCurrency(summary.totalValue)}
+        {/* Card 2: Valor em Estoque */}
+        <div className="p-2.5 sm:p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-emerald-500/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+              <TrendingUp className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
             </div>
-            <p className="text-xs text-muted mt-1">Baseado no preço de venda</p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:border-status-critical-text/50 transition-colors relative overflow-hidden group">
-          <div className="absolute inset-0 bg-status-critical-text/5 opacity-0 group-hover:opacity-100 transition-opacity blur-xl"></div>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-muted flex items-center gap-2">
-              Estoque Crítico
-            </CardTitle>
-            <Bell
-              className={`w-5 h-5 ${summary.criticalItems > 0 ? 'text-status-critical-text animate-pulse' : 'text-muted'}`}
+            <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+              Patrimônio
+            </span>
+          </div>
+          <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
+            Valor em Estoque
+          </p>
+          <div className="text-base sm:text-xl lg:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5 truncate">
+            <AnimatedNumber
+              value={summary.totalValue}
+              formatter={formatCurrency}
             />
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div
-              className={`text-3xl font-bold ${summary.criticalItems > 0 ? 'text-status-critical-text' : 'text-foreground'}`}
-            >
-              {summary.criticalItems}
-            </div>
-            <p className="text-xs text-muted mt-1">Abaixo ou igual ao mínimo</p>
-          </CardContent>
-        </Card>
+          </div>
+          <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
+            Preço de venda estimado
+          </p>
+          {/* Orbe suave */}
+          <div className="pointer-events-none absolute -bottom-7 -right-7 w-28 h-28 rounded-full bg-emerald-500/15 blur-2xl group-hover:bg-emerald-500/22 transition-all duration-300" />
+        </div>
 
-        <Card className="hover:border-accent-hover/50 transition-colors relative overflow-hidden group">
-          <div className="absolute inset-0 bg-accent-hover/5 opacity-0 group-hover:opacity-100 transition-opacity blur-xl"></div>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-muted">
-              Movimentações Hoje
-            </CardTitle>
-            <Activity className="w-5 h-5 text-accent-hover" />
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="flex items-baseline gap-2">
-              <div className="text-3xl font-bold text-foreground">
-                {summary.todayMovements}
-              </div>
-              <Badge
-                variant={movementDelta >= 0 ? 'default' : 'destructive'}
-                className={`text-[10px] px-1.5 py-0 ${movementDelta >= 0 ? 'bg-status-ok-bg text-status-ok-text' : ''}`}
-              >
-                {movementDelta > 0 ? '+' : ''}
-                {movementDelta}%
-              </Badge>
+        {/* Card 3: Estoque Crítico */}
+        <div
+          className={cn(
+            'p-2.5 sm:p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border shadow-xs transition-all duration-200 relative overflow-hidden group',
+            summary.criticalItems > 0
+              ? 'border-rose-500/40 hover:border-rose-500/60'
+              : 'border-border/80 hover:border-emerald-500/40',
+          )}
+        >
+          <div className="flex items-center justify-between">
+            <div
+              className={cn(
+                'w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl flex items-center justify-center shrink-0',
+                summary.criticalItems > 0
+                  ? 'bg-rose-500/10 text-rose-500'
+                  : 'bg-emerald-500/10 text-emerald-500',
+              )}
+            >
+              <AlertTriangle
+                className={cn(
+                  'w-4 h-4 2xl:w-4.5 2xl:h-4.5',
+                  summary.criticalItems > 0 && 'animate-pulse',
+                )}
+              />
             </div>
-            <p className="text-xs text-muted mt-1">Vs. ontem ({yMov})</p>
-          </CardContent>
-        </Card>
+            {summary.criticalItems > 0 ? (
+              <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20 animate-pulse">
+                {summary.criticalItems} em risco
+              </span>
+            ) : (
+              <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                Estoque Seguro
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
+            Estoque Crítico
+          </p>
+          <div
+            className={cn(
+              'text-lg sm:text-2xl 2xl:text-3xl font-extrabold tracking-tight mt-0.5 truncate',
+              summary.criticalItems > 0 ? 'text-rose-500' : 'text-foreground',
+            )}
+          >
+            <AnimatedNumber value={summary.criticalItems} />
+          </div>
+          <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
+            {summary.criticalItems > 0
+              ? 'Abaixo do estoque mínimo'
+              : 'Todos acima do mínimo'}
+          </p>
+          {/* Orbe suave */}
+          <div
+            className={cn(
+              'pointer-events-none absolute -bottom-7 -right-7 w-28 h-28 rounded-full blur-2xl transition-all duration-300',
+              summary.criticalItems > 0
+                ? 'bg-rose-500/18 group-hover:bg-rose-500/25'
+                : 'bg-emerald-500/15 group-hover:bg-emerald-500/22',
+            )}
+          />
+        </div>
+
+        {/* Card 4: Movimentações Hoje */}
+        <div className="p-2.5 sm:p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-indigo-500/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+              <Activity className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
+            </div>
+            <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+              {movementDelta > 0 ? `+${movementDelta}%` : `${movementDelta}%`}{' '}
+              vs. ontem
+            </span>
+          </div>
+          <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
+            Movimentações Hoje
+          </p>
+          <div className="text-lg sm:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5 truncate">
+            <AnimatedNumber value={summary.todayMovements} />
+          </div>
+          <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
+            Ontem: {yMov} movimentações
+          </p>
+          {/* Orbe suave */}
+          <div className="pointer-events-none absolute -bottom-7 -right-7 w-28 h-28 rounded-full bg-indigo-500/15 blur-2xl group-hover:bg-indigo-500/22 transition-all duration-300" />
+        </div>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
+      {/* Grid Inferior: Gráfico + Coluna Lateral com responsividade limpa */}
+      <div className="grid gap-3 lg:gap-4 grid-cols-1 lg:grid-cols-7 lg:flex-1 lg:min-h-0">
         {/* Gráfico Misto (Composed) */}
-        <Card className="col-span-1 lg:col-span-5">
-          <CardHeader>
-            <CardTitle>
+        <Card className="col-span-1 lg:col-span-5 flex flex-col lg:flex-1 lg:min-h-0 overflow-hidden">
+          <CardHeader className="p-3 pb-1 lg:p-3.5 lg:pb-1 shrink-0">
+            <CardTitle className="text-xs sm:text-sm 2xl:text-base font-semibold">
               Volume de Caixa vs. Entradas e Saídas (7 Dias)
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-72 lg:h-80 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart
-                  data={chartDataWithVolume}
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+          <CardContent className="flex-1 min-h-0 p-2 lg:p-3 pt-0 lg:pt-0 w-full flex flex-col">
+            <div className="w-full h-[280px] sm:h-[320px] lg:h-full lg:flex-1 min-h-[220px] lg:min-h-[160px]">
+              {isMounted && (
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  minWidth={0}
+                  minHeight={160}
+                  initialDimension={{ width: 320, height: 200 }}
                 >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    vertical={false}
-                    stroke="#333"
-                    opacity={0.4}
-                  />
-                  <XAxis
-                    dataKey="date"
-                    stroke="#888"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => {
-                      const [, month, day] = value.split('-');
-                      return `${day}/${month}`;
-                    }}
-                  />
-                  <YAxis
-                    stroke="#888"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <RechartsTooltip
-                    cursor={{ fill: '#333', opacity: 0.2 }}
-                    contentStyle={{
-                      backgroundColor: '#1a1a1a',
-                      borderColor: '#333',
-                      borderRadius: '8px',
-                    }}
-                    itemStyle={{ color: '#fff' }}
-                  />
-                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                  <Bar
-                    dataKey="entries"
-                    name="Entradas"
-                    fill="#10b981"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="exits"
-                    name="Saídas"
-                    fill="#ef4444"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="volume"
-                    name="Volume Total"
-                    stroke="#3b82f6"
-                    strokeWidth={3}
-                    dot={{ r: 4, fill: '#3b82f6' }}
-                    activeDot={{ r: 6 }}
-                  />
-                </ComposedChart>
-              </ResponsiveContainer>
+                  <ComposedChart
+                    key={`composed-chart-${chart.length}`}
+                    data={chartDataWithVolume}
+                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  >
+                    <defs>
+                      {/* Gradiente para Entradas (Verde Esmeralda - combinando com Card 2) */}
+                      <linearGradient
+                        id="entriesBarGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#10b981"
+                          stopOpacity={0.95}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#047857"
+                          stopOpacity={0.7}
+                        />
+                      </linearGradient>
+
+                      {/* Gradiente para Saídas (Rosa/Carmim - combinando com Card 3) */}
+                      <linearGradient
+                        id="exitsBarGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#f43f5e"
+                          stopOpacity={0.95}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#9f1239"
+                          stopOpacity={0.7}
+                        />
+                      </linearGradient>
+
+                      {/* Gradiente de Área Fluida sob a Linha de Volume */}
+                      <linearGradient
+                        id="volumeAreaGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#3b82f6"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="60%"
+                          stopColor="#6366f1"
+                          stopOpacity={0.08}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#6366f1"
+                          stopOpacity={0.0}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="rgba(255, 255, 255, 0.07)"
+                    />
+                    <XAxis
+                      dataKey="date"
+                      stroke="#737373"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => {
+                        const [, month, day] = value.split('-');
+                        return `${day}/${month}`;
+                      }}
+                    />
+                    <YAxis
+                      stroke="#737373"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <RechartsTooltip
+                      cursor={{ fill: 'rgba(255, 255, 255, 0.05)', radius: 4 }}
+                      contentStyle={{
+                        backgroundColor: 'rgba(18, 18, 20, 0.95)',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '10px',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                        backdropFilter: 'blur(12px)',
+                        fontSize: '12px',
+                      }}
+                      itemStyle={{ color: '#fff' }}
+                    />
+                    <Legend
+                      wrapperStyle={{ paddingTop: '8px', fontSize: '11px' }}
+                      formatter={(value) => (
+                        <span className="text-xs font-medium text-foreground/80 ml-1">
+                          {value}
+                        </span>
+                      )}
+                    />
+                    {/* Barras de Entradas animadas com gradiente esmeralda */}
+                    <Bar
+                      dataKey="entries"
+                      name="Entradas"
+                      fill="url(#entriesBarGradient)"
+                      stroke="#10b981"
+                      radius={[5, 5, 0, 0]}
+                      isAnimationActive={true}
+                      animationDuration={1300}
+                      animationEasing="ease-out"
+                      animationBegin={100}
+                    />
+                    {/* Barras de Saídas animadas com gradiente rose (combinando com Card 3) */}
+                    <Bar
+                      dataKey="exits"
+                      name="Saídas"
+                      fill="url(#exitsBarGradient)"
+                      stroke="#f43f5e"
+                      radius={[5, 5, 0, 0]}
+                      isAnimationActive={true}
+                      animationDuration={1300}
+                      animationEasing="ease-out"
+                      animationBegin={250}
+                    />
+                    {/* Gradiente de preenchimento fluido sob a linha de volume */}
+                    <Area
+                      type="monotone"
+                      dataKey="volume"
+                      fill="url(#volumeAreaGradient)"
+                      stroke="none"
+                      isAnimationActive={true}
+                      animationDuration={1600}
+                      animationEasing="ease-out"
+                      animationBegin={350}
+                      legendType="none"
+                    />
+                    {/* Linha de Volume Total refinada com anéis circulares nos pontos */}
+                    <Line
+                      type="monotone"
+                      dataKey="volume"
+                      name="Volume Total"
+                      stroke="#3b82f6"
+                      strokeWidth={2.5}
+                      dot={{
+                        r: 3,
+                        fill: '#0a0a0c',
+                        stroke: '#3b82f6',
+                        strokeWidth: 2,
+                      }}
+                      activeDot={{
+                        r: 5,
+                        fill: '#60a5fa',
+                        stroke: '#ffffff',
+                        strokeWidth: 2,
+                      }}
+                      isAnimationActive={true}
+                      animationDuration={1600}
+                      animationEasing="ease-out"
+                      animationBegin={350}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <div className="col-span-1 lg:col-span-2 flex flex-col gap-6">
+        {/* Coluna Lateral */}
+        <div className="col-span-1 lg:col-span-2 flex flex-col gap-3 lg:gap-4 lg:flex-1 lg:min-h-0">
           {/* Campeão de Vendas (Top Product) */}
-          <Card className="border-accent/30 bg-gradient-to-br from-surface to-accent-muted/10 relative overflow-hidden">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-foreground flex items-center gap-2 text-sm font-semibold">
-                <Trophy className="w-4 h-4 text-status-warning-text" />
+          <Card className="shrink-0 border-accent/30 bg-gradient-to-br from-surface to-accent-muted/10 relative overflow-hidden">
+            <CardHeader className="p-2.5 pb-1 lg:p-3 lg:pb-1">
+              <CardTitle className="text-foreground flex items-center gap-1.5 text-xs 2xl:text-sm font-semibold">
+                <Trophy className="w-3.5 h-3.5 text-status-warning-text" />
                 Destaque da Semana
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-2.5 pt-0 lg:p-3 lg:pt-0">
               {summary.topProduct ? (
                 <div>
                   <p
-                    className="text-xl font-bold text-foreground leading-tight truncate"
+                    className="text-sm sm:text-base 2xl:text-lg font-bold text-foreground leading-tight truncate"
                     title={summary.topProduct.name}
                   >
                     {summary.topProduct.name}
                   </p>
-                  <p className="text-sm text-status-warning-text font-medium mt-1">
-                    {summary.topProduct.quantity} unidades saíram
+                  <p className="text-xs text-status-warning-text font-medium mt-0.5">
+                    <AnimatedNumber value={summary.topProduct.quantity} />{' '}
+                    unidades saíram
                   </p>
                 </div>
               ) : (
-                <div className="text-muted text-sm mt-2">
+                <div className="text-muted text-xs mt-1">
                   Nenhuma saída registrada.
                 </div>
               )}
@@ -330,35 +533,35 @@ export default function DashboardPage() {
           </Card>
 
           {/* Tabela de Produtos Críticos */}
-          <Card className="flex-1 overflow-hidden flex flex-col min-h-[250px]">
-            <CardHeader className="bg-status-critical-bg/5 border-b border-border py-4">
-              <CardTitle className="text-status-critical-text flex items-center gap-2 text-sm">
-                <AlertTriangle className="w-4 h-4" />
+          <Card className="min-h-[240px] max-h-[380px] lg:max-h-none lg:h-auto lg:flex-1 lg:min-h-0 overflow-hidden flex flex-col">
+            <CardHeader className="bg-status-critical-bg/5 border-b border-border p-2.5 px-3 lg:p-3 shrink-0">
+              <CardTitle className="text-status-critical-text flex items-center gap-1.5 text-xs 2xl:text-sm">
+                <AlertTriangle className="w-3.5 h-3.5" />
                 Alerta de Reposição
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 flex-1 overflow-auto">
+            <CardContent className="p-0 flex-1 min-h-0 overflow-y-auto">
               {lowStock.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full p-8 text-center text-muted">
-                  <Package className="w-8 h-8 mb-3 opacity-20" />
-                  <p className="text-sm">Estoque saudável!</p>
+                <div className="flex flex-col items-center justify-center h-full p-4 text-center text-muted">
+                  <Package className="w-6 h-6 mb-1.5 opacity-20" />
+                  <p className="text-xs">Estoque saudável!</p>
                 </div>
               ) : (
                 <ul className="divide-y divide-border">
-                  {lowStock.slice(0, 4).map((item) => (
+                  {lowStock.map((item) => (
                     <li
                       key={item.id}
-                      className="p-3 hover:bg-surface transition-colors flex items-center justify-between gap-4"
+                      className="p-2 px-3 hover:bg-surface transition-colors flex items-center justify-between gap-3 text-xs"
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium text-foreground text-sm truncate">
+                        <p className="font-medium text-foreground truncate text-xs">
                           {item.name}
                         </p>
                         <span className="text-[10px] text-muted font-mono">
                           {item.sku}
                         </span>
                       </div>
-                      <div className="text-right flex flex-col items-end gap-1">
+                      <div className="text-right flex flex-col items-end gap-0.5">
                         <Badge
                           variant="destructive"
                           className="font-mono text-[10px] px-1.5 py-0"

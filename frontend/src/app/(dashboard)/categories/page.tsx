@@ -70,14 +70,13 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 2xl:space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Tag className="w-8 h-8 text-accent" />
+          <h1 className="text-3xl 2xl:text-4xl 3xl:text-5xl font-bold tracking-tight text-foreground">
             Categorias
           </h1>
-          <p className="text-muted mt-1">
+          <p className="text-muted mt-1 2xl:text-base 3xl:text-lg">
             Gerencie os departamentos e classificações do seu estoque.
           </p>
         </div>
@@ -85,43 +84,52 @@ export default function CategoriesPage() {
         {isAdmin && (
           <Button
             onClick={handleCreate}
-            className="flex items-center gap-2 w-full sm:w-auto"
+            className="flex items-center gap-2 2xl:gap-3 w-full sm:w-auto 2xl:h-11 2xl:px-5 2xl:text-base"
           >
-            <Plus className="w-4 h-4" /> Nova Categoria
+            <Plus className="w-4 h-4 2xl:w-5 2xl:h-5" /> Nova Categoria
           </Button>
         )}
       </div>
 
-      <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface border border-border rounded-xl 2xl:rounded-2xl shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-muted">
+          <div className="p-8 2xl:p-12 text-center text-muted 2xl:text-base">
             Carregando categorias...
           </div>
         ) : categories.length === 0 ? (
-          <div className="p-12 flex flex-col items-center justify-center text-center">
-            <Tag className="w-12 h-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-1">
+          <div className="p-12 2xl:p-16 flex flex-col items-center justify-center text-center">
+            <Tag className="w-12 h-12 2xl:w-16 2xl:h-16 text-muted-foreground mb-4" />
+            <h3 className="text-lg 2xl:text-xl font-medium text-foreground mb-1">
               Nenhuma categoria encontrada
             </h3>
-            <p className="text-muted max-w-sm mb-4">
+            <p className="text-muted max-w-sm 2xl:max-w-md mb-4 2xl:text-base">
               Você ainda não possui nenhuma categoria cadastrada. Crie a sua
               primeira para organizar seus produtos.
             </p>
-            <Button onClick={handleCreate} variant="outline" className="gap-2">
-              <Plus className="w-4 h-4" /> Cadastrar Primeira Categoria
+            <Button
+              onClick={handleCreate}
+              variant="outline"
+              className="gap-2 2xl:h-11 2xl:px-5 2xl:text-base"
+            >
+              <Plus className="w-4 h-4 2xl:w-5 2xl:h-5" /> Cadastrar Primeira
+              Categoria
             </Button>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-muted-foreground uppercase bg-background border-b border-border">
+            <table className="w-full text-sm 2xl:text-base text-left">
+              <thead className="text-xs 2xl:text-sm text-muted-foreground uppercase bg-background border-b border-border">
                 <tr>
-                  <th className="px-6 py-4 font-medium">Nome da Categoria</th>
-                  <th className="px-6 py-4 font-medium text-center">
+                  <th className="px-6 py-4 2xl:px-8 2xl:py-5 font-medium">
+                    Nome da Categoria
+                  </th>
+                  <th className="px-6 py-4 2xl:px-8 2xl:py-5 font-medium text-center">
                     Produtos Vinculados
                   </th>
                   {isAdmin && (
-                    <th className="px-6 py-4 font-medium text-right">Ações</th>
+                    <th className="px-6 py-4 2xl:px-8 2xl:py-5 font-medium text-right">
+                      Ações
+                    </th>
                   )}
                 </tr>
               </thead>
@@ -131,35 +139,35 @@ export default function CategoriesPage() {
                     key={category.id}
                     className="hover:bg-accent/5 transition-colors group"
                   >
-                    <td className="px-6 py-4 font-medium text-foreground">
+                    <td className="px-6 py-4 2xl:px-8 2xl:py-5 font-medium text-foreground">
                       {category.name}
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background border border-border text-xs font-medium text-muted-foreground group-hover:border-accent/30 group-hover:text-accent transition-colors">
-                        <Box className="w-3.5 h-3.5" />
+                    <td className="px-6 py-4 2xl:px-8 2xl:py-5 text-center">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 2xl:px-3.5 2xl:py-1.5 rounded-full bg-background border border-border text-xs 2xl:text-sm font-medium text-muted-foreground group-hover:border-accent/30 group-hover:text-accent transition-colors">
+                        <Box className="w-3.5 h-3.5 2xl:w-4 2xl:h-4" />
                         {category._count?.products || 0}
                       </div>
                     </td>
                     {isAdmin && (
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="px-6 py-4 2xl:px-8 2xl:py-5 text-right">
+                        <div className="flex items-center justify-end gap-2 2xl:gap-3">
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-accent hover:border-accent/30"
+                            className="h-8 w-8 2xl:h-10 2xl:w-10 text-muted-foreground hover:text-accent hover:border-accent/30"
                             onClick={() => handleEdit(category)}
                             title="Editar Categoria"
                           >
-                            <Pencil className="w-4 h-4" />
+                            <Pencil className="w-4 h-4 2xl:w-5 2xl:h-5" />
                           </Button>
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:border-destructive/30"
+                            className="h-8 w-8 2xl:h-10 2xl:w-10 text-muted-foreground hover:text-destructive hover:border-destructive/30"
                             onClick={() => handleDelete(category)}
                             title="Excluir Categoria"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4 2xl:w-5 2xl:h-5" />
                           </Button>
                         </div>
                       </td>

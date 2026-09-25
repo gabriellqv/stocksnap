@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './globals.css';
@@ -18,6 +18,12 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'StockSnap - Controle de Estoque',
   description: 'Sistema de controle de estoque para pequenos comércios',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 };
 
 import { ThemeProvider } from '@/components/theme-provider';
@@ -43,7 +49,7 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem={true}
+          enableSystem={false}
           disableTransitionOnChange
         >
           {children}

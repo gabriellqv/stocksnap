@@ -6,13 +6,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select } from '@/components/ui/select';
 import { useProductStore } from '@/stores/product-store';
 import { useCategoryStore } from '@/stores/category-store';
 import type { Product } from '@/types';
@@ -58,6 +59,7 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
     handleSubmit,
     reset,
     setError,
+    control,
     formState: { errors },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -167,16 +169,16 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
 
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-surface border border-border rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[85vh] flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-lg font-semibold text-foreground">
+      <div className="bg-surface border border-border rounded-xl 2xl:rounded-2xl shadow-xl w-full max-w-lg 2xl:max-w-2xl mx-4 max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between p-6 2xl:p-8 border-b border-border">
+          <h2 className="text-lg 2xl:text-xl font-semibold text-foreground">
             {isEditing ? 'Editar Produto' : 'Novo Produto'}
           </h2>
           <button
             onClick={onClose}
             className="text-muted hover:text-foreground transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5 cursor-pointer" />
+            <X className="w-5 h-5 2xl:w-6 2xl:h-6 cursor-pointer" />
           </button>
         </div>
 
@@ -266,17 +268,25 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
                   </Button>
                 </div>
               ) : (
-                <select
-                  {...register('categoryId')}
-                  className="flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent transition-all duration-200 cursor-pointer"
-                >
-                  <option value="">Selecione...</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  name="categoryId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                      placeholder="Selecione..."
+                      error={!!errors.categoryId}
+                      options={[
+                        { value: '', label: 'Selecione...' },
+                        ...categories.map((c) => ({
+                          value: c.id,
+                          label: c.name,
+                        })),
+                      ]}
+                    />
+                  )}
+                />
               )}
               {errors.categoryId && !isCreatingCategory && (
                 <p className="text-destructive text-xs mt-1">
