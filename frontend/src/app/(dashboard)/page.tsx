@@ -118,15 +118,13 @@ export default function DashboardPage() {
             <h1 className="text-xl sm:text-2xl 2xl:text-3xl font-bold tracking-tight text-foreground">
               Dashboard
             </h1>
-            {summary.criticalItems > 0 && (
-              <div
-                className="relative flex h-2.5 w-2.5 2xl:h-3 2xl:w-3 mt-1"
-                title={`${summary.criticalItems} itens críticos`}
-              >
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-critical-text opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 2xl:h-3 2xl:w-3 bg-status-critical-text"></span>
-              </div>
-            )}
+            <div
+              className="relative flex h-2.5 w-2.5 2xl:h-3 2xl:w-3 mt-1"
+              title="Sistema operacional e ativo"
+            >
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 2xl:h-3 2xl:w-3 bg-emerald-500"></span>
+            </div>
           </div>
           <p className="text-xs 2xl:text-sm text-muted mt-0.5">
             Visão geral do seu negócio e status do inventário
@@ -250,7 +248,12 @@ export default function DashboardPage() {
             <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
               <Activity className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
             </div>
-            <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+            <span className={cn(
+              "text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full border",
+              movementDelta >= 0
+                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                : "bg-rose-500/10 text-rose-500 border-rose-500/20"
+            )}>
               {movementDelta > 0 ? `+${movementDelta}%` : `${movementDelta}%`} vs. ontem
             </span>
           </div>
