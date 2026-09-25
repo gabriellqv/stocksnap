@@ -34,11 +34,22 @@ export function BottomNav({ onOpenMenu }: BottomNavProps) {
   return (
     <nav
       aria-label="Navegação móvel inferior"
-      className="fixed bottom-0 inset-x-0 z-40 bg-surface/95 backdrop-blur-lg border-t border-border lg:hidden transition-colors"
+      className="fixed bottom-0 inset-x-0 z-40 bg-surface/95 backdrop-blur-lg border-t border-border/80 lg:hidden transition-colors"
       style={{
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.375rem)',
       }}
     >
+      {/* Barrinha divisora superior: azul vibrante no meio, perdendo força em direção às pontas */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-px inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500 dark:via-blue-400 to-transparent"
+      />
+      {/* Brilho sutil difuso centralizado */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-px left-1/2 -translate-x-1/2 w-3/4 max-w-md h-[2px] bg-gradient-to-r from-transparent via-blue-400/50 dark:via-blue-300/60 to-transparent blur-[1px]"
+      />
+
       <div className="flex items-center justify-around px-2 pt-1.5 pb-1">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
