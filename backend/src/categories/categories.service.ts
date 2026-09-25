@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { isUniqueConstraintError } from '../prisma/prisma-errors';
 import { Prisma } from '@prisma/client';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -82,7 +83,15 @@ export class CategoriesService {
       throw new ConflictException(`Categoria "${dto.name}" já existe`);
     }
 
-    return this.prisma.category.create({ data: dto });
+    try {
+      return await this.prisma.category.create({ data: dto });
+    } catch (error) {
+      // Corrida de criação concorrente com o mesmo nome → constraint única.
+      if (isUniqueConstraintError(error)) {
+        throw new ConflictException(`Categoria "${dto.name}" já existe`);
+      }
+      throw error;
+    }
   }
 
   /**
@@ -106,10 +115,17 @@ export class CategoriesService {
       }
     }
 
-    return this.prisma.category.update({
-      where: { id },
-      data: dto,
-    });
+    try {
+      return await this.prisma.category.update({
+        where: { id },
+        data: dto,
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new ConflictException(`Categoria "${dto.name}" já existe`);
+      }
+      throw error;
+    }
   }
 
   /**
