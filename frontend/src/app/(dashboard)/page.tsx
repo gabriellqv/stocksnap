@@ -291,20 +291,33 @@ export default function DashboardPage() {
                   margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                 >
                   <defs>
+                    {/* Gradiente para Entradas (Verde Esmeralda - combinando com Card 2) */}
+                    <linearGradient id="entriesBarGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.95} />
+                      <stop offset="100%" stopColor="#047857" stopOpacity={0.7} />
+                    </linearGradient>
+
+                    {/* Gradiente para Saídas (Rosa/Carmim - combinando com Card 3) */}
+                    <linearGradient id="exitsBarGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.95} />
+                      <stop offset="100%" stopColor="#9f1239" stopOpacity={0.7} />
+                    </linearGradient>
+
+                    {/* Gradiente de Área Fluida sob a Linha de Volume */}
                     <linearGradient id="volumeAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
+                      <stop offset="60%" stopColor="#6366f1" stopOpacity={0.08} />
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
                     vertical={false}
-                    stroke="#333"
-                    opacity={0.4}
+                    stroke="rgba(255, 255, 255, 0.07)"
                   />
                   <XAxis
                     dataKey="date"
-                    stroke="#888"
+                    stroke="#737373"
                     fontSize={11}
                     tickLine={false}
                     axisLine={false}
@@ -314,39 +327,50 @@ export default function DashboardPage() {
                     }}
                   />
                   <YAxis
-                    stroke="#888"
+                    stroke="#737373"
                     fontSize={11}
                     tickLine={false}
                     axisLine={false}
                   />
                   <RechartsTooltip
-                    cursor={{ fill: '#333', opacity: 0.2 }}
+                    cursor={{ fill: 'rgba(255, 255, 255, 0.05)', radius: 4 }}
                     contentStyle={{
-                      backgroundColor: '#1a1a1a',
-                      borderColor: '#333',
-                      borderRadius: '8px',
+                      backgroundColor: 'rgba(18, 18, 20, 0.95)',
+                      borderColor: 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: '10px',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                      backdropFilter: 'blur(12px)',
                       fontSize: '12px',
                     }}
                     itemStyle={{ color: '#fff' }}
                   />
-                  <Legend wrapperStyle={{ paddingTop: '6px', fontSize: '11px' }} />
-                  {/* Barras de Entradas animadas crescendo do chão */}
+                  <Legend
+                    wrapperStyle={{ paddingTop: '8px', fontSize: '11px' }}
+                    formatter={(value) => (
+                      <span className="text-xs font-medium text-foreground/80 ml-1">
+                        {value}
+                      </span>
+                    )}
+                  />
+                  {/* Barras de Entradas animadas com gradiente esmeralda */}
                   <Bar
                     dataKey="entries"
                     name="Entradas"
-                    fill="#10b981"
-                    radius={[4, 4, 0, 0]}
+                    fill="url(#entriesBarGradient)"
+                    stroke="#10b981"
+                    radius={[5, 5, 0, 0]}
                     isAnimationActive={true}
                     animationDuration={1300}
                     animationEasing="ease-out"
                     animationBegin={100}
                   />
-                  {/* Barras de Saídas animadas com leve atraso para efeito cascata */}
+                  {/* Barras de Saídas animadas com gradiente rose (combinando com Card 3) */}
                   <Bar
                     dataKey="exits"
                     name="Saídas"
-                    fill="#ef4444"
-                    radius={[4, 4, 0, 0]}
+                    fill="url(#exitsBarGradient)"
+                    stroke="#f43f5e"
+                    radius={[5, 5, 0, 0]}
                     isAnimationActive={true}
                     animationDuration={1300}
                     animationEasing="ease-out"
@@ -364,15 +388,15 @@ export default function DashboardPage() {
                     animationBegin={350}
                     legendType="none"
                   />
-                  {/* Linha de Volume Total desenhada dinamicamente da esquerda para a direita */}
+                  {/* Linha de Volume Total refinada com anéis circulares nos pontos */}
                   <Line
                     type="monotone"
                     dataKey="volume"
                     name="Volume Total"
                     stroke="#3b82f6"
                     strokeWidth={2.5}
-                    dot={{ r: 3, fill: '#3b82f6' }}
-                    activeDot={{ r: 5 }}
+                    dot={{ r: 3, fill: '#0a0a0c', stroke: '#3b82f6', strokeWidth: 2 }}
+                    activeDot={{ r: 5, fill: '#60a5fa', stroke: '#ffffff', strokeWidth: 2 }}
                     isAnimationActive={true}
                     animationDuration={1600}
                     animationEasing="ease-out"
