@@ -39,15 +39,15 @@ export function BottomNav({ onOpenMenu }: BottomNavProps) {
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.375rem)',
       }}
     >
-      {/* Barrinha divisora superior: azul vibrante no meio, perdendo força em direção às pontas */}
+      {/* Barrinha divisora superior: azul mais escuro e sóbrio no meio, perdendo força em direção às pontas */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-px inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500 dark:via-blue-400 to-transparent"
+        className="pointer-events-none absolute -top-px inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-600/85 to-transparent"
       />
-      {/* Brilho sutil difuso centralizado */}
+      {/* Brilho suave sutil no tom azul profundo */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-px left-1/2 -translate-x-1/2 w-3/4 max-w-md h-[2px] bg-gradient-to-r from-transparent via-blue-400/50 dark:via-blue-300/60 to-transparent blur-[1px]"
+        className="pointer-events-none absolute -top-px left-1/2 -translate-x-1/2 w-1/2 max-w-xs h-[1.5px] bg-gradient-to-r from-transparent via-blue-600/25 to-transparent blur-[0.5px]"
       />
 
       <div className="flex items-center justify-around px-2 pt-1.5 pb-1">
