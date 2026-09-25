@@ -63,6 +63,8 @@
   --color-status-warning-text: var(--status-warning-text);
   --color-status-ok-bg: var(--status-ok-bg);
   --color-status-ok-text: var(--status-ok-text);
+  --breakpoint-3xl: 120rem;
+  --breakpoint-4xl: 160rem;
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }

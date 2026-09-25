@@ -167,16 +167,16 @@ export function ProductModal({ isOpen, onClose, product }: ProductModalProps) {
 
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-surface border border-border rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[85vh] flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-lg font-semibold text-foreground">
+      <div className="bg-surface border border-border rounded-xl 2xl:rounded-2xl shadow-xl w-full max-w-lg 2xl:max-w-2xl mx-4 max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between p-6 2xl:p-8 border-b border-border">
+          <h2 className="text-lg 2xl:text-xl font-semibold text-foreground">
             {isEditing ? 'Editar Produto' : 'Novo Produto'}
           </h2>
           <button
             onClick={onClose}
             className="text-muted hover:text-foreground transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5 cursor-pointer" />
+            <X className="w-5 h-5 2xl:w-6 2xl:h-6 cursor-pointer" />
           </button>
         </div>
 

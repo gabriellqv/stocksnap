@@ -122,40 +122,40 @@ export default function ProductsPage() {
   };
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div className="flex-1 flex flex-col space-y-6 2xl:space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="text-3xl 2xl:text-4xl 3xl:text-5xl font-bold tracking-tight text-foreground">
             Produtos
           </h1>
-          <p className="text-muted mt-1">{meta.total} produtos cadastrados</p>
+          <p className="text-muted mt-1 2xl:text-base 3xl:text-lg">{meta.total} produtos cadastrados</p>
         </div>
         {isAdmin && (
           <Button
             onClick={() => setIsModalOpen(true)}
-            className="gap-2 w-full sm:w-auto"
+            className="gap-2 2xl:gap-3 w-full sm:w-auto 2xl:h-11 2xl:px-5 2xl:text-base"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5 2xl:w-6 2xl:h-6" />
             Novo Produto
           </Button>
         )}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 2xl:gap-6">
         <form onSubmit={handleSearch} className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
+          <Search className="absolute left-3 2xl:left-4 top-1/2 -translate-y-1/2 w-5 h-5 2xl:w-6 2xl:h-6 text-muted" />
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Buscar por nome ou SKU..."
-            className="w-full pl-10 pr-4 py-2 bg-surface border border-border text-foreground rounded-lg focus:ring-2 focus:ring-accent/40 outline-none"
+            className="w-full pl-10 2xl:pl-12 pr-4 py-2 2xl:py-3 bg-surface border border-border text-foreground rounded-lg 2xl:rounded-xl focus:ring-2 focus:ring-accent/40 outline-none 2xl:text-base"
           />
         </form>
         <select
           value={query.categoryId || ''}
           onChange={(e) => handleCategoryFilter(e.target.value)}
-          className="w-full sm:w-auto px-4 py-2 bg-surface border border-border text-foreground rounded-lg focus:ring-2 focus:ring-accent/40 outline-none cursor-pointer"
+          className="w-full sm:w-auto px-4 py-2 2xl:py-3 bg-surface border border-border text-foreground rounded-lg 2xl:rounded-xl focus:ring-2 focus:ring-accent/40 outline-none cursor-pointer 2xl:text-base"
         >
           <option value="">Todas as categorias</option>
           {categories.map((c) => (
@@ -167,34 +167,34 @@ export default function ProductsPage() {
         <Button
           variant="outline"
           onClick={handleExportCSV}
-          className="gap-2 w-full sm:w-auto hover:text-accent hover:border-accent/30 transition-colors"
+          className="gap-2 2xl:gap-3 w-full sm:w-auto hover:text-accent hover:border-accent/30 transition-colors 2xl:h-11 2xl:px-5 2xl:text-base"
           disabled={products.length === 0}
         >
-          <Download className="w-4 h-4" />
+          <Download className="w-4 h-4 2xl:w-5 2xl:h-5" />
           Exportar CSV
         </Button>
       </div>
 
-      <div className="bg-surface rounded-xl shadow-sm border border-border overflow-x-auto">
+      <div className="bg-surface rounded-xl 2xl:rounded-2xl shadow-sm border border-border overflow-x-auto flex-1">
         <table className="w-full min-w-[50rem]">
           <thead className="bg-background border-b border-border">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">
+              <th className="text-left px-6 py-3 2xl:px-8 2xl:py-4 text-xs 2xl:text-sm font-medium text-muted uppercase">
                 Produto
               </th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">
+              <th className="text-left px-6 py-3 2xl:px-8 2xl:py-4 text-xs 2xl:text-sm font-medium text-muted uppercase">
                 SKU
               </th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-muted uppercase">
+              <th className="text-left px-6 py-3 2xl:px-8 2xl:py-4 text-xs 2xl:text-sm font-medium text-muted uppercase">
                 Categoria
               </th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-muted uppercase">
+              <th className="text-right px-6 py-3 2xl:px-8 2xl:py-4 text-xs 2xl:text-sm font-medium text-muted uppercase">
                 Custo
               </th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-muted uppercase">
+              <th className="text-right px-6 py-3 2xl:px-8 2xl:py-4 text-xs 2xl:text-sm font-medium text-muted uppercase">
                 Venda
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-muted uppercase">
+              <th className="px-6 py-3 2xl:px-8 2xl:py-4 text-xs 2xl:text-sm font-medium text-muted uppercase">
                 <button
                   onClick={handleSortQuantity}
                   className="flex w-full items-center justify-center gap-1.5 hover:text-foreground transition-colors cursor-pointer"
@@ -203,17 +203,17 @@ export default function ProductsPage() {
                   Estoque
                   {query.sortBy === 'quantity' ? (
                     query.sortOrder === 'asc' ? (
-                      <ArrowUp className="w-3.5 h-3.5" />
+                      <ArrowUp className="w-3.5 h-3.5 2xl:w-4 2xl:h-4" />
                     ) : (
-                      <ArrowDown className="w-3.5 h-3.5" />
+                      <ArrowDown className="w-3.5 h-3.5 2xl:w-4 2xl:h-4" />
                     )
                   ) : (
-                    <ArrowUpDown className="w-3.5 h-3.5 opacity-50" />
+                    <ArrowUpDown className="w-3.5 h-3.5 2xl:w-4 2xl:h-4 opacity-50" />
                   )}
                 </button>
               </th>
               {isAdmin && (
-                <th className="text-right px-6 py-3 text-xs font-medium text-muted uppercase">
+                <th className="text-right px-6 py-3 2xl:px-8 2xl:py-4 text-xs 2xl:text-sm font-medium text-muted uppercase">
                   Ações
                 </th>
               )}
@@ -222,13 +222,13 @@ export default function ProductsPage() {
           <tbody className="divide-y divide-border">
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-muted">
+                <td colSpan={7} className="px-6 py-12 text-center text-muted 2xl:text-base">
                   Carregando...
                 </td>
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-muted">
+                <td colSpan={7} className="px-6 py-12 text-center text-muted 2xl:text-base">
                   Nenhum produto encontrado
                 </td>
               </tr>
@@ -238,43 +238,43 @@ export default function ProductsPage() {
                   key={product.id}
                   className="hover:bg-border/30 transition-colors"
                 >
-                  <td className="px-6 py-4 font-medium text-foreground">
+                  <td className="px-6 py-4 2xl:px-8 2xl:py-5 font-medium text-foreground 2xl:text-base">
                     {product.name}
                   </td>
-                  <td className="px-6 py-4 text-muted font-mono text-sm">
+                  <td className="px-6 py-4 2xl:px-8 2xl:py-5 text-muted font-mono text-sm 2xl:text-base">
                     {product.sku}
                   </td>
-                  <td className="px-6 py-4 text-muted">
+                  <td className="px-6 py-4 2xl:px-8 2xl:py-5 text-muted 2xl:text-base">
                     {product.category.name}
                   </td>
-                  <td className="px-6 py-4 text-right text-muted font-mono">
+                  <td className="px-6 py-4 2xl:px-8 2xl:py-5 text-right text-muted font-mono 2xl:text-base">
                     {formatCurrency(Number(product.costPrice))}
                   </td>
-                  <td className="px-6 py-4 text-right font-medium text-foreground font-mono">
+                  <td className="px-6 py-4 2xl:px-8 2xl:py-5 text-right font-medium text-foreground font-mono 2xl:text-base">
                     {formatCurrency(Number(product.sellPrice))}
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="px-6 py-4 2xl:px-8 2xl:py-5 text-center">
                     <StockBadge
                       quantity={product.quantity}
                       minQuantity={product.minQuantity}
                     />
                   </td>
                   {isAdmin && (
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
+                    <td className="px-6 py-4 2xl:px-8 2xl:py-5 text-right">
+                      <div className="flex justify-end gap-2 2xl:gap-3">
                         <button
                           onClick={() => handleEdit(product)}
-                          className="p-1.5 text-muted hover:text-accent transition cursor-pointer"
+                          className="p-1.5 2xl:p-2 text-muted hover:text-accent transition cursor-pointer"
                           title="Editar"
                         >
-                          <Pencil className="w-4 h-4" />
+                          <Pencil className="w-4 h-4 2xl:w-5 2xl:h-5" />
                         </button>
                         <button
                           onClick={() => handleDelete(product)}
-                          className="p-1.5 text-muted hover:text-destructive transition cursor-pointer"
+                          className="p-1.5 2xl:p-2 text-muted hover:text-destructive transition cursor-pointer"
                           title="Deletar"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4 2xl:w-5 2xl:h-5" />
                         </button>
                       </div>
                     </td>
@@ -287,15 +287,16 @@ export default function ProductsPage() {
       </div>
 
       {meta.totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
-          <p className="text-sm text-muted text-center sm:text-left">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 2xl:mt-6">
+          <p className="text-sm 2xl:text-base text-muted text-center sm:text-left">
             Mostrando {(meta.page - 1) * meta.limit + 1} a{' '}
             {Math.min(meta.page * meta.limit, meta.total)} de {meta.total}{' '}
             resultados
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-2 2xl:gap-3">
             <Button
               variant="outline"
+              className="2xl:h-11 2xl:px-5 2xl:text-base"
               onClick={() => handlePageChange(meta.page - 1)}
               disabled={meta.page === 1}
             >
@@ -303,6 +304,7 @@ export default function ProductsPage() {
             </Button>
             <Button
               variant="outline"
+              className="2xl:h-11 2xl:px-5 2xl:text-base"
               onClick={() => handlePageChange(meta.page + 1)}
               disabled={meta.page === meta.totalPages}
             >

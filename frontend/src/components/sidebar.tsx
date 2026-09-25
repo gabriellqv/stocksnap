@@ -69,19 +69,19 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-surface border-r border-border flex flex-col',
+          'fixed inset-y-0 left-0 z-50 w-64 2xl:w-72 3xl:w-80 bg-surface border-r border-border flex flex-col',
           'transition-transform duration-300 ease-in-out',
           'lg:static lg:z-auto lg:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="p-6 border-b border-border flex items-center justify-between">
+        <div className="p-6 2xl:p-8 border-b border-border flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <Logo className="w-6 h-6 text-accent" />
+            <h1 className="text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-foreground flex items-center gap-2 2xl:gap-3">
+              <Logo className="w-6 h-6 2xl:w-7 2xl:h-7 3xl:w-8 3xl:h-8 text-accent" />
               StockSnap
             </h1>
-            <p className="text-sm text-muted mt-1">Controle de Estoque</p>
+            <p className="text-sm 2xl:text-base text-muted mt-1">Controle de Estoque</p>
           </div>
           <button
             onClick={onClose}
@@ -92,7 +92,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 2xl:p-6 space-y-1.5 2xl:space-y-2">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -101,39 +101,39 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 href={item.href}
                 onClick={onClose}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                  'flex items-center gap-3 2xl:gap-4 px-3 py-2.5 2xl:px-4 2xl:py-3.5 3xl:py-4 rounded-lg 2xl:rounded-xl text-sm 2xl:text-base font-medium transition-all duration-200',
                   isActive
-                    ? 'bg-accent-muted text-accent'
+                    ? 'bg-accent-muted text-accent font-semibold'
                     : 'text-muted hover:bg-border/50 hover:text-foreground',
                 )}
               >
-                <item.icon className="w-5 h-5" />
+                <item.icon className="w-5 h-5 2xl:w-6 2xl:h-6" />
                 {item.label}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-accent-muted rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium text-accent">
+        <div className="p-4 2xl:p-6 border-t border-border">
+          <div className="flex items-center gap-3 2xl:gap-4">
+            <div className="w-8 h-8 2xl:w-10 2xl:h-10 bg-accent-muted rounded-full flex items-center justify-center">
+              <span className="text-sm 2xl:text-base font-medium text-accent">
                 {user?.name?.[0]?.toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
+              <p className="text-sm 2xl:text-base font-medium text-foreground truncate">
                 {user?.name}
               </p>
-              <p className="text-xs text-muted">{user?.role}</p>
+              <p className="text-xs 2xl:text-sm text-muted">{user?.role}</p>
             </div>
             <ThemeToggle />
             <button
               onClick={handleLogout}
-              className="p-2 text-muted hover:text-destructive transition-colors duration-200 cursor-pointer rounded-lg hover:bg-border/50"
+              className="p-2 2xl:p-2.5 text-muted hover:text-destructive transition-colors duration-200 cursor-pointer rounded-lg hover:bg-border/50"
               title="Sair"
             >
-              <LogOut className="w-5 h-5" />
+              <LogOut className="w-5 h-5 2xl:w-6 2xl:h-6" />
             </button>
           </div>
         </div>

@@ -92,16 +92,16 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-surface border border-border w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-xl font-bold text-foreground">
+      <div className="bg-surface border border-border w-full max-w-md 2xl:max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="flex items-center justify-between p-6 2xl:p-8 border-b border-border">
+          <h2 className="text-xl 2xl:text-2xl font-bold text-foreground">
             Nova Movimentação
           </h2>
           <button
             onClick={onClose}
             className="p-2 text-muted hover:text-foreground hover:bg-background rounded-full transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 2xl:w-6 2xl:h-6" />
           </button>
         </div>
 

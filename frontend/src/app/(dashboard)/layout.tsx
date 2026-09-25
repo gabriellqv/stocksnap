@@ -38,8 +38,10 @@ export default function DashboardLayout({
             StockSnap
           </h1>
         </header>
-        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
-          {children}
+        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 2xl:p-10 3xl:p-12 4xl:p-16">
+          <div className="w-full max-w-[2560px] mx-auto min-h-full flex flex-col">
+            {children}
+          </div>
         </main>
       </div>
     </div>
