@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 /**
- * @description Logotipo minimalista oficial do StockSnap (Opção 2).
+ * @description Logotipo minimalista oficial do StockSnap.
  * Formado por prismas geométricos em projeção isométrica que desenham
  * a silhueta da letra "S" e uma caixa de estoque através de espaço negativo.
  * Totalmente vetorizado em SVG com transparência pura e sem fundo preto.
