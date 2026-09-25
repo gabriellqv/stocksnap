@@ -6,7 +6,8 @@ services:
     environment:
       POSTGRES_DB: stocksnap
       POSTGRES_USER: stocksnap
-      POSTGRES_PASSWORD: stocksnap123
+      # Default apenas para o ambiente local de demonstração; sobrescreva em produção.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stocksnap123}
     ports:
       - "5432:5432"
     volumes:
@@ -20,10 +21,12 @@ services:
   redis:
     image: redis:7-alpine
     container_name: stocksnap-redis
+    # Redis com autenticação. Default local de demonstração; sobrescreva em produção.
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-stocksnap123}"]
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-stocksnap123}", "ping"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -37,11 +40,15 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      DATABASE_URL: "postgresql://stocksnap:stocksnap123@postgres:5432/stocksnap?schema=public"
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://stocksnap:${POSTGRES_PASSWORD:-stocksnap123}@postgres:5432/stocksnap?schema=public"
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-stocksnap123}
       PORT: 3001
       CORS_ORIGIN: http://localhost:3000
+      # Seed de demonstração desligado por padrão; use SEED_ON_START=true para popular dados.
+      SEED_ON_START: "false"
     depends_on:
       postgres:
         condition: service_healthy

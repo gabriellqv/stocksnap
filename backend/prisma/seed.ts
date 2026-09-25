@@ -16,10 +16,35 @@
  * npx prisma migrate reset
  */
 import 'dotenv/config';
+import { randomBytes } from 'crypto';
 import { PrismaClient, Role, MovementType } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
+
+/**
+ * @description Resolve a senha do usuário administrador do seed.
+ *
+ * Nunca utiliza uma senha fixa versionada no código. A senha é lida de
+ * `ADMIN_PASSWORD`; se ausente, uma senha aleatória é gerada e impressa uma
+ * única vez no console, permitindo o primeiro acesso sem expor credenciais
+ * conhecidas em produção.
+ *
+ * @returns {string} A senha em texto puro (a ser hasheada imediatamente).
+ */
+function resolveAdminPassword(): string {
+  const fromEnv = process.env.ADMIN_PASSWORD;
+  if (fromEnv && fromEnv.length > 0) {
+    return fromEnv;
+  }
+
+  const generated = randomBytes(18).toString('base64url');
+  console.log(
+    `ℹ️  ADMIN_PASSWORD não definido. Senha gerada para o admin: ${generated}`,
+  );
+  console.log('   Defina ADMIN_PASSWORD para controlar esse valor.');
+  return generated;
+}
 
 /**
  * @description Função principal do seed que orquestra a criação sequencial
@@ -33,15 +58,19 @@ async function main(): Promise<void> {
   console.log('🌱 Iniciando seed...');
 
   // 1. Criar usuários
-  const adminPassword = await bcrypt.hash('admin123', 10);
-  const operatorPassword = await bcrypt.hash('operator123', 10);
+  const adminEmail = process.env.ADMIN_EMAIL ?? 'admin@stocksnap.com';
+  const adminPassword = await bcrypt.hash(resolveAdminPassword(), 10);
+  const operatorPassword = await bcrypt.hash(
+    process.env.OPERATOR_PASSWORD ?? randomBytes(18).toString('base64url'),
+    10,
+  );
 
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@stocksnap.com' },
+    where: { email: adminEmail },
     update: {},
     create: {
       name: 'Admin',
-      email: 'admin@stocksnap.com',
+      email: adminEmail,
       password: adminPassword,
       role: Role.ADMIN,
     },

@@ -19,6 +19,8 @@ RUN npm prune --omit=dev
 FROM node:20-alpine AS runtime
 WORKDIR /app
 
+ENV NODE_ENV=production
+
 # Cria usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nestjs -u 1001
@@ -33,6 +35,9 @@ USER nestjs
 EXPOSE 3001
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
-  CMD wget -qO- http://localhost:3001/api || exit 1
+  CMD wget -qO- http://localhost:3001/api/health || exit 1
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed.js && node dist/main.js"]
+# Aplica as migrations e inicia a API. O seed NÃO roda automaticamente: seria
+# uma credencial de demonstração conhecida em produção. Use `SEED_ON_START=true`
+# apenas em ambientes de desenvolvimento/demonstração e defina ADMIN_PASSWORD.
+CMD ["sh", "-c", "npx prisma migrate deploy && if [ \"$SEED_ON_START\" = \"true\" ]; then node prisma/seed.js; fi && node dist/main.js"]
