@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/sidebar';
 import { BottomNav } from '@/components/bottom-nav';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/logo';
+import { cn } from '@/lib/utils';
 
 /**
  * @description Layout compartilhado por todas as páginas do dashboard.
@@ -17,6 +19,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+  const isDashboard = pathname === '/';
 
   return (
     <div className="flex h-screen bg-background">
@@ -24,7 +28,7 @@ export default function DashboardLayout({
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile header — topo minimalista com logo e tema, respeitando safe-area-top */}
         <header
-          className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface lg:hidden"
+          className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface lg:hidden shrink-0"
           style={{
             paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)',
           }}
@@ -38,9 +42,21 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* Conteúdo: scroll em mobile para conforto táctil e sem scroll no desktop (viewport fit) */}
-        <main className="flex-1 overflow-y-auto lg:overflow-hidden p-3.5 pb-24 md:p-5 md:pb-24 lg:p-4 lg:pb-4 2xl:p-6 flex flex-col min-h-0">
-          <div className="w-full max-w-[2560px] mx-auto flex-1 min-h-0 flex flex-col">
+        {/* Conteúdo: scroll vertical para páginas de listagens; no dashboard desktop mantém o viewport fit sem scroll */}
+        <main
+          className={cn(
+            'flex-1 overflow-y-auto p-3.5 pb-28 md:p-5 md:pb-28 lg:p-4 2xl:p-6 min-h-0',
+            isDashboard
+              ? 'lg:overflow-hidden lg:pb-4 flex flex-col'
+              : 'lg:pb-8',
+          )}
+        >
+          <div
+            className={cn(
+              'w-full max-w-[2560px] mx-auto',
+              isDashboard ? 'flex-1 min-h-0 flex flex-col' : '',
+            )}
+          >
             {children}
           </div>
         </main>

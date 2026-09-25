@@ -70,7 +70,7 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col space-y-6 2xl:space-y-8">
+    <div className="space-y-6 2xl:space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl 2xl:text-4xl 3xl:text-5xl font-bold tracking-tight text-foreground flex items-center gap-2 2xl:gap-3">
@@ -92,7 +92,7 @@ export default function CategoriesPage() {
         )}
       </div>
 
-      <div className="bg-surface border border-border rounded-xl 2xl:rounded-2xl shadow-sm overflow-hidden flex-1">
+      <div className="bg-surface border border-border rounded-xl 2xl:rounded-2xl shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="p-8 2xl:p-12 text-center text-muted 2xl:text-base">
             Carregando categorias...

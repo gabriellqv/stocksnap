@@ -61,7 +61,7 @@ export default function MovementsPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col space-y-6 2xl:space-y-8">
+    <div className="space-y-6 2xl:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl 2xl:text-4xl 3xl:text-5xl font-bold tracking-tight text-foreground">
@@ -132,7 +132,7 @@ export default function MovementsPage() {
         </div>
       </div>
 
-      <div className="bg-surface rounded-xl 2xl:rounded-2xl shadow-sm border border-border overflow-x-auto flex-1">
+      <div className="bg-surface rounded-xl 2xl:rounded-2xl shadow-sm border border-border overflow-x-auto">
         <table className="w-full min-w-[50rem]">
           <thead className="bg-background border-b border-border">
             <tr>
