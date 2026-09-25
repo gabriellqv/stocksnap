@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* Tema Claro (Light Theme) */
   --background: #f4f4f5;

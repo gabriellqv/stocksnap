@@ -118,7 +118,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 {isActive && (
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute -inset-[1px] rounded-xl border border-blue-600 dark:border-blue-400 [filter:drop-shadow(0_0_5px_rgba(37,99,235,0.55))] dark:[filter:drop-shadow(0_0_8px_rgba(96,165,250,0.65))]"
+                    className="pointer-events-none absolute -inset-[1px] rounded-xl border border-blue-600/40 dark:border-blue-400 dark:[filter:drop-shadow(0_0_8px_rgba(96,165,250,0.65))]"
                     style={{
                       WebkitMaskImage: 'linear-gradient(to right, black 0%, black 18%, transparent 60%)',
                       maskImage: 'linear-gradient(to right, black 0%, black 18%, transparent 60%)',
