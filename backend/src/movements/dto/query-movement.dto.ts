@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsEnum, IsInt, Min } from 'class-validator';
+import { IsOptional, IsString, IsEnum, IsInt, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MovementType } from '@prisma/client';
 
@@ -27,5 +27,6 @@ export class QueryMovementDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(100, { message: 'Limite máximo de 100 itens por página' })
   limit?: number = 20;
 }
