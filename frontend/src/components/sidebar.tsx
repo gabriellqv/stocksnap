@@ -69,7 +69,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-72 sm:w-80 max-w-[85vw] h-full lg:h-auto lg:relative lg:z-auto lg:w-64 2xl:w-72 3xl:w-80 bg-surface/90 dark:bg-surface/75 backdrop-blur-2xl border-r border-border/70 dark:border-white/[0.08] flex flex-col overflow-hidden shadow-2xl lg:shadow-none',
+          'fixed inset-0 z-50 w-full h-full lg:h-auto lg:relative lg:z-auto lg:w-64 2xl:w-72 3xl:w-80 bg-surface/95 dark:bg-surface/90 backdrop-blur-2xl border-r border-border/70 dark:border-white/[0.08] flex flex-col overflow-hidden shadow-2xl lg:shadow-none',
           'transition-transform duration-300 ease-in-out',
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto',
         )}
