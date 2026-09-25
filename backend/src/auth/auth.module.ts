@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JWT_ISSUER, JWT_AUDIENCE } from './strategies/jwt.constants';
 
 /**
  * @description Módulo gerenciador da autenticação da aplicação.
@@ -22,6 +23,9 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
       useFactory: (config: ConfigService): JwtModuleOptions => ({
         secret: config.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
+          algorithm: 'HS256',
+          issuer: JWT_ISSUER,
+          audience: JWT_AUDIENCE,
           expiresIn: (config.get<string>('JWT_EXPIRATION') ??
             '7d') as StringValue,
         },
