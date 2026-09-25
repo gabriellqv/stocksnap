@@ -105,14 +105,24 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 href={item.href}
                 onClick={onClose}
                 className={cn(
-                  'flex items-center gap-3.5 2xl:gap-4 px-4 py-3.5 lg:px-3 lg:py-2.5 2xl:px-4 2xl:py-3.5 3xl:py-4 rounded-xl text-base lg:text-sm 2xl:text-base font-medium transition-all duration-200 active:scale-[0.98]',
+                  'relative flex items-center gap-3.5 2xl:gap-4 py-3 lg:py-2.5 2xl:py-3 rounded-xl text-base lg:text-sm 2xl:text-base font-medium transition-all duration-200 active:scale-[0.98]',
                   isActive
-                    ? 'bg-accent-muted text-accent font-semibold shadow-sm'
-                    : 'text-muted hover:bg-border/50 hover:text-foreground',
+                    ? 'pl-5 pr-4 bg-accent/10 text-accent font-semibold shadow-sm border border-accent/25'
+                    : 'px-4 text-muted hover:bg-border/50 hover:text-foreground border border-transparent',
                 )}
               >
-                <item.icon className="w-5 h-5 2xl:w-6 2xl:h-6 shrink-0" />
-                <span>{item.label}</span>
+                {isActive && (
+                  <span className="absolute left-1.5 top-2 bottom-2 w-1.5 bg-accent rounded-full shadow-[0_0_10px_var(--accent,#3b82f6)]" />
+                )}
+                <item.icon
+                  className={cn(
+                    'w-5 h-5 2xl:w-6 2xl:h-6 shrink-0 transition-colors',
+                    isActive ? 'text-accent' : 'text-muted',
+                  )}
+                />
+                <span className={isActive ? 'text-foreground font-semibold' : ''}>
+                  {item.label}
+                </span>
               </Link>
             );
           })}
