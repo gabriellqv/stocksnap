@@ -119,7 +119,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         <div
-          className="p-4 sm:p-5 2xl:p-6 border-t border-border bg-surface"
+          className="p-4 sm:p-5 2xl:p-6 border-t border-border bg-surface space-y-3"
           style={{
             paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.25rem)',
           }}
@@ -134,18 +134,21 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <p className="text-base lg:text-sm 2xl:text-base font-semibold text-foreground truncate">
                 {user?.name}
               </p>
-              <p className="text-xs 2xl:text-sm text-muted capitalize">{user?.role?.toLowerCase()}</p>
+              <p className="text-xs 2xl:text-sm text-muted capitalize truncate">{user?.role?.toLowerCase()}</p>
             </div>
             <ThemeToggle />
-            <button
-              onClick={handleLogout}
-              className="p-2.5 text-muted hover:text-destructive active:scale-95 transition-colors duration-200 cursor-pointer rounded-xl hover:bg-border/50"
-              title="Sair"
-              aria-label="Sair da conta"
-            >
-              <LogOut className="w-5 h-5 2xl:w-6 2xl:h-6" />
-            </button>
           </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 lg:py-2 text-sm lg:text-xs 2xl:text-sm font-medium text-muted hover:text-destructive hover:bg-destructive/10 border border-border/60 hover:border-destructive/20 rounded-xl transition-all duration-200 cursor-pointer active:scale-[0.98]"
+            title="Sair da conta"
+            aria-label="Sair da conta"
+          >
+            <LogOut className="w-4 h-4 2xl:w-4.5 2xl:h-4.5 shrink-0" />
+            <span>Sair</span>
+          </button>
         </div>
       </aside>
     </>
