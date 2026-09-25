@@ -105,19 +105,26 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 href={item.href}
                 onClick={onClose}
                 className={cn(
-                  'relative flex items-center gap-3.5 2xl:gap-4 py-3 lg:py-2.5 2xl:py-3 rounded-xl text-base lg:text-sm 2xl:text-base font-medium transition-all duration-200 active:scale-[0.98]',
+                  'relative flex items-center gap-3.5 2xl:gap-4 px-4 py-3 lg:py-2.5 2xl:py-3 rounded-xl text-base lg:text-sm 2xl:text-base font-medium transition-all duration-200 active:scale-[0.98]',
                   isActive
-                    ? 'pl-5 pr-4 bg-accent/10 text-accent font-semibold shadow-sm border border-accent/25'
-                    : 'px-4 text-muted hover:bg-border/50 hover:text-foreground border border-transparent',
+                    ? 'bg-blue-500/10 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 font-semibold shadow-xs border border-blue-500/20'
+                    : 'text-muted hover:bg-border/50 hover:text-foreground border border-transparent',
                 )}
               >
                 {isActive && (
-                  <span className="absolute left-1.5 top-2 bottom-2 w-1.5 bg-accent rounded-full shadow-[0_0_10px_var(--accent,#3b82f6)]" />
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -left-[1px] top-0 bottom-0 w-8 rounded-l-xl border-l-[2.5px] border-t-[2.5px] border-b-[2.5px] border-blue-600 dark:border-blue-400 [filter:drop-shadow(-2px_0_6px_rgba(37,99,235,0.75))] dark:[filter:drop-shadow(-2px_0_8px_rgba(96,165,250,0.85))]"
+                    style={{
+                      WebkitMaskImage: 'linear-gradient(to right, black 35%, transparent 100%)',
+                      maskImage: 'linear-gradient(to right, black 35%, transparent 100%)',
+                    }}
+                  />
                 )}
                 <item.icon
                   className={cn(
                     'w-5 h-5 2xl:w-6 2xl:h-6 shrink-0 transition-colors',
-                    isActive ? 'text-accent' : 'text-muted',
+                    isActive ? 'text-blue-600 dark:text-blue-400' : 'text-muted',
                   )}
                 />
                 <span className={isActive ? 'text-foreground font-semibold' : ''}>
