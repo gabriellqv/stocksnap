@@ -176,8 +176,8 @@ export default function DashboardPage() {
           <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
             Cadastrados no catálogo
           </p>
-          {/* Orbe suave */}
-          <div className="pointer-events-none absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-blue-500/10 blur-2xl group-hover:bg-blue-500/20 transition-all duration-300" />
+          {/* Orbe de luz mais presente */}
+          <div className="pointer-events-none absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-blue-500/25 blur-xl group-hover:bg-blue-500/35 group-hover:scale-105 transition-all duration-300" />
         </div>
 
         {/* Card 2: Valor em Estoque */}
@@ -199,8 +199,8 @@ export default function DashboardPage() {
           <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
             Preço de venda estimado
           </p>
-          {/* Orbe suave */}
-          <div className="pointer-events-none absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-emerald-500/10 blur-2xl group-hover:bg-emerald-500/20 transition-all duration-300" />
+          {/* Orbe de luz mais presente */}
+          <div className="pointer-events-none absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-emerald-500/25 blur-xl group-hover:bg-emerald-500/35 group-hover:scale-105 transition-all duration-300" />
         </div>
 
         {/* Card 3: Estoque Crítico */}
@@ -237,10 +237,10 @@ export default function DashboardPage() {
           <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
             {summary.criticalItems > 0 ? "Abaixo do estoque mínimo" : "Todos acima do mínimo"}
           </p>
-          {/* Orbe suave */}
+          {/* Orbe de luz mais presente */}
           <div className={cn(
-            "pointer-events-none absolute -bottom-6 -right-6 w-24 h-24 rounded-full blur-2xl transition-all duration-300",
-            summary.criticalItems > 0 ? "bg-rose-500/15 group-hover:bg-rose-500/25" : "bg-emerald-500/10 group-hover:bg-emerald-500/20"
+            "pointer-events-none absolute -bottom-8 -right-8 w-32 h-32 rounded-full blur-xl group-hover:scale-105 transition-all duration-300",
+            summary.criticalItems > 0 ? "bg-rose-500/25 group-hover:bg-rose-500/35" : "bg-emerald-500/25 group-hover:bg-emerald-500/35"
           )} />
         </div>
 
@@ -263,8 +263,8 @@ export default function DashboardPage() {
           <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
             Ontem: {yMov} movimentações
           </p>
-          {/* Orbe suave */}
-          <div className="pointer-events-none absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-indigo-500/10 blur-2xl group-hover:bg-indigo-500/20 transition-all duration-300" />
+          {/* Orbe de luz mais presente */}
+          <div className="pointer-events-none absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-indigo-500/25 blur-xl group-hover:bg-indigo-500/35 group-hover:scale-105 transition-all duration-300" />
         </div>
       </div>
 
