@@ -52,9 +52,11 @@ export default function DashboardPage() {
 
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const isAdmin = useIsAdmin();
 
   useEffect(() => {
+    setIsMounted(true);
     fetchDashboardData();
   }, [fetchDashboardData]);
 
@@ -244,7 +246,8 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="flex-1 min-h-0 p-2 lg:p-3 pt-0 lg:pt-0 w-full flex flex-col">
             <div className="w-full flex-1 min-h-[160px]">
-              <ResponsiveContainer width="100%" height="100%">
+              {isMounted && (
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={160}>
                 <ComposedChart
                   key={`composed-chart-${chart.length}`}
                   data={chartDataWithVolume}
@@ -340,6 +343,7 @@ export default function DashboardPage() {
                   />
                 </ComposedChart>
               </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
