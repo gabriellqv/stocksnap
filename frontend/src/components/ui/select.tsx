@@ -109,7 +109,7 @@ export function Select({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         className={cn(
-          'flex h-10 w-full items-center justify-between rounded-lg border bg-background px-3 py-2 text-sm text-foreground transition-all duration-200 cursor-pointer select-none',
+          'flex h-10 w-full items-center justify-between rounded-lg border bg-surface px-3 py-2 text-sm text-foreground transition-all duration-200 cursor-pointer select-none',
           'hover:border-border-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent',
           error ? 'border-destructive focus-visible:ring-destructive/30' : 'border-border',
           disabled && 'opacity-50 cursor-not-allowed pointer-events-none',
@@ -155,13 +155,13 @@ export function Select({
                   className={cn(
                     'flex items-center justify-between px-3 py-2 text-sm rounded-lg cursor-pointer transition-colors duration-150 select-none',
                     isSelected
-                      ? 'bg-accent-muted text-accent font-semibold'
-                      : 'text-foreground hover:bg-border/40 hover:text-foreground',
+                      ? 'bg-accent text-accent-foreground font-medium shadow-sm'
+                      : 'text-foreground hover:bg-border/50 hover:text-foreground',
                   )}
                 >
                   <span className="truncate">{option.label}</span>
                   {isSelected && (
-                    <Check className="w-4 h-4 text-accent shrink-0 ml-2 animate-in fade-in zoom-in-75 duration-100" />
+                    <Check className="w-4 h-4 text-accent-foreground shrink-0 ml-2 animate-in fade-in zoom-in-75 duration-100" />
                   )}
                 </div>
               );
