@@ -7,6 +7,7 @@ import {
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
+import { isUniqueConstraintError } from '../prisma/prisma-errors';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
@@ -139,10 +140,20 @@ export class ProductsService {
       throw new NotFoundException('Categoria não encontrada');
     }
 
-    const newProduct = await this.prisma.product.create({
-      data: dto,
-      include: { category: true },
-    });
+    let newProduct: ProductResponse;
+    try {
+      newProduct = await this.prisma.product.create({
+        data: dto,
+        include: { category: true },
+      });
+    } catch (error) {
+      // Corrida entre requisições concorrentes com o mesmo SKU: a checagem
+      // acima pode passar em ambas, mas a constraint única do banco barra a segunda.
+      if (isUniqueConstraintError(error)) {
+        throw new ConflictException(`SKU "${dto.sku}" já está em uso`);
+      }
+      throw error;
+    }
 
     await this.cacheManager.del('dashboard:summary');
     await this.cacheManager.del('dashboard:low-stock');
@@ -172,11 +183,19 @@ export class ProductsService {
       }
     }
 
-    const updatedProduct = await this.prisma.product.update({
-      where: { id },
-      data: dto,
-      include: { category: true },
-    });
+    let updatedProduct: ProductResponse;
+    try {
+      updatedProduct = await this.prisma.product.update({
+        where: { id },
+        data: dto,
+        include: { category: true },
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new ConflictException(`SKU "${dto.sku}" já está em uso`);
+      }
+      throw error;
+    }
 
     await this.cacheManager.del('dashboard:summary');
     await this.cacheManager.del('dashboard:low-stock');

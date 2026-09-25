@@ -6,6 +6,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { isUniqueConstraintError } from '../prisma/prisma-errors';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import type {
@@ -46,20 +47,31 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    const user = await this.prisma.user.create({
-      data: {
-        name: dto.name,
-        email: dto.email,
-        password: hashedPassword,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
-    });
+    let user: RegisterResponse;
+    try {
+      user = await this.prisma.user.create({
+        data: {
+          name: dto.name,
+          email: dto.email,
+          password: hashedPassword,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+    } catch (error) {
+      // Duas requisições concorrentes com o mesmo email passam pela checagem
+      // acima; a constraint única do banco barra a segunda. Convertemos o erro
+      // de baixo nível (P2002) em um 409 Conflict determinístico.
+      if (isUniqueConstraintError(error)) {
+        throw new ConflictException('Este email já está cadastrado');
+      }
+      throw error;
+    }
 
     return user;
   }
