@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { api } from '@/lib/api';
-import type { Category, CreateCategoryData } from '@/types';
+import type { Category, CreateCategoryData, PaginatedResponse } from '@/types';
 
 /**
  * @description Define o esquema de estado reativo para o domínio de Categorias.
@@ -41,10 +41,24 @@ export const useCategoryStore = create<CategoryState & CategoryActions>(
     fetchCategories: async () => {
       set({ isLoading: true, error: null });
       try {
-        const response = await api.get<{ data: Category[] }>(
-          '/categories?limit=1000',
-        ); // limit high to avoid breaking existing UI that doesn't paginate yet
-        set({ categories: response.data, isLoading: false });
+        /**
+         * A API limita `limit` a 100 por página. Como os dropdowns precisam da
+         * lista completa, percorremos as páginas até esgotar os resultados.
+         */
+        const all: Category[] = [];
+        let page = 1;
+        let totalPages = 1;
+
+        do {
+          const response = await api.get<PaginatedResponse<Category>>(
+            `/categories?limit=100&page=${page}`,
+          );
+          all.push(...response.data);
+          totalPages = response.meta.totalPages;
+          page += 1;
+        } while (page <= totalPages);
+
+        set({ categories: all, isLoading: false });
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : 'Erro ao buscar categorias';
