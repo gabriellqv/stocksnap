@@ -16,6 +16,26 @@ jobs:
       run:
         working-directory: ./backend
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: stocksnap_test
+          POSTGRES_USER: stocksnap
+          POSTGRES_PASSWORD: stocksnap
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U stocksnap"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://stocksnap:stocksnap@localhost:5432/stocksnap_test?schema=public
+      JWT_SECRET: ci-secret-with-at-least-32-characters-long!!
+      JWT_EXPIRATION: 7d
+
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -33,14 +53,24 @@ jobs:
       - name: Gerar Prisma Client
         run: npx prisma generate
 
+      - name: Aplicar migrations
+        run: npx prisma migrate deploy
+
       - name: Lint
         run: npm run lint
 
       - name: Testes com Cobertura
         run: npm test -- --coverage --coverageReporters=text-summary --passWithNoTests
 
+      - name: Testes E2E (concorrência e integração)
+        run: npm run test:e2e -- --runInBand --forceExit
+
       - name: Build
         run: npm run build
+
+      - name: Auditoria de dependências (não bloqueante)
+        run: npm audit --audit-level=high
+        continue-on-error: true
 
   # ===== FRONTEND =====
   frontend:
