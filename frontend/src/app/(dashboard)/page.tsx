@@ -110,7 +110,7 @@ export default function DashboardPage() {
   }));
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col gap-3 lg:gap-4 2xl:gap-5 animate-in fade-in duration-500">
+    <div className="w-full lg:flex-1 lg:min-h-0 flex flex-col gap-3 lg:gap-4 2xl:gap-5 animate-in fade-in duration-500">
       {/* Header */}
       <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div>
@@ -154,9 +154,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Bento Grid: 4 Cards com Badges e Orbes Suaves */}
-      <div className="shrink-0 grid gap-3 lg:gap-3.5 2xl:gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="shrink-0 grid gap-2.5 sm:gap-3 lg:gap-3.5 2xl:gap-4 grid-cols-2 lg:grid-cols-4">
         {/* Card 1: Total de Produtos */}
-        <div className="p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-accent/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
+        <div className="p-2.5 sm:p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-accent/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
               <Package className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
@@ -168,7 +168,7 @@ export default function DashboardPage() {
           <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
             Total de Produtos
           </p>
-          <div className="text-xl sm:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5">
+          <div className="text-lg sm:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5 truncate">
             <AnimatedNumber value={summary.totalProducts} />
           </div>
           <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
@@ -179,7 +179,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 2: Valor em Estoque */}
-        <div className="p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-emerald-500/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
+        <div className="p-2.5 sm:p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-emerald-500/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
               <TrendingUp className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
@@ -191,7 +191,7 @@ export default function DashboardPage() {
           <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
             Valor em Estoque
           </p>
-          <div className="text-xl sm:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5 truncate">
+          <div className="text-base sm:text-xl lg:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5 truncate">
             <AnimatedNumber value={summary.totalValue} formatter={formatCurrency} />
           </div>
           <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
@@ -203,7 +203,7 @@ export default function DashboardPage() {
 
         {/* Card 3: Estoque Crítico */}
         <div className={cn(
-          "p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border shadow-xs transition-all duration-200 relative overflow-hidden group",
+          "p-2.5 sm:p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border shadow-xs transition-all duration-200 relative overflow-hidden group",
           summary.criticalItems > 0 ? "border-rose-500/40 hover:border-rose-500/60" : "border-border/80 hover:border-emerald-500/40"
         )}>
           <div className="flex items-center justify-between">
@@ -227,7 +227,7 @@ export default function DashboardPage() {
             Estoque Crítico
           </p>
           <div className={cn(
-            "text-xl sm:text-2xl 2xl:text-3xl font-extrabold tracking-tight mt-0.5",
+            "text-lg sm:text-2xl 2xl:text-3xl font-extrabold tracking-tight mt-0.5 truncate",
             summary.criticalItems > 0 ? "text-rose-500" : "text-foreground"
           )}>
             <AnimatedNumber value={summary.criticalItems} />
@@ -243,7 +243,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 4: Movimentações Hoje */}
-        <div className="p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-indigo-500/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
+        <div className="p-2.5 sm:p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-indigo-500/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
               <Activity className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
@@ -255,7 +255,7 @@ export default function DashboardPage() {
           <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
             Movimentações Hoje
           </p>
-          <div className="text-xl sm:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5">
+          <div className="text-lg sm:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5 truncate">
             <AnimatedNumber value={summary.todayMovements} />
           </div>
           <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
@@ -266,17 +266,17 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Grid Inferior: Gráfico + Coluna Lateral com flex-1 min-h-0 */}
-      <div className="grid gap-3 lg:gap-4 grid-cols-1 lg:grid-cols-7 flex-1 min-h-0">
+      {/* Grid Inferior: Gráfico + Coluna Lateral com responsividade limpa */}
+      <div className="grid gap-3 lg:gap-4 grid-cols-1 lg:grid-cols-7 lg:flex-1 lg:min-h-0">
         {/* Gráfico Misto (Composed) */}
-        <Card className="col-span-1 lg:col-span-5 flex flex-col flex-1 min-h-0 overflow-hidden">
+        <Card className="col-span-1 lg:col-span-5 flex flex-col lg:flex-1 lg:min-h-0 overflow-hidden">
           <CardHeader className="p-3 pb-1 lg:p-3.5 lg:pb-1 shrink-0">
             <CardTitle className="text-xs sm:text-sm 2xl:text-base font-semibold">
               Volume de Caixa vs. Entradas e Saídas (7 Dias)
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 min-h-0 p-2 lg:p-3 pt-0 lg:pt-0 w-full flex flex-col">
-            <div className="w-full flex-1 min-h-[160px]">
+            <div className="w-full h-[280px] sm:h-[320px] lg:h-full lg:flex-1 min-h-[220px] lg:min-h-[160px]">
               {isMounted && (
                 <ResponsiveContainer
                   width="100%"
@@ -386,7 +386,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Coluna Lateral */}
-        <div className="col-span-1 lg:col-span-2 flex flex-col gap-3 lg:gap-4 flex-1 min-h-0">
+        <div className="col-span-1 lg:col-span-2 flex flex-col gap-3 lg:gap-4 lg:flex-1 lg:min-h-0">
           {/* Campeão de Vendas (Top Product) */}
           <Card className="shrink-0 border-accent/30 bg-gradient-to-br from-surface to-accent-muted/10 relative overflow-hidden">
             <CardHeader className="p-2.5 pb-1 lg:p-3 lg:pb-1">
@@ -417,7 +417,7 @@ export default function DashboardPage() {
           </Card>
 
           {/* Tabela de Produtos Críticos */}
-          <Card className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <Card className="min-h-[240px] max-h-[380px] lg:max-h-none lg:h-auto lg:flex-1 lg:min-h-0 overflow-hidden flex flex-col">
             <CardHeader className="bg-status-critical-bg/5 border-b border-border p-2.5 px-3 lg:p-3 shrink-0">
               <CardTitle className="text-status-critical-text flex items-center gap-1.5 text-xs 2xl:text-sm">
                 <AlertTriangle className="w-3.5 h-3.5" />

@@ -60,7 +60,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Mobile backdrop overlay */}
       <div
         className={cn(
-          'fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden',
+          'fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden',
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         onClick={onClose}
@@ -69,9 +69,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          'fixed inset-0 z-50 w-full h-full lg:h-auto lg:static lg:z-auto lg:w-64 2xl:w-72 3xl:w-80 bg-surface/80 dark:bg-surface/65 backdrop-blur-2xl border-r border-border/70 dark:border-white/[0.08] flex flex-col relative overflow-hidden',
+          'fixed inset-y-0 left-0 z-50 w-72 sm:w-80 max-w-[85vw] h-full lg:h-auto lg:static lg:z-auto lg:w-64 2xl:w-72 3xl:w-80 bg-surface/90 dark:bg-surface/75 backdrop-blur-2xl border-r border-border/70 dark:border-white/[0.08] flex flex-col relative overflow-hidden shadow-2xl lg:shadow-none',
           'transition-transform duration-300 ease-in-out',
-          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto',
         )}
       >
         {/* Luz ambiente interna suave no azul puro do projeto para o efeito de vidro fosco */}

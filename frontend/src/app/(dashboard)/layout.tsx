@@ -42,19 +42,19 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* Conteúdo: scroll vertical para páginas de listagens; no dashboard desktop mantém o viewport fit sem scroll */}
+        {/* Conteúdo: scroll vertical para mobile; no dashboard desktop mantém o viewport fit sem scroll */}
         <main
           className={cn(
             'flex-1 overflow-y-auto p-3.5 pb-28 md:p-5 md:pb-28 lg:p-4 2xl:p-6 min-h-0',
             isDashboard
-              ? 'lg:overflow-hidden lg:pb-4 flex flex-col'
+              ? 'lg:overflow-hidden lg:pb-4 lg:flex lg:flex-col'
               : 'lg:pb-8',
           )}
         >
           <div
             className={cn(
               'w-full max-w-[2560px] mx-auto',
-              isDashboard ? 'flex-1 min-h-0 flex flex-col' : '',
+              isDashboard ? 'lg:flex-1 lg:min-h-0 lg:flex lg:flex-col' : '',
             )}
           >
             {children}
