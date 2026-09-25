@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu } from 'lucide-react';
 import { Sidebar } from '@/components/sidebar';
 import { BottomNav } from '@/components/bottom-nav';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -23,7 +22,7 @@ export default function DashboardLayout({
     <div className="flex h-screen bg-background">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Mobile header — respeita a safe-area-top (notch/câmera frontal) */}
+        {/* Mobile header — topo minimalista com logo e tema, respeitando safe-area-top */}
         <header
           className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface lg:hidden"
           style={{
@@ -34,15 +33,8 @@ export default function DashboardLayout({
             <Logo className="w-5 h-5 text-accent" />
             <h1 className="text-lg font-bold text-foreground">StockSnap</h1>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <ThemeToggle />
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="p-1.5 text-muted hover:text-foreground hover:bg-border/50 rounded-lg transition-colors cursor-pointer"
-              aria-label="Abrir menu lateral"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
           </div>
         </header>
 
