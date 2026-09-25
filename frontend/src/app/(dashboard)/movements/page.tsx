@@ -159,13 +159,19 @@ export default function MovementsPage() {
           <tbody className="divide-y divide-border">
             {isLoading ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-muted 2xl:text-base">
+                <td
+                  colSpan={6}
+                  className="px-6 py-12 text-center text-muted 2xl:text-base"
+                >
                   Carregando histórico...
                 </td>
               </tr>
             ) : movements.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-muted 2xl:text-base">
+                <td
+                  colSpan={6}
+                  className="px-6 py-12 text-center text-muted 2xl:text-base"
+                >
                   Nenhuma movimentação encontrada
                 </td>
               </tr>

@@ -129,7 +129,9 @@ export default function ProductsPage() {
           <h1 className="text-3xl 2xl:text-4xl 3xl:text-5xl font-bold tracking-tight text-foreground">
             Produtos
           </h1>
-          <p className="text-muted mt-1 2xl:text-base 3xl:text-lg">{meta.total} produtos cadastrados</p>
+          <p className="text-muted mt-1 2xl:text-base 3xl:text-lg">
+            {meta.total} produtos cadastrados
+          </p>
         </div>
         {isAdmin && (
           <Button
@@ -224,13 +226,19 @@ export default function ProductsPage() {
           <tbody className="divide-y divide-border">
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-muted 2xl:text-base">
+                <td
+                  colSpan={7}
+                  className="px-6 py-12 text-center text-muted 2xl:text-base"
+                >
                   Carregando...
                 </td>
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-muted 2xl:text-base">
+                <td
+                  colSpan={7}
+                  className="px-6 py-12 text-center text-muted 2xl:text-base"
+                >
                   Nenhum produto encontrado
                 </td>
               </tr>

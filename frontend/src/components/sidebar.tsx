@@ -71,7 +71,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         className={cn(
           'fixed inset-0 z-50 w-full h-full lg:h-auto lg:relative lg:z-auto lg:w-64 2xl:w-72 3xl:w-80 bg-surface/95 dark:bg-surface/90 backdrop-blur-2xl border-r border-border/70 dark:border-white/[0.08] flex flex-col overflow-hidden shadow-2xl lg:shadow-none',
           'transition-transform duration-300 ease-in-out',
-          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto',
+          isOpen
+            ? 'translate-x-0'
+            : '-translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto',
         )}
       >
         {/* Luz ambiente interna suave no azul puro do projeto para o efeito de vidro fosco (apenas no modo escuro) */}
@@ -89,7 +91,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Logo className="w-6 h-6 2xl:w-7 2xl:h-7 3xl:w-8 3xl:h-8 text-accent" />
               StockSnap
             </h1>
-            <p className="text-xs sm:text-sm 2xl:text-base text-muted mt-0.5">Controle de Estoque</p>
+            <p className="text-xs sm:text-sm 2xl:text-base text-muted mt-0.5">
+              Controle de Estoque
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -120,18 +124,24 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     aria-hidden="true"
                     className="pointer-events-none absolute -inset-[1px] rounded-xl border border-blue-600/40 dark:border-blue-400 dark:[filter:drop-shadow(0_0_8px_rgba(96,165,250,0.65))]"
                     style={{
-                      WebkitMaskImage: 'linear-gradient(to right, black 0%, black 18%, transparent 60%)',
-                      maskImage: 'linear-gradient(to right, black 0%, black 18%, transparent 60%)',
+                      WebkitMaskImage:
+                        'linear-gradient(to right, black 0%, black 18%, transparent 60%)',
+                      maskImage:
+                        'linear-gradient(to right, black 0%, black 18%, transparent 60%)',
                     }}
                   />
                 )}
                 <item.icon
                   className={cn(
                     'w-5 h-5 2xl:w-6 2xl:h-6 shrink-0 transition-colors',
-                    isActive ? 'text-blue-600 dark:text-blue-400' : 'text-muted',
+                    isActive
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-muted',
                   )}
                 />
-                <span className={isActive ? 'text-foreground font-semibold' : ''}>
+                <span
+                  className={isActive ? 'text-foreground font-semibold' : ''}
+                >
                   {item.label}
                 </span>
               </Link>
@@ -155,7 +165,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <p className="text-base lg:text-sm 2xl:text-base font-semibold text-foreground truncate">
                 {user?.name}
               </p>
-              <p className="text-xs 2xl:text-sm text-muted capitalize truncate">{user?.role?.toLowerCase()}</p>
+              <p className="text-xs 2xl:text-sm text-muted capitalize truncate">
+                {user?.role?.toLowerCase()}
+              </p>
             </div>
             <ThemeToggle />
           </div>

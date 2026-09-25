@@ -4,7 +4,19 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+
+/**
+ * @description Retorna `true` no cliente após hidratação via `useSyncExternalStore`
+ * sem causar renderizações em cascata e eliminando o erro `react-hooks/set-state-in-effect`.
+ */
+function useIsMounted(): boolean {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
 import {
   Package,
   TrendingUp,
@@ -12,7 +24,6 @@ import {
   ArrowLeftRight,
   Activity,
   Plus,
-  Bell,
   Trophy,
 } from 'lucide-react';
 import {
@@ -52,11 +63,10 @@ export default function DashboardPage() {
 
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useIsMounted();
   const isAdmin = useIsAdmin();
 
   useEffect(() => {
-    setIsMounted(true);
     fetchDashboardData();
   }, [fetchDashboardData]);
 
@@ -192,7 +202,10 @@ export default function DashboardPage() {
             Valor em Estoque
           </p>
           <div className="text-base sm:text-xl lg:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5 truncate">
-            <AnimatedNumber value={summary.totalValue} formatter={formatCurrency} />
+            <AnimatedNumber
+              value={summary.totalValue}
+              formatter={formatCurrency}
+            />
           </div>
           <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
             Preço de venda estimado
@@ -202,16 +215,29 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 3: Estoque Crítico */}
-        <div className={cn(
-          "p-2.5 sm:p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border shadow-xs transition-all duration-200 relative overflow-hidden group",
-          summary.criticalItems > 0 ? "border-rose-500/40 hover:border-rose-500/60" : "border-border/80 hover:border-emerald-500/40"
-        )}>
+        <div
+          className={cn(
+            'p-2.5 sm:p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border shadow-xs transition-all duration-200 relative overflow-hidden group',
+            summary.criticalItems > 0
+              ? 'border-rose-500/40 hover:border-rose-500/60'
+              : 'border-border/80 hover:border-emerald-500/40',
+          )}
+        >
           <div className="flex items-center justify-between">
-            <div className={cn(
-              "w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl flex items-center justify-center shrink-0",
-              summary.criticalItems > 0 ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500"
-            )}>
-              <AlertTriangle className={cn("w-4 h-4 2xl:w-4.5 2xl:h-4.5", summary.criticalItems > 0 && "animate-pulse")} />
+            <div
+              className={cn(
+                'w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl flex items-center justify-center shrink-0',
+                summary.criticalItems > 0
+                  ? 'bg-rose-500/10 text-rose-500'
+                  : 'bg-emerald-500/10 text-emerald-500',
+              )}
+            >
+              <AlertTriangle
+                className={cn(
+                  'w-4 h-4 2xl:w-4.5 2xl:h-4.5',
+                  summary.criticalItems > 0 && 'animate-pulse',
+                )}
+              />
             </div>
             {summary.criticalItems > 0 ? (
               <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20 animate-pulse">
@@ -226,20 +252,28 @@ export default function DashboardPage() {
           <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
             Estoque Crítico
           </p>
-          <div className={cn(
-            "text-lg sm:text-2xl 2xl:text-3xl font-extrabold tracking-tight mt-0.5 truncate",
-            summary.criticalItems > 0 ? "text-rose-500" : "text-foreground"
-          )}>
+          <div
+            className={cn(
+              'text-lg sm:text-2xl 2xl:text-3xl font-extrabold tracking-tight mt-0.5 truncate',
+              summary.criticalItems > 0 ? 'text-rose-500' : 'text-foreground',
+            )}
+          >
             <AnimatedNumber value={summary.criticalItems} />
           </div>
           <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
-            {summary.criticalItems > 0 ? "Abaixo do estoque mínimo" : "Todos acima do mínimo"}
+            {summary.criticalItems > 0
+              ? 'Abaixo do estoque mínimo'
+              : 'Todos acima do mínimo'}
           </p>
           {/* Orbe suave */}
-          <div className={cn(
-            "pointer-events-none absolute -bottom-7 -right-7 w-28 h-28 rounded-full blur-2xl transition-all duration-300",
-            summary.criticalItems > 0 ? "bg-rose-500/18 group-hover:bg-rose-500/25" : "bg-emerald-500/15 group-hover:bg-emerald-500/22"
-          )} />
+          <div
+            className={cn(
+              'pointer-events-none absolute -bottom-7 -right-7 w-28 h-28 rounded-full blur-2xl transition-all duration-300',
+              summary.criticalItems > 0
+                ? 'bg-rose-500/18 group-hover:bg-rose-500/25'
+                : 'bg-emerald-500/15 group-hover:bg-emerald-500/22',
+            )}
+          />
         </div>
 
         {/* Card 4: Movimentações Hoje */}
@@ -249,7 +283,8 @@ export default function DashboardPage() {
               <Activity className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
             </div>
             <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
-              {movementDelta > 0 ? `+${movementDelta}%` : `${movementDelta}%`} vs. ontem
+              {movementDelta > 0 ? `+${movementDelta}%` : `${movementDelta}%`}{' '}
+              vs. ontem
             </span>
           </div>
           <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
@@ -285,125 +320,181 @@ export default function DashboardPage() {
                   minHeight={160}
                   initialDimension={{ width: 320, height: 200 }}
                 >
-                <ComposedChart
-                  key={`composed-chart-${chart.length}`}
-                  data={chartDataWithVolume}
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                >
-                  <defs>
-                    {/* Gradiente para Entradas (Verde Esmeralda - combinando com Card 2) */}
-                    <linearGradient id="entriesBarGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.95} />
-                      <stop offset="100%" stopColor="#047857" stopOpacity={0.7} />
-                    </linearGradient>
+                  <ComposedChart
+                    key={`composed-chart-${chart.length}`}
+                    data={chartDataWithVolume}
+                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  >
+                    <defs>
+                      {/* Gradiente para Entradas (Verde Esmeralda - combinando com Card 2) */}
+                      <linearGradient
+                        id="entriesBarGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#10b981"
+                          stopOpacity={0.95}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#047857"
+                          stopOpacity={0.7}
+                        />
+                      </linearGradient>
 
-                    {/* Gradiente para Saídas (Rosa/Carmim - combinando com Card 3) */}
-                    <linearGradient id="exitsBarGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.95} />
-                      <stop offset="100%" stopColor="#9f1239" stopOpacity={0.7} />
-                    </linearGradient>
+                      {/* Gradiente para Saídas (Rosa/Carmim - combinando com Card 3) */}
+                      <linearGradient
+                        id="exitsBarGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#f43f5e"
+                          stopOpacity={0.95}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#9f1239"
+                          stopOpacity={0.7}
+                        />
+                      </linearGradient>
 
-                    {/* Gradiente de Área Fluida sob a Linha de Volume */}
-                    <linearGradient id="volumeAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
-                      <stop offset="60%" stopColor="#6366f1" stopOpacity={0.08} />
-                      <stop offset="100%" stopColor="#6366f1" stopOpacity={0.0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    vertical={false}
-                    stroke="rgba(255, 255, 255, 0.07)"
-                  />
-                  <XAxis
-                    dataKey="date"
-                    stroke="#737373"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => {
-                      const [, month, day] = value.split('-');
-                      return `${day}/${month}`;
-                    }}
-                  />
-                  <YAxis
-                    stroke="#737373"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <RechartsTooltip
-                    cursor={{ fill: 'rgba(255, 255, 255, 0.05)', radius: 4 }}
-                    contentStyle={{
-                      backgroundColor: 'rgba(18, 18, 20, 0.95)',
-                      borderColor: 'rgba(255, 255, 255, 0.1)',
-                      borderRadius: '10px',
-                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
-                      backdropFilter: 'blur(12px)',
-                      fontSize: '12px',
-                    }}
-                    itemStyle={{ color: '#fff' }}
-                  />
-                  <Legend
-                    wrapperStyle={{ paddingTop: '8px', fontSize: '11px' }}
-                    formatter={(value) => (
-                      <span className="text-xs font-medium text-foreground/80 ml-1">
-                        {value}
-                      </span>
-                    )}
-                  />
-                  {/* Barras de Entradas animadas com gradiente esmeralda */}
-                  <Bar
-                    dataKey="entries"
-                    name="Entradas"
-                    fill="url(#entriesBarGradient)"
-                    stroke="#10b981"
-                    radius={[5, 5, 0, 0]}
-                    isAnimationActive={true}
-                    animationDuration={1300}
-                    animationEasing="ease-out"
-                    animationBegin={100}
-                  />
-                  {/* Barras de Saídas animadas com gradiente rose (combinando com Card 3) */}
-                  <Bar
-                    dataKey="exits"
-                    name="Saídas"
-                    fill="url(#exitsBarGradient)"
-                    stroke="#f43f5e"
-                    radius={[5, 5, 0, 0]}
-                    isAnimationActive={true}
-                    animationDuration={1300}
-                    animationEasing="ease-out"
-                    animationBegin={250}
-                  />
-                  {/* Gradiente de preenchimento fluido sob a linha de volume */}
-                  <Area
-                    type="monotone"
-                    dataKey="volume"
-                    fill="url(#volumeAreaGradient)"
-                    stroke="none"
-                    isAnimationActive={true}
-                    animationDuration={1600}
-                    animationEasing="ease-out"
-                    animationBegin={350}
-                    legendType="none"
-                  />
-                  {/* Linha de Volume Total refinada com anéis circulares nos pontos */}
-                  <Line
-                    type="monotone"
-                    dataKey="volume"
-                    name="Volume Total"
-                    stroke="#3b82f6"
-                    strokeWidth={2.5}
-                    dot={{ r: 3, fill: '#0a0a0c', stroke: '#3b82f6', strokeWidth: 2 }}
-                    activeDot={{ r: 5, fill: '#60a5fa', stroke: '#ffffff', strokeWidth: 2 }}
-                    isAnimationActive={true}
-                    animationDuration={1600}
-                    animationEasing="ease-out"
-                    animationBegin={350}
-                  />
-                </ComposedChart>
-              </ResponsiveContainer>
+                      {/* Gradiente de Área Fluida sob a Linha de Volume */}
+                      <linearGradient
+                        id="volumeAreaGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#3b82f6"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="60%"
+                          stopColor="#6366f1"
+                          stopOpacity={0.08}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#6366f1"
+                          stopOpacity={0.0}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="rgba(255, 255, 255, 0.07)"
+                    />
+                    <XAxis
+                      dataKey="date"
+                      stroke="#737373"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => {
+                        const [, month, day] = value.split('-');
+                        return `${day}/${month}`;
+                      }}
+                    />
+                    <YAxis
+                      stroke="#737373"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <RechartsTooltip
+                      cursor={{ fill: 'rgba(255, 255, 255, 0.05)', radius: 4 }}
+                      contentStyle={{
+                        backgroundColor: 'rgba(18, 18, 20, 0.95)',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '10px',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                        backdropFilter: 'blur(12px)',
+                        fontSize: '12px',
+                      }}
+                      itemStyle={{ color: '#fff' }}
+                    />
+                    <Legend
+                      wrapperStyle={{ paddingTop: '8px', fontSize: '11px' }}
+                      formatter={(value) => (
+                        <span className="text-xs font-medium text-foreground/80 ml-1">
+                          {value}
+                        </span>
+                      )}
+                    />
+                    {/* Barras de Entradas animadas com gradiente esmeralda */}
+                    <Bar
+                      dataKey="entries"
+                      name="Entradas"
+                      fill="url(#entriesBarGradient)"
+                      stroke="#10b981"
+                      radius={[5, 5, 0, 0]}
+                      isAnimationActive={true}
+                      animationDuration={1300}
+                      animationEasing="ease-out"
+                      animationBegin={100}
+                    />
+                    {/* Barras de Saídas animadas com gradiente rose (combinando com Card 3) */}
+                    <Bar
+                      dataKey="exits"
+                      name="Saídas"
+                      fill="url(#exitsBarGradient)"
+                      stroke="#f43f5e"
+                      radius={[5, 5, 0, 0]}
+                      isAnimationActive={true}
+                      animationDuration={1300}
+                      animationEasing="ease-out"
+                      animationBegin={250}
+                    />
+                    {/* Gradiente de preenchimento fluido sob a linha de volume */}
+                    <Area
+                      type="monotone"
+                      dataKey="volume"
+                      fill="url(#volumeAreaGradient)"
+                      stroke="none"
+                      isAnimationActive={true}
+                      animationDuration={1600}
+                      animationEasing="ease-out"
+                      animationBegin={350}
+                      legendType="none"
+                    />
+                    {/* Linha de Volume Total refinada com anéis circulares nos pontos */}
+                    <Line
+                      type="monotone"
+                      dataKey="volume"
+                      name="Volume Total"
+                      stroke="#3b82f6"
+                      strokeWidth={2.5}
+                      dot={{
+                        r: 3,
+                        fill: '#0a0a0c',
+                        stroke: '#3b82f6',
+                        strokeWidth: 2,
+                      }}
+                      activeDot={{
+                        r: 5,
+                        fill: '#60a5fa',
+                        stroke: '#ffffff',
+                        strokeWidth: 2,
+                      }}
+                      isAnimationActive={true}
+                      animationDuration={1600}
+                      animationEasing="ease-out"
+                      animationBegin={350}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
               )}
             </div>
           </CardContent>
@@ -429,7 +520,8 @@ export default function DashboardPage() {
                     {summary.topProduct.name}
                   </p>
                   <p className="text-xs text-status-warning-text font-medium mt-0.5">
-                    <AnimatedNumber value={summary.topProduct.quantity} /> unidades saíram
+                    <AnimatedNumber value={summary.topProduct.quantity} />{' '}
+                    unidades saíram
                   </p>
                 </div>
               ) : (

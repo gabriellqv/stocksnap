@@ -106,8 +106,13 @@ export default function CategoriesPage() {
               Você ainda não possui nenhuma categoria cadastrada. Crie a sua
               primeira para organizar seus produtos.
             </p>
-            <Button onClick={handleCreate} variant="outline" className="gap-2 2xl:h-11 2xl:px-5 2xl:text-base">
-              <Plus className="w-4 h-4 2xl:w-5 2xl:h-5" /> Cadastrar Primeira Categoria
+            <Button
+              onClick={handleCreate}
+              variant="outline"
+              className="gap-2 2xl:h-11 2xl:px-5 2xl:text-base"
+            >
+              <Plus className="w-4 h-4 2xl:w-5 2xl:h-5" /> Cadastrar Primeira
+              Categoria
             </Button>
           </div>
         ) : (
@@ -115,12 +120,16 @@ export default function CategoriesPage() {
             <table className="w-full text-sm 2xl:text-base text-left">
               <thead className="text-xs 2xl:text-sm text-muted-foreground uppercase bg-background border-b border-border">
                 <tr>
-                  <th className="px-6 py-4 2xl:px-8 2xl:py-5 font-medium">Nome da Categoria</th>
+                  <th className="px-6 py-4 2xl:px-8 2xl:py-5 font-medium">
+                    Nome da Categoria
+                  </th>
                   <th className="px-6 py-4 2xl:px-8 2xl:py-5 font-medium text-center">
                     Produtos Vinculados
                   </th>
                   {isAdmin && (
-                    <th className="px-6 py-4 2xl:px-8 2xl:py-5 font-medium text-right">Ações</th>
+                    <th className="px-6 py-4 2xl:px-8 2xl:py-5 font-medium text-right">
+                      Ações
+                    </th>
                   )}
                 </tr>
               </thead>

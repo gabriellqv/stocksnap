@@ -29,7 +29,9 @@ describe('BottomNav Component', () => {
     const handleOpenMenu = jest.fn();
     render(<BottomNav onOpenMenu={handleOpenMenu} />);
 
-    const menuButton = screen.getByRole('button', { name: /abrir menu e configurações/i });
+    const menuButton = screen.getByRole('button', {
+      name: /abrir menu e configurações/i,
+    });
     fireEvent.click(menuButton);
 
     expect(handleOpenMenu).toHaveBeenCalledTimes(1);

@@ -17,9 +17,13 @@ describe('Select Component', () => {
     const trigger = screen.getByRole('button');
     fireEvent.click(trigger);
 
-    const alimentosOptions = screen.getAllByRole('option', { name: 'Alimentos' });
+    const alimentosOptions = screen.getAllByRole('option', {
+      name: 'Alimentos',
+    });
     expect(alimentosOptions.length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByRole('option', { name: 'Bebidas' }).length).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getAllByRole('option', { name: 'Bebidas' }).length,
+    ).toBeGreaterThanOrEqual(1);
   });
 
   it('chama onChange com o valor selecionado ao clicar na opção', () => {
@@ -29,7 +33,9 @@ describe('Select Component', () => {
     fireEvent.click(trigger);
 
     // Clica no item customizado do menu aberto
-    const customOption = screen.getAllByRole('option', { name: 'Alimentos' })[1];
+    const customOption = screen.getAllByRole('option', {
+      name: 'Alimentos',
+    })[1];
     fireEvent.click(customOption);
 
     expect(handleChange).toHaveBeenCalledWith('1');

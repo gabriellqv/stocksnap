@@ -112,7 +112,9 @@ export function Select({
         className={cn(
           'flex h-10 w-full items-center justify-between rounded-lg border bg-surface px-3 py-2 text-sm text-foreground transition-all duration-200 cursor-pointer select-none',
           'hover:border-border-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent',
-          error ? 'border-destructive focus-visible:ring-destructive/30' : 'border-border',
+          error
+            ? 'border-destructive focus-visible:ring-destructive/30'
+            : 'border-border',
           disabled && 'opacity-50 cursor-not-allowed pointer-events-none',
           isOpen && 'border-accent ring-2 ring-accent/30',
         )}

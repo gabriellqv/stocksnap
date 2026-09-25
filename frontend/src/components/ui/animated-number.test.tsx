@@ -4,11 +4,13 @@ import { AnimatedNumber } from './animated-number';
 describe('AnimatedNumber Component', () => {
   beforeEach(() => {
     let time = 0;
-    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
-      time += 500;
-      cb(time);
-      return 1;
-    });
+    jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((cb: FrameRequestCallback) => {
+        time += 500;
+        cb(time);
+        return 1;
+      });
   });
 
   afterEach(() => {
@@ -26,7 +28,9 @@ describe('AnimatedNumber Component', () => {
   it('formata valores usando a função customizada de formatação', () => {
     const mockFormatter = (val: number) => `R$ ${val.toFixed(2)}`;
     act(() => {
-      render(<AnimatedNumber value={100} duration={500} formatter={mockFormatter} />);
+      render(
+        <AnimatedNumber value={100} duration={500} formatter={mockFormatter} />,
+      );
     });
 
     expect(screen.getByText('R$ 100.00')).toBeInTheDocument();

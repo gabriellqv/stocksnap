@@ -55,7 +55,9 @@ export default function LoginPage() {
           <div className="text-center mb-8 2xl:mb-10">
             <div className="flex items-center justify-center gap-2 2xl:gap-3 mb-2">
               <Logo className="w-8 h-8 2xl:w-10 2xl:h-10 text-accent" />
-              <h1 className="text-3xl 2xl:text-4xl font-bold text-foreground">StockSnap</h1>
+              <h1 className="text-3xl 2xl:text-4xl font-bold text-foreground">
+                StockSnap
+              </h1>
             </div>
             <p className="text-muted 2xl:text-base">Entre na sua conta</p>
           </div>
