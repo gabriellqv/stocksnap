@@ -15,6 +15,13 @@ import type {
 } from './interfaces/auth-response.interface';
 
 /**
+ * @description Hash bcrypt válido usado apenas para equalizar o custo de CPU do
+ * login quando o email informado não existe. Não corresponde a nenhuma senha real.
+ */
+const DUMMY_PASSWORD_HASH =
+  '$2b$10$kJJ9PTNAbN08iq4KPaBlWOeAovEEI4V.C78JsDUhYkC0wbN1B.QrS';
+
+/**
  * @description Serviço responsável pela lógica de negócios da autenticação.
  * Orquestra o registro de novos usuários, garantindo a unicidade de emails e
  * criptografia de senhas, e gerencia a emissão de tokens JWT no login.
@@ -91,6 +98,9 @@ export class AuthService {
     });
 
     if (!user) {
+      // Executa um compare contra um hash descartável para que o tempo de resposta
+      // não revele se o email existe (mitiga enumeração de usuários por timing).
+      await bcrypt.compare(dto.password, DUMMY_PASSWORD_HASH);
       throw new UnauthorizedException('Email ou senha incorretos');
     }
 

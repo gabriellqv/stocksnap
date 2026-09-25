@@ -4,6 +4,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { CustomThrottlerGuard } from './auth/guards/custom-throttler.guard';
+import { validateEnv } from './config/env.validation';
 import { redisStore } from 'cache-manager-redis-yet';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -11,6 +12,8 @@ import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
 import { MovementsModule } from './movements/movements.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 /**
  * @description Módulo raiz da aplicação StockSnap.
@@ -25,7 +28,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
  */
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
 
     /**
      * Rate limiting global. Limita cada IP a 20 requisições por janela
@@ -47,6 +50,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
         const url = config.get<string>('REDIS_URL');
         const host = config.get<string>('REDIS_HOST', 'localhost');
         const port = config.get<number>('REDIS_PORT', 6379);
+        const password = config.get<string>('REDIS_PASSWORD');
 
         try {
           const store = await redisStore(
@@ -75,6 +79,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
                       return Math.min(retries * 500, 2000);
                     },
                   },
+                  ...(password ? { password } : {}),
                 },
           );
           logger.log(
@@ -102,7 +107,9 @@ import { DashboardModule } from './dashboard/dashboard.module';
     MovementsModule,
     DashboardModule,
   ],
+  controllers: [AppController],
   providers: [
+    AppService,
     /**
      * Registra o CustomThrottlerGuard globalmente via APP_GUARD,
      * aplicando rate limiting a todos os endpoints com mensagem

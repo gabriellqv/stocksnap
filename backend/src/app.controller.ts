@@ -1,23 +1,25 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AppService } from './app.service';
 
 /**
  * @description Controller raiz da aplicação StockSnap.
  *
- * Responsável por expor o endpoint de health check na rota base (`GET /api`).
- * Utilizado para verificar se o servidor está ativo e respondendo corretamente,
- * sendo consumido por ferramentas de monitoramento e pelo Docker healthcheck.
+ * Expõe endpoints de diagnóstico usados por health checks de container e
+ * monitoramento. As rotas não exigem autenticação e não retornam dados sensíveis.
  */
+@ApiTags('Health')
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   /**
-   * @description Retorna uma mensagem de confirmação indicando que o servidor está operacional.
-   * @returns {string} Mensagem de health check do serviço.
+   * @description Health check simples, consumido pelo HEALTHCHECK do Docker.
+   * @returns {string} Mensagem confirmando que o processo está operacional.
    */
-  @Get()
-  getHello(): string {
+  @ApiOperation({ summary: 'Health check do serviço' })
+  @Get('health')
+  getHealth(): string {
     return this.appService.getHello();
   }
 }
