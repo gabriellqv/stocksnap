@@ -28,7 +28,7 @@ import {
   Legend,
 } from 'recharts';
 import { useDashboardStore } from '@/stores/dashboard-store';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -155,84 +155,117 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* KPIs / Cards */}
-      <div className="shrink-0 grid gap-3 lg:gap-4 grid-cols-2 lg:grid-cols-4">
-        {/* Total de Produtos */}
-        <Card className="hover:border-accent/50 transition-colors relative overflow-hidden group">
-          <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 lg:p-3.5 lg:pb-1">
-            <CardTitle className="text-xs 2xl:text-sm font-medium text-muted">
-              Total de Produtos
-            </CardTitle>
-            <Package className="w-4 h-4 2xl:w-5 2xl:h-5 text-accent" />
-          </CardHeader>
-          <CardContent className="p-3 pt-0 lg:p-3.5 lg:pt-0">
-            <div className="text-lg sm:text-xl lg:text-2xl 2xl:text-3xl font-bold text-foreground">
-              <AnimatedNumber value={summary.totalProducts} />
+      {/* Bento Grid: 4 Cards com Badges e Orbes Suaves */}
+      <div className="shrink-0 grid gap-3 lg:gap-3.5 2xl:gap-4 grid-cols-2 lg:grid-cols-4">
+        {/* Card 1: Total de Produtos */}
+        <div className="p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-accent/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+              <Package className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
             </div>
-            <p className="text-[11px] 2xl:text-xs text-muted mt-0.5">Cadastrados no sistema</p>
-          </CardContent>
-        </Card>
+            <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+              100% da base
+            </span>
+          </div>
+          <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
+            Total de Produtos
+          </p>
+          <div className="text-xl sm:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5">
+            <AnimatedNumber value={summary.totalProducts} />
+          </div>
+          <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
+            Cadastrados no catálogo
+          </p>
+          {/* Orbe suave */}
+          <div className="pointer-events-none absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-blue-500/10 blur-2xl group-hover:bg-blue-500/20 transition-all duration-300" />
+        </div>
 
-        {/* Valor em Estoque */}
-        <Card className="hover:border-status-ok-text/50 transition-colors relative overflow-hidden group">
-          <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 lg:p-3.5 lg:pb-1">
-            <CardTitle className="text-xs 2xl:text-sm font-medium text-muted">
-              Valor em Estoque
-            </CardTitle>
-            <TrendingUp className="w-4 h-4 2xl:w-5 2xl:h-5 text-status-ok-text" />
-          </CardHeader>
-          <CardContent className="p-3 pt-0 lg:p-3.5 lg:pt-0">
-            <div className="text-lg sm:text-xl lg:text-2xl 2xl:text-3xl font-bold text-foreground">
-              <AnimatedNumber value={summary.totalValue} formatter={formatCurrency} />
+        {/* Card 2: Valor em Estoque */}
+        <div className="p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-emerald-500/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+              <TrendingUp className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
             </div>
-            <p className="text-[11px] 2xl:text-xs text-muted mt-0.5">Baseado no preço de venda</p>
-          </CardContent>
-        </Card>
+            <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+              Patrimônio
+            </span>
+          </div>
+          <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
+            Valor em Estoque
+          </p>
+          <div className="text-xl sm:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5 truncate">
+            <AnimatedNumber value={summary.totalValue} formatter={formatCurrency} />
+          </div>
+          <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
+            Preço de venda estimado
+          </p>
+          {/* Orbe suave */}
+          <div className="pointer-events-none absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-emerald-500/10 blur-2xl group-hover:bg-emerald-500/20 transition-all duration-300" />
+        </div>
 
-        {/* Estoque Crítico */}
-        <Card className="hover:border-status-critical-text/50 transition-colors relative overflow-hidden group">
-          <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 lg:p-3.5 lg:pb-1">
-            <CardTitle className="text-xs 2xl:text-sm font-medium text-muted flex items-center gap-1.5">
-              Estoque Crítico
-            </CardTitle>
-            <Bell
-              className={`w-4 h-4 2xl:w-5 2xl:h-5 ${summary.criticalItems > 0 ? 'text-status-critical-text animate-pulse' : 'text-muted'}`}
-            />
-          </CardHeader>
-          <CardContent className="p-3 pt-0 lg:p-3.5 lg:pt-0">
-            <div
-              className={`text-lg sm:text-xl lg:text-2xl 2xl:text-3xl font-bold ${summary.criticalItems > 0 ? 'text-status-critical-text' : 'text-foreground'}`}
-            >
-              <AnimatedNumber value={summary.criticalItems} />
+        {/* Card 3: Estoque Crítico */}
+        <div className={cn(
+          "p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border shadow-xs transition-all duration-200 relative overflow-hidden group",
+          summary.criticalItems > 0 ? "border-rose-500/40 hover:border-rose-500/60" : "border-border/80 hover:border-emerald-500/40"
+        )}>
+          <div className="flex items-center justify-between">
+            <div className={cn(
+              "w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl flex items-center justify-center shrink-0",
+              summary.criticalItems > 0 ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500"
+            )}>
+              <AlertTriangle className={cn("w-4 h-4 2xl:w-4.5 2xl:h-4.5", summary.criticalItems > 0 && "animate-pulse")} />
             </div>
-            <p className="text-[11px] 2xl:text-xs text-muted mt-0.5">Abaixo ou igual ao mínimo</p>
-          </CardContent>
-        </Card>
+            {summary.criticalItems > 0 ? (
+              <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20 animate-pulse">
+                {summary.criticalItems} em risco
+              </span>
+            ) : (
+              <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                Estoque Seguro
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
+            Estoque Crítico
+          </p>
+          <div className={cn(
+            "text-xl sm:text-2xl 2xl:text-3xl font-extrabold tracking-tight mt-0.5",
+            summary.criticalItems > 0 ? "text-rose-500" : "text-foreground"
+          )}>
+            <AnimatedNumber value={summary.criticalItems} />
+          </div>
+          <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
+            {summary.criticalItems > 0 ? "Abaixo do estoque mínimo" : "Todos acima do mínimo"}
+          </p>
+          {/* Orbe suave */}
+          <div className={cn(
+            "pointer-events-none absolute -bottom-6 -right-6 w-24 h-24 rounded-full blur-2xl transition-all duration-300",
+            summary.criticalItems > 0 ? "bg-rose-500/15 group-hover:bg-rose-500/25" : "bg-emerald-500/10 group-hover:bg-emerald-500/20"
+          )} />
+        </div>
 
-        {/* Movimentações Hoje */}
-        <Card className="hover:border-accent-hover/50 transition-colors relative overflow-hidden group">
-          <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 lg:p-3.5 lg:pb-1">
-            <CardTitle className="text-xs 2xl:text-sm font-medium text-muted">
-              Movimentações Hoje
-            </CardTitle>
-            <Activity className="w-4 h-4 2xl:w-5 2xl:h-5 text-accent-hover" />
-          </CardHeader>
-          <CardContent className="p-3 pt-0 lg:p-3.5 lg:pt-0">
-            <div className="flex items-baseline gap-2">
-              <div className="text-lg sm:text-xl lg:text-2xl 2xl:text-3xl font-bold text-foreground">
-                <AnimatedNumber value={summary.todayMovements} />
-              </div>
-              <Badge
-                variant={movementDelta >= 0 ? 'default' : 'destructive'}
-                className={`text-[10px] px-1.5 py-0 ${movementDelta >= 0 ? 'bg-status-ok-bg text-status-ok-text' : ''}`}
-              >
-                {movementDelta > 0 ? '+' : ''}
-                {movementDelta}%
-              </Badge>
+        {/* Card 4: Movimentações Hoje */}
+        <div className="p-3 lg:p-3.5 2xl:p-4 rounded-2xl bg-surface border border-border/80 hover:border-indigo-500/40 shadow-xs transition-all duration-200 relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+              <Activity className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
             </div>
-            <p className="text-[11px] 2xl:text-xs text-muted mt-0.5">Vs. ontem ({yMov})</p>
-          </CardContent>
-        </Card>
+            <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+              {movementDelta > 0 ? `+${movementDelta}%` : `${movementDelta}%`} vs. ontem
+            </span>
+          </div>
+          <p className="text-[11px] 2xl:text-xs font-semibold text-muted uppercase tracking-wider mt-2.5">
+            Movimentações Hoje
+          </p>
+          <div className="text-xl sm:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight mt-0.5">
+            <AnimatedNumber value={summary.todayMovements} />
+          </div>
+          <p className="text-[11px] 2xl:text-xs text-muted/80 mt-0.5 truncate">
+            Ontem: {yMov} movimentações
+          </p>
+          {/* Orbe suave */}
+          <div className="pointer-events-none absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-indigo-500/10 blur-2xl group-hover:bg-indigo-500/20 transition-all duration-300" />
+        </div>
       </div>
 
       {/* Grid Inferior: Gráfico + Coluna Lateral com flex-1 min-h-0 */}
