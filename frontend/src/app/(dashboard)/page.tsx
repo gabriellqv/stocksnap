@@ -19,6 +19,7 @@ import {
   ComposedChart,
   Line,
   Bar,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -245,9 +246,16 @@ export default function DashboardPage() {
             <div className="w-full flex-1 min-h-[160px]">
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart
+                  key={`composed-chart-${chart.length}`}
                   data={chartDataWithVolume}
                   margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                 >
+                  <defs>
+                    <linearGradient id="volumeAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
                     vertical={false}
@@ -282,18 +290,41 @@ export default function DashboardPage() {
                     itemStyle={{ color: '#fff' }}
                   />
                   <Legend wrapperStyle={{ paddingTop: '6px', fontSize: '11px' }} />
+                  {/* Barras de Entradas animadas crescendo do chão */}
                   <Bar
                     dataKey="entries"
                     name="Entradas"
                     fill="#10b981"
                     radius={[4, 4, 0, 0]}
+                    isAnimationActive={true}
+                    animationDuration={1300}
+                    animationEasing="ease-out"
+                    animationBegin={100}
                   />
+                  {/* Barras de Saídas animadas com leve atraso para efeito cascata */}
                   <Bar
                     dataKey="exits"
                     name="Saídas"
                     fill="#ef4444"
                     radius={[4, 4, 0, 0]}
+                    isAnimationActive={true}
+                    animationDuration={1300}
+                    animationEasing="ease-out"
+                    animationBegin={250}
                   />
+                  {/* Gradiente de preenchimento fluido sob a linha de volume */}
+                  <Area
+                    type="monotone"
+                    dataKey="volume"
+                    fill="url(#volumeAreaGradient)"
+                    stroke="none"
+                    isAnimationActive={true}
+                    animationDuration={1600}
+                    animationEasing="ease-out"
+                    animationBegin={350}
+                    legendType="none"
+                  />
+                  {/* Linha de Volume Total desenhada dinamicamente da esquerda para a direita */}
                   <Line
                     type="monotone"
                     dataKey="volume"
@@ -302,6 +333,10 @@ export default function DashboardPage() {
                     strokeWidth={2.5}
                     dot={{ r: 3, fill: '#3b82f6' }}
                     activeDot={{ r: 5 }}
+                    isAnimationActive={true}
+                    animationDuration={1600}
+                    animationEasing="ease-out"
+                    animationBegin={350}
                   />
                 </ComposedChart>
               </ResponsiveContainer>
