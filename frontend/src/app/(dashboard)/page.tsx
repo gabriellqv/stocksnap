@@ -248,12 +248,7 @@ export default function DashboardPage() {
             <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
               <Activity className="w-4 h-4 2xl:w-4.5 2xl:h-4.5" />
             </div>
-            <span className={cn(
-              "text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full border",
-              movementDelta >= 0
-                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
-                : "bg-rose-500/10 text-rose-500 border-rose-500/20"
-            )}>
+            <span className="text-[10px] 2xl:text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
               {movementDelta > 0 ? `+${movementDelta}%` : `${movementDelta}%`} vs. ontem
             </span>
           </div>
