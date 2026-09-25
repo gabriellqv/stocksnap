@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select } from '@/components/ui/select';
 import { useMovementStore } from '@/stores/movement-store';
 import { useProductStore } from '@/stores/product-store';
 
@@ -155,17 +156,25 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
             <label className="block text-sm font-medium text-foreground mb-1.5">
               Produto
             </label>
-            <select
-              {...register('productId')}
-              className="w-full px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:ring-2 focus:ring-accent/40 outline-none cursor-pointer"
-            >
-              <option value="">Selecione um produto...</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} (SKU: {p.sku})
-                </option>
-              ))}
-            </select>
+            <Controller
+              name="productId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  placeholder="Selecione um produto..."
+                  error={!!errors.productId}
+                  options={[
+                    { value: '', label: 'Selecione um produto...' },
+                    ...products.map((p) => ({
+                      value: p.id,
+                      label: `${p.name} (SKU: ${p.sku})`,
+                    })),
+                  ]}
+                />
+              )}
+            />
             {errors.productId && (
               <p className="text-destructive text-xs mt-1">
                 {errors.productId.message}

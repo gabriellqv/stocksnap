@@ -24,6 +24,7 @@ import { useCategoryStore } from '@/stores/category-store';
 import { StockBadge } from '@/components/ui/stock-badge';
 import { ProductModal } from '@/components/product-modal';
 import { Button } from '@/components/ui/button';
+import { Select } from '@/components/ui/select';
 import { formatCurrency } from '@/lib/utils';
 import { useIsAdmin } from '@/hooks/use-is-admin';
 import type { Product } from '@/types';
@@ -152,18 +153,19 @@ export default function ProductsPage() {
             className="w-full pl-10 2xl:pl-12 pr-4 py-2 2xl:py-3 bg-surface border border-border text-foreground rounded-lg 2xl:rounded-xl focus:ring-2 focus:ring-accent/40 outline-none 2xl:text-base"
           />
         </form>
-        <select
-          value={query.categoryId || ''}
-          onChange={(e) => handleCategoryFilter(e.target.value)}
-          className="w-full sm:w-auto px-4 py-2 2xl:py-3 bg-surface border border-border text-foreground rounded-lg 2xl:rounded-xl focus:ring-2 focus:ring-accent/40 outline-none cursor-pointer 2xl:text-base"
-        >
-          <option value="">Todas as categorias</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+        <div className="w-full sm:w-56 2xl:w-64">
+          <Select
+            value={query.categoryId || ''}
+            onChange={(val) => handleCategoryFilter(val)}
+            options={[
+              { value: '', label: 'Todas as categorias' },
+              ...categories.map((c) => ({
+                value: c.id,
+                label: c.name,
+              })),
+            ]}
+          />
+        </div>
         <Button
           variant="outline"
           onClick={handleExportCSV}

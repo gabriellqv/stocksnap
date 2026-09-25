@@ -12,6 +12,7 @@ import { useProductStore } from '@/stores/product-store';
 import { MovementModal } from '@/components/movement-modal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select } from '@/components/ui/select';
 import { formatDate } from '@/lib/utils';
 import type { MovementType } from '@/types';
 
@@ -84,39 +85,38 @@ export default function MovementsPage() {
           <label className="block text-xs 2xl:text-sm font-medium text-muted uppercase mb-1.5 2xl:mb-2">
             Filtrar por Produto
           </label>
-          <select
+          <Select
             value={selectedProductId}
-            onChange={(e) => {
-              setSelectedProductId(e.target.value);
-              handleFilter(e.target.value, selectedType);
+            onChange={(val) => {
+              setSelectedProductId(val);
+              handleFilter(val, selectedType);
             }}
-            className="w-full px-4 py-2 2xl:py-3 bg-background border border-border text-foreground rounded-lg 2xl:rounded-xl focus:ring-2 focus:ring-accent/40 outline-none cursor-pointer 2xl:text-base"
-          >
-            <option value="">Todos os produtos</option>
-            {products.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name} (SKU: {p.sku})
-              </option>
-            ))}
-          </select>
+            options={[
+              { value: '', label: 'Todos os produtos' },
+              ...products.map((p) => ({
+                value: p.id,
+                label: `${p.name} (SKU: ${p.sku})`,
+              })),
+            ]}
+          />
         </div>
 
         <div className="w-full sm:w-64 2xl:w-80">
           <label className="block text-xs 2xl:text-sm font-medium text-muted uppercase mb-1.5 2xl:mb-2">
             Tipo de Movimento
           </label>
-          <select
+          <Select
             value={selectedType}
-            onChange={(e) => {
-              setSelectedType(e.target.value as MovementType);
-              handleFilter(selectedProductId, e.target.value);
+            onChange={(val) => {
+              setSelectedType(val as MovementType);
+              handleFilter(selectedProductId, val);
             }}
-            className="w-full px-4 py-2 2xl:py-3 bg-background border border-border text-foreground rounded-lg 2xl:rounded-xl focus:ring-2 focus:ring-accent/40 outline-none cursor-pointer 2xl:text-base"
-          >
-            <option value="">Todas</option>
-            <option value="ENTRY">Entrada</option>
-            <option value="EXIT">Saída</option>
-          </select>
+            options={[
+              { value: '', label: 'Todas' },
+              { value: 'ENTRY', label: 'Entrada' },
+              { value: 'EXIT', label: 'Saída' },
+            ]}
+          />
         </div>
 
         <div className="flex items-end w-full sm:w-auto">

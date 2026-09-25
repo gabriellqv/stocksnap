@@ -116,3 +116,14 @@ body {
 .animate-theme-spin {
   animation: theme-spin 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
+
+/* Estilização base para tags select e option no tema */
+select {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+select option {
+  background-color: var(--surface);
+  color: var(--foreground);
+}
