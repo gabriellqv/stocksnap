@@ -74,9 +74,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         )}
       >
-        {/* Luz ambiente interna suave para refração realista do vidro fosco */}
+        {/* Luz ambiente interna suave no azul puro do projeto para o efeito de vidro fosco */}
         <div className="pointer-events-none absolute -top-24 -left-20 w-64 h-64 rounded-full bg-blue-500/10 dark:bg-blue-500/15 blur-3xl" />
-        <div className="pointer-events-none absolute top-1/2 -right-28 w-56 h-56 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 blur-3xl" />
+        <div className="pointer-events-none absolute top-1/2 -right-28 w-56 h-56 rounded-full bg-blue-600/10 dark:bg-blue-500/15 blur-3xl" />
 
         <div
           className="p-5 sm:p-6 2xl:p-8 border-b border-border/60 dark:border-white/[0.06] flex items-center justify-between relative z-10"
