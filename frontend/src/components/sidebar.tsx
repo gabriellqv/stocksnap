@@ -111,17 +111,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 className={cn(
                   'relative flex items-center gap-3.5 2xl:gap-4 px-4 py-3 lg:py-2.5 2xl:py-3 rounded-xl text-base lg:text-sm 2xl:text-base font-medium transition-all duration-200 active:scale-[0.98]',
                   isActive
-                    ? 'bg-gradient-to-b from-white/[0.08] to-white/[0.02] dark:from-white/[0.06] dark:to-white/[0.01] text-blue-600 dark:text-blue-400 font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] border border-white/15 dark:border-white/[0.12] border-t-white/30 backdrop-blur-md'
-                    : 'text-muted hover:bg-white/[0.04] dark:hover:bg-white/[0.03] hover:text-foreground border border-transparent hover:border-white/5',
+                    ? 'bg-blue-500/[0.05] dark:bg-white/[0.06] text-blue-600 dark:text-blue-400 font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] border border-border/80 dark:border-white/[0.12] border-t-border dark:border-t-white/25 backdrop-blur-md'
+                    : 'text-muted hover:bg-white/[0.04] dark:hover:bg-white/[0.03] hover:text-foreground border border-transparent hover:border-border/50 dark:hover:border-white/5',
                 )}
               >
                 {isActive && (
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute -left-[1px] top-0 bottom-0 w-8 rounded-l-xl border-l-[2.5px] border-t-[2.5px] border-b-[2.5px] border-blue-600 dark:border-blue-400 [filter:drop-shadow(-2px_0_6px_rgba(37,99,235,0.75))] dark:[filter:drop-shadow(-2px_0_8px_rgba(96,165,250,0.85))]"
+                    className="pointer-events-none absolute -inset-[1px] rounded-xl border border-blue-600 dark:border-blue-400 [filter:drop-shadow(0_0_5px_rgba(37,99,235,0.55))] dark:[filter:drop-shadow(0_0_8px_rgba(96,165,250,0.65))]"
                     style={{
-                      WebkitMaskImage: 'linear-gradient(to right, black 35%, transparent 100%)',
-                      maskImage: 'linear-gradient(to right, black 35%, transparent 100%)',
+                      WebkitMaskImage: 'linear-gradient(to right, black 0%, black 18%, transparent 60%)',
+                      maskImage: 'linear-gradient(to right, black 0%, black 18%, transparent 60%)',
                     }}
                   />
                 )}
