@@ -69,30 +69,34 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 2xl:w-72 3xl:w-80 bg-surface border-r border-border flex flex-col',
+          'fixed inset-0 z-50 w-full h-full lg:h-auto lg:static lg:z-auto lg:w-64 2xl:w-72 3xl:w-80 bg-surface border-r border-border flex flex-col',
           'transition-transform duration-300 ease-in-out',
-          'lg:static lg:z-auto lg:translate-x-0',
-          isOpen ? 'translate-x-0' : '-translate-x-full',
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         )}
       >
-        <div className="p-6 2xl:p-8 border-b border-border flex items-center justify-between">
+        <div
+          className="p-5 sm:p-6 2xl:p-8 border-b border-border flex items-center justify-between"
+          style={{
+            paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)',
+          }}
+        >
           <div>
-            <h1 className="text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-foreground flex items-center gap-2 2xl:gap-3">
+            <h1 className="text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-foreground flex items-center gap-2.5 2xl:gap-3">
               <Logo className="w-6 h-6 2xl:w-7 2xl:h-7 3xl:w-8 3xl:h-8 text-accent" />
               StockSnap
             </h1>
-            <p className="text-sm 2xl:text-base text-muted mt-1">Controle de Estoque</p>
+            <p className="text-xs sm:text-sm 2xl:text-base text-muted mt-0.5">Controle de Estoque</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-muted hover:text-foreground transition-colors rounded-lg hover:bg-border/50 lg:hidden cursor-pointer"
+            className="p-2.5 text-muted hover:text-foreground active:scale-95 transition-colors rounded-xl hover:bg-border/50 lg:hidden cursor-pointer"
             aria-label="Fechar menu"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
         </div>
 
-        <nav className="flex-1 p-4 2xl:p-6 space-y-1.5 2xl:space-y-2">
+        <nav className="flex-1 overflow-y-auto p-4 sm:p-5 2xl:p-6 space-y-2 2xl:space-y-2.5">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -101,37 +105,43 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 href={item.href}
                 onClick={onClose}
                 className={cn(
-                  'flex items-center gap-3 2xl:gap-4 px-3 py-2.5 2xl:px-4 2xl:py-3.5 3xl:py-4 rounded-lg 2xl:rounded-xl text-sm 2xl:text-base font-medium transition-all duration-200',
+                  'flex items-center gap-3.5 2xl:gap-4 px-4 py-3.5 lg:px-3 lg:py-2.5 2xl:px-4 2xl:py-3.5 3xl:py-4 rounded-xl text-base lg:text-sm 2xl:text-base font-medium transition-all duration-200 active:scale-[0.98]',
                   isActive
-                    ? 'bg-accent-muted text-accent font-semibold'
+                    ? 'bg-accent-muted text-accent font-semibold shadow-sm'
                     : 'text-muted hover:bg-border/50 hover:text-foreground',
                 )}
               >
-                <item.icon className="w-5 h-5 2xl:w-6 2xl:h-6" />
-                {item.label}
+                <item.icon className="w-5 h-5 2xl:w-6 2xl:h-6 shrink-0" />
+                <span>{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 2xl:p-6 border-t border-border">
-          <div className="flex items-center gap-3 2xl:gap-4">
-            <div className="w-8 h-8 2xl:w-10 2xl:h-10 bg-accent-muted rounded-full flex items-center justify-center">
-              <span className="text-sm 2xl:text-base font-medium text-accent">
+        <div
+          className="p-4 sm:p-5 2xl:p-6 border-t border-border bg-surface"
+          style={{
+            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.25rem)',
+          }}
+        >
+          <div className="flex items-center gap-3.5 2xl:gap-4">
+            <div className="w-10 h-10 2xl:w-11 2xl:h-11 bg-accent-muted rounded-full flex items-center justify-center shrink-0">
+              <span className="text-base 2xl:text-lg font-semibold text-accent">
                 {user?.name?.[0]?.toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm 2xl:text-base font-medium text-foreground truncate">
+              <p className="text-base lg:text-sm 2xl:text-base font-semibold text-foreground truncate">
                 {user?.name}
               </p>
-              <p className="text-xs 2xl:text-sm text-muted">{user?.role}</p>
+              <p className="text-xs 2xl:text-sm text-muted capitalize">{user?.role?.toLowerCase()}</p>
             </div>
             <ThemeToggle />
             <button
               onClick={handleLogout}
-              className="p-2 2xl:p-2.5 text-muted hover:text-destructive transition-colors duration-200 cursor-pointer rounded-lg hover:bg-border/50"
+              className="p-2.5 text-muted hover:text-destructive active:scale-95 transition-colors duration-200 cursor-pointer rounded-xl hover:bg-border/50"
               title="Sair"
+              aria-label="Sair da conta"
             >
               <LogOut className="w-5 h-5 2xl:w-6 2xl:h-6" />
             </button>
