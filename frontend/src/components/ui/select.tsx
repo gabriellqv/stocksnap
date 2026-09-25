@@ -36,6 +36,7 @@ export function Select({
   className,
   error = false,
   id,
+  name,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
