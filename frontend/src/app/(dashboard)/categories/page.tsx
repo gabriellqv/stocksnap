@@ -73,8 +73,7 @@ export default function CategoriesPage() {
     <div className="space-y-6 2xl:space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl 2xl:text-4xl 3xl:text-5xl font-bold tracking-tight text-foreground flex items-center gap-2 2xl:gap-3">
-            <Tag className="w-8 h-8 2xl:w-10 2xl:h-10 text-accent" />
+          <h1 className="text-3xl 2xl:text-4xl 3xl:text-5xl font-bold tracking-tight text-foreground">
             Categorias
           </h1>
           <p className="text-muted mt-1 2xl:text-base 3xl:text-lg">
