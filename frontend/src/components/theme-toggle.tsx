@@ -1,6 +1,6 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -27,6 +27,7 @@ function useIsMounted(): boolean {
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const mounted = useIsMounted();
+  const [spinCount, setSpinCount] = useState(0);
 
   if (!mounted) {
     return (
@@ -43,37 +44,35 @@ export function ThemeToggle() {
 
   const isDark = (theme || resolvedTheme) === 'dark';
 
+  const handleToggle = () => {
+    setTheme(isDark ? 'light' : 'dark');
+    setSpinCount((prev) => prev + 1);
+  };
+
   return (
     <button
       type="button"
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      onClick={handleToggle}
       className={cn(
-        'relative p-2 text-muted hover:text-foreground transition-all duration-300 cursor-pointer rounded-xl hover:bg-border/50',
-        'flex items-center justify-center select-none active:scale-90 active:rotate-12',
+        'p-2 text-muted hover:text-foreground hover:bg-border/50 transition-colors duration-200 cursor-pointer rounded-xl',
+        'flex items-center justify-center select-none active:scale-90',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50',
       )}
       title={isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
       aria-label="Alternar Tema"
     >
-      <div className="relative w-5 h-5 flex items-center justify-center">
-        {/* Ícone Sol: visível no tema escuro, gira 360° e escala para 0 ao mudar para claro */}
-        <Sun
-          className={cn(
-            'w-5 h-5 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
-            isDark
-              ? 'rotate-0 scale-100 opacity-100'
-              : '-rotate-[360deg] scale-0 opacity-0 pointer-events-none absolute',
-          )}
-        />
-        {/* Ícone Lua: visível no tema claro, gira 360° e cresce ao mudar para claro */}
-        <Moon
-          className={cn(
-            'w-5 h-5 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
-            !isDark
-              ? 'rotate-0 scale-100 opacity-100'
-              : 'rotate-[360deg] scale-0 opacity-0 pointer-events-none absolute',
-          )}
-        />
+      <div
+        key={spinCount}
+        className={cn(
+          'w-5 h-5 flex items-center justify-center',
+          spinCount > 0 && 'animate-theme-spin',
+        )}
+      >
+        {isDark ? (
+          <Sun className="w-5 h-5 text-foreground" />
+        ) : (
+          <Moon className="w-5 h-5 text-foreground" />
+        )}
       </div>
     </button>
   );
