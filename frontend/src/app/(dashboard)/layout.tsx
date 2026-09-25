@@ -23,9 +23,9 @@ export default function DashboardLayout({
   const isDashboard = pathname === '/';
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 w-full overflow-hidden">
         {/* Mobile header — topo minimalista com logo e tema, respeitando safe-area-top */}
         <header
           className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface lg:hidden shrink-0"
