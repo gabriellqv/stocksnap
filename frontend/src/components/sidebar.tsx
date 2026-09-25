@@ -69,13 +69,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          'fixed inset-0 z-50 w-full h-full lg:h-auto lg:static lg:z-auto lg:w-64 2xl:w-72 3xl:w-80 bg-surface border-r border-border flex flex-col',
+          'fixed inset-0 z-50 w-full h-full lg:h-auto lg:static lg:z-auto lg:w-64 2xl:w-72 3xl:w-80 bg-surface/80 dark:bg-surface/65 backdrop-blur-2xl border-r border-border/70 dark:border-white/[0.08] flex flex-col relative overflow-hidden',
           'transition-transform duration-300 ease-in-out',
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         )}
       >
+        {/* Luz ambiente interna suave para refração realista do vidro fosco */}
+        <div className="pointer-events-none absolute -top-24 -left-20 w-64 h-64 rounded-full bg-blue-500/10 dark:bg-blue-500/15 blur-3xl" />
+        <div className="pointer-events-none absolute top-1/2 -right-28 w-56 h-56 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 blur-3xl" />
+
         <div
-          className="p-5 sm:p-6 2xl:p-8 border-b border-border flex items-center justify-between"
+          className="p-5 sm:p-6 2xl:p-8 border-b border-border/60 dark:border-white/[0.06] flex items-center justify-between relative z-10"
           style={{
             paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)',
           }}
@@ -89,14 +93,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
           <button
             onClick={onClose}
-            className="p-2.5 text-muted hover:text-foreground active:scale-95 transition-colors rounded-xl hover:bg-border/50 lg:hidden cursor-pointer"
+            className="p-2.5 text-muted hover:text-foreground active:scale-95 transition-colors rounded-xl hover:bg-white/[0.06] dark:hover:bg-white/[0.04] lg:hidden cursor-pointer"
             aria-label="Fechar menu"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-4 sm:p-5 2xl:p-6 space-y-2 2xl:space-y-2.5">
+        <nav className="flex-1 overflow-y-auto p-4 sm:p-5 2xl:p-6 space-y-2 2xl:space-y-2.5 relative z-10">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -107,8 +111,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 className={cn(
                   'relative flex items-center gap-3.5 2xl:gap-4 px-4 py-3 lg:py-2.5 2xl:py-3 rounded-xl text-base lg:text-sm 2xl:text-base font-medium transition-all duration-200 active:scale-[0.98]',
                   isActive
-                    ? 'bg-blue-500/10 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 font-semibold shadow-xs border border-blue-500/20'
-                    : 'text-muted hover:bg-border/50 hover:text-foreground border border-transparent',
+                    ? 'bg-gradient-to-b from-white/[0.08] to-white/[0.02] dark:from-white/[0.06] dark:to-white/[0.01] text-blue-600 dark:text-blue-400 font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] border border-white/15 dark:border-white/[0.12] border-t-white/30 backdrop-blur-md'
+                    : 'text-muted hover:bg-white/[0.04] dark:hover:bg-white/[0.03] hover:text-foreground border border-transparent hover:border-white/5',
                 )}
               >
                 {isActive && (
@@ -136,7 +140,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         <div
-          className="p-4 sm:p-5 2xl:p-6 border-t border-border bg-surface space-y-3"
+          className="p-4 sm:p-5 2xl:p-6 border-t border-border/60 dark:border-white/[0.06] space-y-3 relative z-10"
           style={{
             paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.25rem)',
           }}
@@ -159,7 +163,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 lg:py-2 text-sm lg:text-xs 2xl:text-sm font-medium text-muted hover:text-destructive hover:bg-destructive/10 border border-border/60 hover:border-destructive/20 rounded-xl transition-all duration-200 cursor-pointer active:scale-[0.98]"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 lg:py-2 text-sm lg:text-xs 2xl:text-sm font-medium text-muted hover:text-destructive hover:bg-destructive/10 border border-border/60 dark:border-white/[0.08] hover:border-destructive/20 rounded-xl transition-all duration-200 cursor-pointer active:scale-[0.98] backdrop-blur-sm"
             title="Sair da conta"
             aria-label="Sair da conta"
           >
