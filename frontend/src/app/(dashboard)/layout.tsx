@@ -38,9 +38,9 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* Conteúdo com padding inferior em mobile para não colidir com o BottomNav */}
-        <main className="flex-1 overflow-auto p-4 pb-24 md:p-6 md:pb-24 lg:pb-8 lg:p-8 2xl:p-10 3xl:p-12 4xl:p-16">
-          <div className="w-full max-w-[2560px] mx-auto min-h-full flex flex-col">
+        {/* Conteúdo: scroll em mobile para conforto táctil e sem scroll no desktop (viewport fit) */}
+        <main className="flex-1 overflow-y-auto lg:overflow-hidden p-3.5 pb-24 md:p-5 md:pb-24 lg:p-4 lg:pb-4 2xl:p-6 flex flex-col min-h-0">
+          <div className="w-full max-w-[2560px] mx-auto flex-1 min-h-0 flex flex-col">
             {children}
           </div>
         </main>
