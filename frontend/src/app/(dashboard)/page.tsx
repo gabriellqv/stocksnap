@@ -33,6 +33,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MovementModal } from '@/components/movement-modal';
 import { ProductModal } from '@/components/product-modal';
+import { AnimatedNumber } from '@/components/ui/animated-number';
 import { useProductStore } from '@/stores/product-store';
 import { useIsAdmin } from '@/hooks/use-is-admin';
 
@@ -163,7 +164,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="p-3 pt-0 lg:p-3.5 lg:pt-0">
             <div className="text-lg sm:text-xl lg:text-2xl 2xl:text-3xl font-bold text-foreground">
-              {summary.totalProducts}
+              <AnimatedNumber value={summary.totalProducts} />
             </div>
             <p className="text-[11px] 2xl:text-xs text-muted mt-0.5">Cadastrados no sistema</p>
           </CardContent>
@@ -179,7 +180,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="p-3 pt-0 lg:p-3.5 lg:pt-0">
             <div className="text-lg sm:text-xl lg:text-2xl 2xl:text-3xl font-bold text-foreground">
-              {formatCurrency(summary.totalValue)}
+              <AnimatedNumber value={summary.totalValue} formatter={formatCurrency} />
             </div>
             <p className="text-[11px] 2xl:text-xs text-muted mt-0.5">Baseado no preço de venda</p>
           </CardContent>
@@ -199,7 +200,7 @@ export default function DashboardPage() {
             <div
               className={`text-lg sm:text-xl lg:text-2xl 2xl:text-3xl font-bold ${summary.criticalItems > 0 ? 'text-status-critical-text' : 'text-foreground'}`}
             >
-              {summary.criticalItems}
+              <AnimatedNumber value={summary.criticalItems} />
             </div>
             <p className="text-[11px] 2xl:text-xs text-muted mt-0.5">Abaixo ou igual ao mínimo</p>
           </CardContent>
@@ -216,7 +217,7 @@ export default function DashboardPage() {
           <CardContent className="p-3 pt-0 lg:p-3.5 lg:pt-0">
             <div className="flex items-baseline gap-2">
               <div className="text-lg sm:text-xl lg:text-2xl 2xl:text-3xl font-bold text-foreground">
-                {summary.todayMovements}
+                <AnimatedNumber value={summary.todayMovements} />
               </div>
               <Badge
                 variant={movementDelta >= 0 ? 'default' : 'destructive'}
@@ -328,7 +329,7 @@ export default function DashboardPage() {
                     {summary.topProduct.name}
                   </p>
                   <p className="text-xs text-status-warning-text font-medium mt-0.5">
-                    {summary.topProduct.quantity} unidades saíram
+                    <AnimatedNumber value={summary.topProduct.quantity} /> unidades saíram
                   </p>
                 </div>
               ) : (
