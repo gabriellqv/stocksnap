@@ -42,14 +42,14 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${jetbrainsMono.variable} dark`}
       suppressHydrationWarning
     >
       <body className="bg-background text-foreground antialiased font-sans">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem={true}
+          enableSystem={false}
           disableTransitionOnChange
         >
           {children}
