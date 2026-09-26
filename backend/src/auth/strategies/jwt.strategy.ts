@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
+import { JWT_ISSUER, JWT_AUDIENCE } from './jwt.constants';
 
 /**
  * @description Estratégia do Passport para validação de tokens JWT.
  * Configura o ciclo de vida da autenticação, extraindo o token do cabeçalho
- * 'Authorization: Bearer <token>', validando sua assinatura contra o `JWT_SECRET`
- * e convertendo o payload em um objeto validado.
+ * 'Authorization: Bearer <token>', validando sua assinatura e as claims de
+ * `issuer`/`audience` contra o `JWT_SECRET`, e convertendo o payload em um
+ * objeto validado.
  */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -17,6 +19,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       ignoreExpiration: false,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       secretOrKey: configService.get<string>('JWT_SECRET')!,
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+      algorithms: ['HS256'],
     });
   }
 

@@ -1,8 +1,10 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
+
+import { cn } from '@/lib/utils';
 
 /**
  * @description Retorna `true` quando executado no client (após hidratação).
@@ -20,36 +22,58 @@ function useIsMounted(): boolean {
 
 /**
  * @description Botão para alternar entre os temas claro e escuro.
- * Exibe o ícone `Sun` (sol) quando o tema ativo é escuro e `Moon` (lua) quando é claro,
- * indicando visualmente para qual tema o usuário será alternado ao clicar.
- * Renderiza um placeholder inerte durante a hidratação (SSR) para evitar mismatch.
+ * Possui animação suave de giro (360°), escala e transição elástica entre os ícones de Sol e Lua.
  */
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const mounted = useIsMounted();
+  const [spinCount, setSpinCount] = useState(0);
 
   if (!mounted) {
     return (
       <button
-        className="p-2 text-muted hover:text-foreground transition-colors duration-200 cursor-pointer rounded-lg hover:bg-border/50"
+        type="button"
+        className="p-2 text-muted hover:text-foreground transition-colors duration-200 cursor-pointer rounded-xl hover:bg-border/50"
         title="Alternar Tema"
+        aria-label="Alternar Tema"
       >
         <div className="w-5 h-5" />
       </button>
     );
   }
 
+  const isDark = resolvedTheme ? resolvedTheme === 'dark' : theme !== 'light';
+
+  const handleToggle = () => {
+    setTheme(isDark ? 'light' : 'dark');
+    setSpinCount((prev) => prev + 1);
+  };
+
   return (
     <button
-      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="p-2 text-muted hover:text-foreground transition-colors duration-200 cursor-pointer rounded-lg hover:bg-border/50 flex items-center justify-center"
-      title="Alternar Tema"
-    >
-      {theme === 'dark' ? (
-        <Sun className="w-5 h-5" />
-      ) : (
-        <Moon className="w-5 h-5" />
+      type="button"
+      onClick={handleToggle}
+      className={cn(
+        'p-2 text-muted hover:text-foreground hover:bg-border/50 transition-colors duration-200 cursor-pointer rounded-xl',
+        'flex items-center justify-center select-none active:scale-90',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50',
       )}
+      title={isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
+      aria-label="Alternar Tema"
+    >
+      <div
+        key={spinCount}
+        className={cn(
+          'w-5 h-5 flex items-center justify-center',
+          spinCount > 0 && 'animate-theme-spin',
+        )}
+      >
+        {isDark ? (
+          <Sun className="w-5 h-5 text-foreground" />
+        ) : (
+          <Moon className="w-5 h-5 text-foreground" />
+        )}
+      </div>
     </button>
   );
 }

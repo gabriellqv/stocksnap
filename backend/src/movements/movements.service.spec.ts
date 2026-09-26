@@ -180,26 +180,28 @@ describe('MovementsService', () => {
     /**
      * Cenário BOUNDARY: Produto tem exatamente 5 unidades e o usuário
      * tenta retirar exatamente 5. Este é o "caso limite" (edge case).
-     * Expectativa: Deve funcionar, pois 5 >= 5 (não é estoque negativo).
+     * Expectativa: Deve funcionar, pois o UPDATE condicional aceita `quantity >= 5`.
      */
     it('deve permitir saída quando estoque é exatamente igual à quantidade', async () => {
-      mockPrisma.product.findUnique.mockResolvedValue({
-        id: 'prod-1',
-        quantity: 5,
-      });
+      mockPrisma.product.findUnique
+        .mockResolvedValueOnce({ id: 'prod-1', quantity: 5 }) // fast-path fora da tx
+        .mockResolvedValueOnce({ id: 'prod-1', quantity: 0 }); // leitura pós-update
 
       mockPrisma.$transaction.mockImplementation(
         (fn: (tx: unknown) => Promise<unknown>) => {
           return fn({
+            product: {
+              updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+              findUniqueOrThrow: jest
+                .fn()
+                .mockResolvedValue({ id: 'prod-1', quantity: 0 }),
+            },
             movement: {
               create: jest.fn().mockResolvedValue({
                 id: 'mov-1',
                 type: 'EXIT',
                 quantity: 5,
               }),
-            },
-            product: {
-              update: jest.fn().mockResolvedValue({ quantity: 0 }),
             },
           });
         },
@@ -213,6 +215,110 @@ describe('MovementsService', () => {
 
       // Assert: saldo final deve ser 0 (5 - 5)
       expect(result.updatedStock).toBe(0);
+    });
+
+    /**
+     * Cenário CONCORRÊNCIA (TOCTOU): duas requisições leem o mesmo saldo (5)
+     * antes de qualquer escrita. A primeira consome o saldo; quando a segunda
+     * tenta aplicar o decremento condicional, o UPDATE afeta 0 linhas porque
+     * `quantity >= 5` já não é mais verdadeiro.
+     *
+     * Expectativa: BadRequestException e a segunda movimentação NÃO é criada,
+     * impedindo saldo negativo — o objetivo central deste PR.
+     */
+    it('deve bloquear saída concorrente quando o saldo é consumido por outra requisição', async () => {
+      // Ambas as requisições enxergam o mesmo saldo inicial de 5 (fast-path passa)
+      mockPrisma.product.findUnique.mockResolvedValue({
+        id: 'prod-1',
+        quantity: 5,
+      });
+
+      const movementCreate = jest.fn().mockResolvedValue({ id: 'mov-1' });
+
+      mockPrisma.$transaction.mockImplementation(
+        (fn: (tx: unknown) => Promise<unknown>) => {
+          return fn({
+            product: {
+              // Simula a colisão: a linha já foi decrementada pela requisição
+              // concorrente, então a condição `quantity >= 5` não casa mais.
+              updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+              findUniqueOrThrow: jest.fn(),
+            },
+            movement: { create: movementCreate },
+          });
+        },
+      );
+
+      await expect(
+        service.create(
+          { type: MovementType.EXIT, quantity: 5, productId: 'prod-1' },
+          userId,
+        ),
+      ).rejects.toThrow(BadRequestException);
+
+      // A movimentação perdedora não pode ser persistida
+      expect(movementCreate).not.toHaveBeenCalled();
+    });
+
+    /**
+     * Cenário CONCORRÊNCIA (prova de atomicidade): dispara 10 saídas de 1 unidade
+     * simultaneamente contra um estoque de 5. O mock simula o comportamento do
+     * UPDATE condicional do Postgres: cada decremento bem-sucedido reduz o saldo,
+     * e o decremento é rejeitado (count 0) quando não há saldo. Das 10 tentativas,
+     * exatamente 5 devem vencer e 5 devem falhar — nunca resultando em saldo negativo.
+     */
+    it('deve impedir saldo negativo sob 10 saídas concorrentes em estoque de 5', async () => {
+      let stock = 5;
+      let movementsCreated = 0;
+
+      mockPrisma.product.findUnique.mockResolvedValue({
+        id: 'prod-1',
+        quantity: 5,
+      });
+
+      mockPrisma.$transaction.mockImplementation(
+        (fn: (tx: unknown) => Promise<unknown>) => {
+          const tx = {
+            product: {
+              updateMany: jest.fn().mockImplementation(() => {
+                // Operação atômica condicional: só decrementa se houver saldo
+                if (stock >= 1) {
+                  stock -= 1;
+                  return Promise.resolve({ count: 1 });
+                }
+                return Promise.resolve({ count: 0 });
+              }),
+              findUniqueOrThrow: jest
+                .fn()
+                .mockImplementation(() => Promise.resolve({ quantity: stock })),
+            },
+            movement: {
+              create: jest.fn().mockImplementation(() => {
+                movementsCreated += 1;
+                return Promise.resolve({ id: `mov-${movementsCreated}` });
+              }),
+            },
+          };
+          return fn(tx);
+        },
+      );
+
+      const attempts = Array.from({ length: 10 }, () =>
+        service
+          .create(
+            { type: MovementType.EXIT, quantity: 1, productId: 'prod-1' },
+            userId,
+          )
+          .then(() => 'ok' as const)
+          .catch(() => 'rejected' as const),
+      );
+
+      const results = await Promise.all(attempts);
+
+      expect(results.filter((r) => r === 'ok')).toHaveLength(5);
+      expect(results.filter((r) => r === 'rejected')).toHaveLength(5);
+      expect(stock).toBe(0);
+      expect(movementsCreated).toBe(5);
     });
 
     /**

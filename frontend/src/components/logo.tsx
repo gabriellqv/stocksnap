@@ -1,28 +1,62 @@
 import * as React from 'react';
 
+/**
+ * @description Logotipo minimalista oficial do StockSnap.
+ * Formado por prismas geométricos em projeção isométrica que desenham
+ * a silhueta da letra "S" e uma caixa de estoque através de espaço negativo.
+ * Totalmente vetorizado em SVG com transparência pura e sem fundo preto.
+ */
 export function Logo({ className, ...props }: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
-      viewBox="0 0 32 32"
+      viewBox="0 0 600 678"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       {...props}
     >
       <defs>
-        <linearGradient id="stocksnap-gradient" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#3b82f6" />
-          <stop offset="100%" stopColor="#0b317a" />
+        <linearGradient
+          id="ss-logo-grad-top"
+          x1="298"
+          y1="21"
+          x2="400"
+          y2="424"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0%" stopColor="#60a5fa" />
+          <stop offset="100%" stopColor="#2563eb" />
+        </linearGradient>
+        <linearGradient
+          id="ss-logo-grad-bottom"
+          x1="300"
+          y1="244"
+          x2="301"
+          y2="657"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0%" stopColor="#2563eb" />
+          <stop offset="100%" stopColor="#1d4ed8" />
         </linearGradient>
       </defs>
+
+      {/* Braço Superior do S Isométrico */}
       <path
-        d="M16 2 L30 9 V23 L16 30 L2 23 V9 Z"
-        fill="url(#stocksnap-gradient)"
+        d="M298 21 L553 167 L452 227 L299 139 L121 244 L399 424 L301 485 L21 304 L22 182 Z"
+        fill="url(#ss-logo-grad-top)"
       />
-      <path d="M16 2 L30 9 L16 16 L2 9 Z" fill="rgba(255,255,255,0.3)" />
-      <path d="M2 9 L16 16 V30 L2 23 Z" fill="rgba(255,255,255,0.1)" />
+
+      {/* Braço Inferior do S Isométrico */}
       <path
-        d="M16 10 L22 13.5 V20.5 L16 24 L10 20.5 V13.5 Z"
-        fill="rgba(255,255,255,0.5)"
+        d="M298 184 L577 364 L576 491 L301 657 L21 488 L22 360 L299 538 L480 426 L200 244 Z"
+        fill="url(#ss-logo-grad-bottom)"
+      />
+
+      {/* Faceta Acento Superior Direito */}
+      <path
+        d="M576 189 L578 309 L480 246 Z"
+        fill="#3b82f6"
+        fillOpacity="0.95"
       />
     </svg>
   );

@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* Tema Claro (Light Theme) */
   --background: #f4f4f5;
@@ -63,6 +65,8 @@
   --color-status-warning-text: var(--status-warning-text);
   --color-status-ok-bg: var(--status-ok-bg);
   --color-status-ok-text: var(--status-ok-text);
+  --breakpoint-3xl: 120rem;
+  --breakpoint-4xl: 160rem;
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
@@ -95,5 +99,33 @@ body {
 /* Selection */
 ::selection {
   background: var(--accent-muted);
+  color: var(--foreground);
+}
+
+/* Animação de rotação 360 graus com snap elástico para troca de tema */
+@keyframes theme-spin {
+  0% {
+    transform: rotate(0deg) scale(0.85);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.animate-theme-spin {
+  animation: theme-spin 500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Estilização base para tags select e option no tema */
+select {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+select option {
+  background-color: var(--surface);
   color: var(--foreground);
 }

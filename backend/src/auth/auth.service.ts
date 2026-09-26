@@ -6,12 +6,20 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { isUniqueConstraintError } from '../prisma/prisma-errors';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import type {
   RegisterResponse,
   LoginResponse,
 } from './interfaces/auth-response.interface';
+
+/**
+ * @description Hash bcrypt válido usado apenas para equalizar o custo de CPU do
+ * login quando o email informado não existe. Não corresponde a nenhuma senha real.
+ */
+const DUMMY_PASSWORD_HASH =
+  '$2b$10$kJJ9PTNAbN08iq4KPaBlWOeAovEEI4V.C78JsDUhYkC0wbN1B.QrS';
 
 /**
  * @description Serviço responsável pela lógica de negócios da autenticação.
@@ -46,20 +54,31 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    const user = await this.prisma.user.create({
-      data: {
-        name: dto.name,
-        email: dto.email,
-        password: hashedPassword,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
-    });
+    let user: RegisterResponse;
+    try {
+      user = await this.prisma.user.create({
+        data: {
+          name: dto.name,
+          email: dto.email,
+          password: hashedPassword,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+    } catch (error) {
+      // Duas requisições concorrentes com o mesmo email passam pela checagem
+      // acima; a constraint única do banco barra a segunda. Convertemos o erro
+      // de baixo nível (P2002) em um 409 Conflict determinístico.
+      if (isUniqueConstraintError(error)) {
+        throw new ConflictException('Este email já está cadastrado');
+      }
+      throw error;
+    }
 
     return user;
   }
@@ -79,6 +98,9 @@ export class AuthService {
     });
 
     if (!user) {
+      // Executa um compare contra um hash descartável para que o tempo de resposta
+      // não revele se o email existe (mitiga enumeração de usuários por timing).
+      await bcrypt.compare(dto.password, DUMMY_PASSWORD_HASH);
       throw new UnauthorizedException('Email ou senha incorretos');
     }
 

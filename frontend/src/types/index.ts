@@ -160,3 +160,13 @@ export interface LowStockItem {
   minQuantity: number;
   categoryName: string;
 }
+
+/**
+ * Tipagens de Manutenção / Demonstração
+ */
+export interface DemoResetResult {
+  categories: number;
+  products: number;
+  movements: number;
+  resetAt: string;
+}

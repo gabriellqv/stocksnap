@@ -1,12 +1,28 @@
-<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 600 678" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="g10" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3b82f6"/>
-      <stop offset="100%" stop-color="#0b317a"/>
+    <linearGradient id="ss-grad-top" x1="298" y1="21" x2="400" y2="424" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60a5fa" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="ss-grad-bottom" x1="300" y1="244" x2="301" y2="657" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1d4ed8" />
     </linearGradient>
   </defs>
-  <path d="M16 2 L30 9 V23 L16 30 L2 23 V9 Z" fill="url(#g10)"/>
-  <path d="M16 2 L30 9 L16 16 L2 9 Z" fill="rgba(255,255,255,0.3)"/>
-  <path d="M2 9 L16 16 V30 L2 23 Z" fill="rgba(255,255,255,0.1)"/>
-  <path d="M16 10 L22 13.5 V20.5 L16 24 L10 20.5 V13.5 Z" fill="rgba(255,255,255,0.5)"/>
+  <!-- Braço Superior do S Isométrico -->
+  <path
+    d="M298 21 L553 167 L452 227 L299 139 L121 244 L399 424 L301 485 L21 304 L22 182 Z"
+    fill="url(#ss-grad-top)"
+  />
+  <!-- Braço Inferior do S Isométrico -->
+  <path
+    d="M298 184 L577 364 L576 491 L301 657 L21 488 L22 360 L299 538 L480 426 L200 244 Z"
+    fill="url(#ss-grad-bottom)"
+  />
+  <!-- Faceta Acento Superior Direito -->
+  <path
+    d="M576 189 L578 309 L480 246 Z"
+    fill="#3b82f6"
+    fill-opacity="0.9"
+  />
 </svg>

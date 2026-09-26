@@ -22,7 +22,7 @@ describe('Critical Flow (e2e)', () => {
   let accessToken: string;
   let categoryId: string;
   let productId: string;
-  let uniqueSuffix = Date.now().toString();
+  const uniqueSuffix = Date.now().toString();
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -133,15 +133,28 @@ describe('Critical Flow (e2e)', () => {
       .expect(201);
   });
 
-  it('6. Dashboard: GET /dashboard/metrics reflete o estoque', async () => {
-    const res = await request(app.getHttpServer())
-      .get('/api/dashboard/metrics')
+  it('6. Dashboard: endpoints refletem o estoque', async () => {
+    const summary = await request(app.getHttpServer())
+      .get('/api/dashboard/summary')
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
 
-    expect(res.body.totalProducts).toBeGreaterThanOrEqual(1);
-    expect(res.body.totalStockValue).toBeDefined();
-    expect(res.body.lowStockProducts).toBeDefined();
-    expect(res.body.recentMovements).toBeDefined();
+    expect(summary.body.totalProducts).toBeGreaterThanOrEqual(1);
+    expect(summary.body.totalValue).toBeDefined();
+
+    const lowStock = await request(app.getHttpServer())
+      .get('/api/dashboard/low-stock')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(Array.isArray(lowStock.body)).toBe(true);
+
+    const chart = await request(app.getHttpServer())
+      .get('/api/dashboard/chart')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(Array.isArray(chart.body)).toBe(true);
+    expect(chart.body).toHaveLength(7);
   });
 });

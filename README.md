@@ -62,11 +62,11 @@ sequenceDiagram
 
     F->>A: POST /movements (JWT + payload)
     A->>P: BEGIN TRANSACTION
-    P-->>A: Saldo atual do produto
-    A->>A: Validacao (saldo >= quantidade para EXIT)
-    A->>P: INSERT movement + UPDATE product.quantity
+    A->>P: UPDATE products SET quantity = quantity - :qtd WHERE id = :id AND quantity >= :qtd
+    P-->>A: linhas afetadas (0 = saldo insuficiente)
+    A->>P: INSERT movement
     A->>P: COMMIT
-    A->>R: DEL dashboard:summary, dashboard:low-stock
+    A->>R: DEL dashboard:summary, dashboard:chart, dashboard:low-stock
     A-->>F: 201 { movement, updatedStock }
 ```
 
@@ -94,6 +94,7 @@ sequenceDiagram
 6. Invalidacao automatica de chaves do cache no Redis sempre que uma movimentacao ou produto e criado.
 7. Exportacao de relatorios com protecao contra execucao de macros maliciosas (CSV Injection).
 8. Documentacao da API disponivel e interativa via Swagger.
+9. Restauracao dos dados de demonstracao por endpoint/admin, mantendo a demo sempre apresentavel.
 
 ## Decisoes tecnicas
 
@@ -154,10 +155,11 @@ Variaveis necessarias:
 | Variavel | Descricao | Exemplo |
 |---|---|---|
 | `DATABASE_URL` | String de conexao PostgreSQL | `postgresql://user:pass@postgres:5432/db` |
-| `JWT_SECRET` | Chave secreta para assinatura dos tokens | `troque-por-uma-chave-secreta-forte` |
+| `JWT_SECRET` | Chave secreta para assinatura dos tokens (min. 32 caracteres) | gerada com `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
 | `JWT_EXPIRATION` | Tempo de validade do token | `7d` |
 | `REDIS_HOST` | Endereco do servidor Redis | `redis` |
 | `REDIS_PORT` | Porta do Redis | `6379` |
+| `REDIS_PASSWORD` | Senha do Redis | `stocksnap123` |
 | `PORT` | Porta do backend | `3001` |
 | `CORS_ORIGIN` | Origem autorizada para CORS | `http://localhost:3000` |
 
@@ -186,12 +188,37 @@ npm install
 npm run dev
 ```
 
-### Credenciais de teste
+### Credenciais de demonstração
+
+Projeto de portfólio com uma conta **pública e intencional** para que qualquer
+pessoa possa testar online:
 
 | Campo | Valor |
 |---|---|
 | Email | `admin@stocksnap.com` |
 | Senha | `admin123` |
+
+```bash
+# Popular o banco localmente (idempotente)
+cd backend && npx prisma db seed
+
+# Produção: o seed só roda no boot com SEED_ON_START=true
+# (use ADMIN_PASSWORD para trocar a senha pública).
+```
+
+### Restaurar dados de demonstração
+
+Como a conta ADMIN é pública, qualquer visitante pode alterar ou apagar os dados.
+Um usuário ADMIN pode restaurar o conjunto original a qualquer momento pelo botão
+**"Restaurar demo"** na barra lateral, ou via API:
+
+```bash
+curl -X POST https://stocksnap-api.onrender.com/api/demo/reset \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+O reset é restrito a ADMIN (401 sem token, 403 para OPERATOR) e recria as 5
+categorias, 15 produtos e 6 movimentações canônicas, preservando os usuários.
 
 ## Testes
 
@@ -216,4 +243,23 @@ cd frontend && npm test
 1. Funcional e livre de impedimentos no fluxo principal.
 2. Integracao continua implantada, avaliando codigo e regressoes automaticamente.
 3. Testes automatizados ativos e sem falhas.
-4. Sistema pronto para implantacao em ambiente produtivo.
+4. Projeto de **portfolio / demonstracao**, sem clientes reais em producao.
+
+## Limitacoes e proximos passos
+
+Este projeto prioriza clareza de arquitetura e demonstracao de boas praticas. As
+limitacoes abaixo sao conhecidas e intencionalmente documentadas:
+
+1. **Sessoes JWT sem revogacao/rotacao** — nao ha refresh token nem denylist; um
+   token e valido ate expirar. Evolucao: refresh com rotacao e `jti` no Redis.
+2. **Token persistido no cliente** — o frontend guarda o JWT em `localStorage`.
+   Evolucao: mover para cookie `HttpOnly; Secure; SameSite`.
+3. **Rate limiting em memoria** — nao compartilhado entre replicas e sem ajuste de
+   `trust proxy`. Evolucao: storage no Redis e configuracao de proxy confiavel.
+4. **Agregacoes do dashboard em memoria** — `summary`/`chart` carregam linhas e
+   somam em JS. Funciona bem na escala de demonstracao; evoluir para `SUM`/`date_trunc`.
+5. **Sem idempotencia em movimentacoes** — reenvios podem duplicar registros.
+   Evolucao: `Idempotency-Key`.
+6. **Sem lazy loading do grafico** — o Recharts entra no chunk inicial do dashboard.
+7. **Rate limiting sem politica por conta** — o limite do login e apenas por IP.
+   Evolucao: contador por conta/email alem do IP.

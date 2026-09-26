@@ -63,6 +63,7 @@ model Product {
   createdAt   DateTime   @default(now()) @map("created_at")
   updatedAt   DateTime   @updatedAt      @map("updated_at")
 
+  @@index([categoryId])
   @@map("products")
 }
 
@@ -77,5 +78,8 @@ model Movement {
   user      User         @relation(fields: [userId], references: [id])
   createdAt DateTime     @default(now()) @map("created_at")
 
+  @@index([productId, createdAt])
+  @@index([userId])
+  @@index([createdAt])
   @@map("movements")
 }

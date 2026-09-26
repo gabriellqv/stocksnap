@@ -7,7 +7,6 @@ RUN npm ci
 
 COPY prisma ./prisma
 RUN npx prisma generate
-RUN npx tsc prisma/seed.ts --target ES2022 --module NodeNext --moduleResolution NodeNext --esModuleInterop
 
 COPY . .
 RUN npm run build
@@ -18,6 +17,8 @@ RUN npm prune --omit=dev
 # ===== STAGE 2: Runtime =====
 FROM node:20-alpine AS runtime
 WORKDIR /app
+
+ENV NODE_ENV=production
 
 # Cria usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs && \
@@ -33,6 +34,9 @@ USER nestjs
 EXPOSE 3001
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
-  CMD wget -qO- http://localhost:3001/api || exit 1
+  CMD wget -qO- http://localhost:3001/api/health || exit 1
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed.js && node dist/main.js"]
+# Aplica as migrations e inicia a API. O seed só roda com `SEED_ON_START=true`,
+# e usa `admin123` como credencial pública de demonstração, salvo se
+# `ADMIN_PASSWORD` for definida.
+CMD ["sh", "-c", "npx prisma migrate deploy && if [ \"$SEED_ON_START\" = \"true\" ]; then node dist/demo/seed-cli.js; fi && node dist/main.js"]

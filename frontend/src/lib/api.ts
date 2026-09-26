@@ -69,12 +69,21 @@ async function request<T>(
     headers['Authorization'] = `Bearer ${accessToken}`;
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...init,
-    headers,
-    cache: 'no-store',
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${endpoint}`, {
+      ...init,
+      headers,
+      cache: 'no-store',
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(
+      'Não foi possível conectar ao servidor da API. Verifique se o backend está em execução.',
+      0,
+    );
+  }
 
   if (response.status === 401 && !skipAuth) {
     setAccessToken(null);

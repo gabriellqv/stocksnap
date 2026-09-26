@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
-import { MovementType, Prisma } from '@prisma/client';
+import { MovementType, Prisma, Product } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { QueryMovementDto } from './dto/query-movement.dto';
@@ -32,8 +32,11 @@ export class MovementsService {
 
   /**
    * @description Registra uma nova movimentação de estoque (entrada ou saída) utilizando
-   * transação atômica. Valida a existência do produto e, em caso de saída, verifica
-   * se há saldo suficiente antes de iniciar a transação.
+   * transação atômica. Para saídas, a checagem de saldo é repetida *dentro* da transação
+   * por meio de um UPDATE condicional (`quantity >= dto.quantity`), o que elimina a
+   * condição de corrida entre requisições concorrentes e torna impossível deixar o saldo
+   * negativo — mesmo sob concorrência. A verificação fora da transação é apenas um
+   * "fast-path" para evitar abrir uma transação quando o saldo já é visivelmente insuficiente.
    * Após o commit, invalida o cache do dashboard para forçar dados frescos.
    *
    * @param {CreateMovementDto} dto - Payload com tipo, quantidade, motivo e ID do produto.
@@ -64,6 +67,38 @@ export class MovementsService {
     }
 
     const result = await this.prisma.$transaction(async (tx) => {
+      let updatedProduct: Product;
+
+      if (dto.type === MovementType.EXIT) {
+        const updated = await tx.product.updateMany({
+          where: {
+            id: dto.productId,
+            quantity: { gte: dto.quantity },
+          },
+          data: { quantity: { decrement: dto.quantity } },
+        });
+
+        if (updated.count === 0) {
+          const current = await tx.product.findUnique({
+            where: { id: dto.productId },
+            select: { quantity: true },
+          });
+          throw new BadRequestException(
+            `Quantidade insuficiente. Estoque atual: ${current?.quantity ?? 0}, ` +
+              `solicitado: ${dto.quantity}`,
+          );
+        }
+
+        updatedProduct = await tx.product.findUniqueOrThrow({
+          where: { id: dto.productId },
+        });
+      } else {
+        updatedProduct = await tx.product.update({
+          where: { id: dto.productId },
+          data: { quantity: { increment: dto.quantity } },
+        });
+      }
+
       const movement = await tx.movement.create({
         data: {
           type: dto.type,
@@ -76,14 +111,6 @@ export class MovementsService {
           product: { select: { name: true, sku: true } },
           user: { select: { name: true } },
         },
-      });
-
-      const quantityChange =
-        dto.type === MovementType.ENTRY ? dto.quantity : -dto.quantity;
-
-      const updatedProduct = await tx.product.update({
-        where: { id: dto.productId },
-        data: { quantity: { increment: quantityChange } },
       });
 
       return {

@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select } from '@/components/ui/select';
 import { useMovementStore } from '@/stores/movement-store';
 import { useProductStore } from '@/stores/product-store';
 
@@ -92,16 +93,16 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-surface border border-border w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-xl font-bold text-foreground">
+      <div className="bg-surface border border-border w-full max-w-md 2xl:max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="flex items-center justify-between p-6 2xl:p-8 border-b border-border">
+          <h2 className="text-xl 2xl:text-2xl font-bold text-foreground">
             Nova Movimentação
           </h2>
           <button
             onClick={onClose}
             className="p-2 text-muted hover:text-foreground hover:bg-background rounded-full transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 2xl:w-6 2xl:h-6" />
           </button>
         </div>
 
@@ -155,17 +156,25 @@ export function MovementModal({ isOpen, onClose }: MovementModalProps) {
             <label className="block text-sm font-medium text-foreground mb-1.5">
               Produto
             </label>
-            <select
-              {...register('productId')}
-              className="w-full px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:ring-2 focus:ring-accent/40 outline-none cursor-pointer"
-            >
-              <option value="">Selecione um produto...</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} (SKU: {p.sku})
-                </option>
-              ))}
-            </select>
+            <Controller
+              name="productId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  placeholder="Selecione um produto..."
+                  error={!!errors.productId}
+                  options={[
+                    { value: '', label: 'Selecione um produto...' },
+                    ...products.map((p) => ({
+                      value: p.id,
+                      label: `${p.name} (SKU: ${p.sku})`,
+                    })),
+                  ]}
+                />
+              )}
+            />
             {errors.productId && (
               <p className="text-destructive text-xs mt-1">
                 {errors.productId.message}
