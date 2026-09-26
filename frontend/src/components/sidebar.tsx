@@ -11,10 +11,12 @@ import {
   X,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
+import { useIsAdmin } from '@/hooks/use-is-admin';
 import { cn } from '@/lib/utils';
 
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/logo';
+import { ResetDemoButton } from '@/components/reset-demo-button';
 
 /**
  * @description Itens do menu lateral com rota, label e ícone Lucide correspondente.
@@ -49,6 +51,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const isAdmin = useIsAdmin();
 
   const handleLogout = () => {
     logout();
@@ -171,6 +174,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
             <ThemeToggle />
           </div>
+
+          {isAdmin && <ResetDemoButton />}
 
           <button
             type="button"

@@ -12,6 +12,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
 import { MovementsModule } from './movements/movements.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { DemoModule } from './demo/demo.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -106,6 +107,7 @@ import { AppService } from './app.service';
     ProductsModule,
     MovementsModule,
     DashboardModule,
+    DemoModule,
   ],
   controllers: [AppController],
   providers: [
