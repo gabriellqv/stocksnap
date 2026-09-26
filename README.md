@@ -94,6 +94,7 @@ sequenceDiagram
 6. Invalidacao automatica de chaves do cache no Redis sempre que uma movimentacao ou produto e criado.
 7. Exportacao de relatorios com protecao contra execucao de macros maliciosas (CSV Injection).
 8. Documentacao da API disponivel e interativa via Swagger.
+9. Restauracao dos dados de demonstracao por endpoint/admin, mantendo a demo sempre apresentavel.
 
 ## Decisoes tecnicas
 
@@ -189,19 +190,35 @@ npm run dev
 
 ### Credenciais de demonstração
 
-O seed cria um usuário administrador. A senha **não é fixa**: informe
-`ADMIN_PASSWORD` no ambiente ou o seed gerará uma senha aleatória e a exibirá
-uma única vez no console.
-
-```bash
-# Exemplo (desenvolvimento/demonstração)
-SEED_ON_START=true ADMIN_PASSWORD="uma-senha-forte" docker-compose up --build -d
-```
+Projeto de portfólio com uma conta **pública e intencional** para que qualquer
+pessoa possa testar online:
 
 | Campo | Valor |
 |---|---|
-| Email | `ADMIN_EMAIL` (padrão: `admin@stocksnap.com`) |
-| Senha | `ADMIN_PASSWORD` ou a gerada e impressa no console |
+| Email | `admin@stocksnap.com` |
+| Senha | `admin123` |
+
+```bash
+# Popular o banco localmente (idempotente)
+cd backend && npx prisma db seed
+
+# Produção: o seed só roda no boot com SEED_ON_START=true
+# (use ADMIN_PASSWORD para trocar a senha pública).
+```
+
+### Restaurar dados de demonstração
+
+Como a conta ADMIN é pública, qualquer visitante pode alterar ou apagar os dados.
+Um usuário ADMIN pode restaurar o conjunto original a qualquer momento pelo botão
+**"Restaurar demo"** na barra lateral, ou via API:
+
+```bash
+curl -X POST https://stocksnap-api.onrender.com/api/demo/reset \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+O reset é restrito a ADMIN (401 sem token, 403 para OPERATOR) e recria as 5
+categorias, 15 produtos e 6 movimentações canônicas, preservando os usuários.
 
 ## Testes
 
@@ -244,5 +261,5 @@ limitacoes abaixo sao conhecidas e intencionalmente documentadas:
 5. **Sem idempotencia em movimentacoes** — reenvios podem duplicar registros.
    Evolucao: `Idempotency-Key`.
 6. **Sem lazy loading do grafico** — o Recharts entra no chunk inicial do dashboard.
-7. **Testes e2e nao rodam no CI** — o pipeline cobre lint, testes unitarios e build.
-   Evolucao: subir Postgres/Redis no CI e executar a suite e2e.
+7. **Rate limiting sem politica por conta** — o limite do login e apenas por IP.
+   Evolucao: contador por conta/email alem do IP.
